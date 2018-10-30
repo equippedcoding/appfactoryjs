@@ -1,0 +1,116 @@
+#email-table {
+	height:80%;
+    overflow: auto;
+}
+
+
+.email-cotent {
+	height: 35%;
+	width: 35%;
+    overflow: auto;
+}
+
+/*
+tbody {
+	height: 80%;
+    overflow: auto;
+}
+table tbody, table thead
+{
+    display: block;
+}
+table tbody 
+{
+   overflow: auto;
+   height: 100%;
+}
+*/
+
+
+
+
+
+/*-----------------------------------------*/
+/*-----------------------------------------*/
+/*-----------------------------------------*/
+/*-----------------------------------------*/
+/*-----------------------------------------*/
+
+#send-an-email-message{
+	width:100%;
+}
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+    
+    margin-left: 40%;
+    margin-top: 8%;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.message-options-div {
+	width: 15%;
+    margin-left: 1%;
+}
+.message-options-btn {
+	width: 80%;
+}
+
+.folder-nav-list{
+	width:100%
+}
+
+
+#div-folder-navbar{
+	padding:0;
+}
+.verticalLine {
+    border: solid black;
+    width: 100%;
+}
+#li-divider-id {
+    width: 100%;
+}
+hr { 
+    display: block;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-style: inset;
+    border-width: 1px;
+}
+
+.delete-move-btns {
+	width: 25%;
+    margin-left: 5%;
+}
+.message-checkbox {
+	margin-left: 40%;
+    margin-top: 25%;
+}
+
+@media screen and (max-width: 768px){
+	.message-options-div {
+		width: 40%;
+	    margin-left: 1%;
+	    margin-top: 1%;
+	}
+	#email-folders-nav{
+		width:100%
+	}
+	#email-folder-new-folder{
+		margin-left:5%;
+	}
+	.folder-list{
+		margin-left:10%;
+	}
+}
