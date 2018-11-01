@@ -3,7 +3,6 @@ AppFactoryStart.main("js/config/config.json",{
 	require: []
 },function(){ 
 
-	
 
 
 
