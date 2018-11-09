@@ -11,7 +11,7 @@
 *
 * @author Joseph Mitchell
 * @license BSD-2-Clause
-* @version 0.0.1 
+* @version 0.0.1   
 */
 (function (root, factory) {             
 	/*global define*/
@@ -37,7 +37,7 @@
 
 // 9999 - components
 // 0000 - implemention
-// 4444 - needs adjustments
+// 4444 - incomplete
 // 2222 - Utils
 
 /*
@@ -922,7 +922,7 @@ ComponentFactory.prototype = {
 	stub: function(opts){},
 
 	/**
-	*
+	* Create a new button component
 	*/
 	button: function(opts){
 		return new ButtonComponent(opts);
@@ -945,17 +945,10 @@ ComponentFactory.prototype = {
 	},
 
 	/**
-	*
+	* Create a nvaigaiton component
 	*/
 	navigation: function(obj){
 		return new NavigationComponent(obj);
-	},
-
-	/**
-	*
-	*/
-	html: function(obj){
-		
 	},
 
 	/**
@@ -965,141 +958,327 @@ ComponentFactory.prototype = {
 		return new FormComponent(obj);
 	},
 
+	/**
+	* Create a new list component
+	*/
+	list: function(opts){
+		return new ListComponent(opts);
+	},
+
+	/**
+	*
+	*/
+	dialog: function(opts){
+		return new DialogComponent(opts);
+	},
 
 };
 
-
-
-
-
-
-// var form = cm.form({
-// 	id: "",
-// 	className: ""
-// });
-// form.addInput({
-// 	layout: "",
-// 	label: "",
-// 	paramName: "",
-// 	focusout: function(obj){
-
-// 	},
-// 	focusin: function(obj){
-
-// 	},
-// 	keyup: function(obj){
-
-// 	},
-// 	keydown: function(obj){
-
-// 	},
-// 	listener: {
-// 		type: 'keydown|keyup|focusin|focusout',
-// 		function(obj){
-
-// 		}
-// 	},
-// 	validation: {
-// 		required: {
-// 			error: "",
-// 			success: ""
-// 		},
-// 		min: {
-// 			number: 5,
-// 			error: "",
-// 			success: ""
-// 		},
-// 		max: {
-// 			number: 15,
-// 			error: "",
-// 			success: ""
-// 		},
-// 		characters: {
-// 			except: [],
-//			special: [true,'']
-// 			error: "",
-// 			success: ""
-// 		}
-// 	}
-// });
-// form.onSubmit(function(obj){
-
-// });
-// form.build();
 
 
 // 9999
-function FormElement(){
+/** @exports DialogComponent
+* @classdesc Creates a dialog component
+* @class
+* @constructor
+* @tutorial 04-building_forms
+*/
+function DialogComponent(opts){
+	opts = (Utils.isNull(opts)) ? {} : opts;
+	_.extend(this,
+		new AppFactoryManager('DialogComponent'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager(this)
+	);
+	applicationManager.register(this);
+	var main_container = Utils.createElement({ id:this.getId() });
+	applicationManager.setComponent(this);
+
+	this._props_._container_id = this._props_._id;
+
+	$('body').append(Utils.createElement({
+		id: this._props_._container_id
+	}));
+
+	this.getHtml = function(){
+		return this._props_._dialog;
+	}
+}
+DialogComponent.prototype = {
+
+	/**
+	* Toggle modal dialog
+	*
+	*/
+	toggle: function(){
+		$("#"+this._props_._modal_id).modal({show:true});
+	},
+
+	/**
+	* Set the content of the dialog
+	*
+	*/
+	setContent: function(opts){
+		ListComponent_setContent(opts,this);
+	}
+}
+// 4444 - dynamically change content of dialog
+function ListComponent_setContent(opts,self){
+	if(Utils.isNull(opts.type)){
+		opts.type = 'normal';
+	}
+
+	$("#"+self._props_._container_id).empty();
+	var createElement = Utils.createElement;
+	var compDefaults = ComponentDefaults(opts,self);
+	if(opts.type=='normal'){
+		normal();
+	}else if(opts.type=='mobile'){
+
+	}
+
+	function normal(){
+		var topDiv = createElement({
+			className: 'modal fade',
+			id: compDefaults.id,
+			tabindex: "-1",
+			role: "dialog"
+		});
+
+		if(Utils.isNull(opts.title)){
+			opts.title = "";
+		}
+
+		self._props_._modal_id = compDefaults.id;
+
+		var modalDiv = createElement({
+			className: 'modal-dialog',
+			role: 'document'
+		});
+
+		var modalContent = createElement({
+			className: 'modal-content'
+		});
+		var modalHeaderDiv = createElement({
+			className: 'modal-header'
+		});
+		var modalHeaderTitle = createElement({
+			el: 'h5',
+			className: 'modal-title',
+			innerHTML: opts.title
+		});		
+
+		var exitBtn = createElement({
+			el: 'button',
+			className: 'close',
+			'data-dismiss': 'modal',
+			innerHTML: '<span aria-hidden="true">&times;</span>'
+		});
+
+		modalHeaderDiv.appendChild(modalHeaderTitle);
+		modalHeaderDiv.appendChild(exitBtn);
+		modalContent.appendChild(modalHeaderDiv);
+
+		var modalBody = createElement({
+			className: 'modal-body'
+		});
+		modalDiv.appendChild(modalContent);
+		if(!Utils.isNull(opts.body)){	
+			var mBody = getModalBody();
+			modalBody.appendChild(mBody.cloneNode(true));
+			modalContent.appendChild(modalBody);
+		}
+
+		// 1212
+
+		topDiv.appendChild(modalDiv);
+		self._props_._dialog = topDiv;
+
+		$('#'+self._props_._container_id).append(topDiv);
+	}
+	function getModalBody(){
+		var mBody;
+		if(typeof opts.body === 'object'){
+			if(opts.body.TYPE!=undefined){
+				mBody = opts.body.getHtml();
+			}else{
+				mBody = opts.body;
+			}
+		}else if(typeof opts.body === 'string'){
+			mBody = Utils.convertStringToHTMLNode(opts.body);
+		}
+		return mBody;
+	}
+	function mobile(){
+		
+	}
+}
+
+
+
+
+
+// 9999
+/** @exports ListComponent
+* @classdesc Creates a list component
+* @class
+* @constructor
+* @tutorial 04-building_forms
+*/
+function ListComponent(opts){
+
+	// First default the incoming object
+	opts = (Utils.isNull(opts)) ? {} : opts;
+
+	// extend any necassary classes
+	_.extend(this,
+		new AppFactoryManager('ListComponent'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager(this)
+	);
+	applicationManager.register(this);
+	var main_container = Utils.createElement({ id:this.getId() });
+	applicationManager.setComponent(this);
+
+
+	var self = this;
+	var compDefaults = ComponentDefaults(opts,this);
+	var createElement = Utils.createElement;
+	var list_container = createElement({
+		el: 'ul',
+		className: "list-group "+compDefaults.className,
+		id: compDefaults.id,
+		style: compDefaults.style
+	});
+	main_container.appendChild(list_container);
+	this._props_._main_container = main_container;
+	this._props_._list_container = list_container;
+	this._props_._active_items = [];
+
+	self._props_._single_selection = false;
+	if(!Utils.isNull(opts.selectionSingle)){
+		self._props_._single_selection = opts.selectionSingle;
+	}
+
+	
+	this.getHtml = function(){
+		return self._props_._main_container;
+	}
+
 
 }
-FormElement.prototype = {
+ListComponent.prototype = {
+
+
+	/**
+	* Add list item to List Component 
+	*
+	* @param {Object} - options
+	*/
+	item: function(opts){
+
+		var self = this;
+
+		var compDefaults = ComponentDefaults(opts,this);
+		var createElement = Utils.createElement;
+
+		var active = "";
+		if(!Utils.isNull(opts.active)){
+			if(opts.active){
+				active = "active"
+			}
+		}
+
+		var a = createElement({
+			el: 'li',
+			className: "list-group-item list-group-item d-flex justify-content-between align-items-center list-group-item-action "+active+" "+compDefaults.className,
+			id: compDefaults.id,
+			style: compDefaults.style,
+			href: compDefaults.href,
+			innerHTML: compDefaults.label
+		});
+
+
+		if(!Utils.isNull(opts.badge)){
+
+			var badge = createElement({
+				el: 'span',
+				className: 'badge badge-primary badge-pill',
+				innerHTML: opts.badge.value
+			});
+			a.appendChild(badge);
+		}
+
+		self._props_._list_container.appendChild(a);
+
+		//<span class="badge badge-primary badge-pill">14</span>
+
+		//_Utils_registerListenerCallback(opts,self);
+
+		_Utils_registerListenerCallbackForSelf('run','',function(){
+			$("#"+compDefaults.id).click(function(e){
+				e.preventDefault();
+
+				if(!Utils.isNull(opts.listener)){
+					opts.listener();
+				}
+
+				if(self._props_._single_selection){
+					var currentActiveItem = self._props_._active_items[0];
+					if(!Utils.isNull(currentActiveItem)){
+						$("#"+currentActiveItem).removeClass('active');
+					}
+					$("#"+compDefaults.id).addClass('active');
+					self._props_._single_selection[0] = compDefaults.id;
+					self._props_._active_items[0] = compDefaults.id;
+				}else{
+					if(self._props_._active_items.includes(compDefaults.id)){
+						var index = self._props_._active_items.indexOf(compDefaults.id);
+						
+						if (index > -1) {
+						    self._props_._active_items.splice(index, 1);
+						}
+						$("#"+compDefaults.id).removeClass('active');
+
+					}else{
+						self._props_._active_items.push(compDefaults.id);
+						$("#"+compDefaults.id).addClass('active');
+					}
+				}
+			});
+
+		},self);
+
+
+
+
+// <div class="list-group">
+//   <a href="#" class="list-group-item list-group-item-action active">
+//     Cras justo odio
+//   </a>
+//   <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+//   <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+//   <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
+//   <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+// </div>
+
+
+	}
 
 };
+
+
 
 // 9999
 function FormEventsHandler(obj,formElement,self){
 	FormEventsHandler_constructor(obj,formElement,self,this);
-
-	var preventDefault = false;
-	var stopPropagation = false;
-	if(!Utils.isNull(obj.focusin)){
-		_Utils_registerListenerCallbackForSelf(
-			"focusin",
-			formElement.selector,
-			obj.focusin,
-			self,
-			preventDefault,
-			stopPropagation
-		);
-	}
-	if(!Utils.isNull(obj.focusout)){
-		_Utils_registerListenerCallbackForSelf(
-			"focusout",
-			formElement.selector,
-			obj.focusin,
-			self,
-			preventDefault,
-			stopPropagation
-		);
-		
-	}
-	if(!Utils.isNull(obj.keyup)){
-		_Utils_registerListenerCallbackForSelf(
-			"keyup",
-			formElement.selector,
-			obj.focusin,
-			self,
-			preventDefault,
-			stopPropagation
-		);
-		
-	}
-	if(!Utils.isNull(obj.keydown)){
-		_Utils_registerListenerCallbackForSelf(
-			"keydown",
-			formElement.selector,
-			obj.focusin,
-			self,
-			preventDefault,
-			stopPropagation
-		);
-		
-	}
-	if(!Utils.isNull(obj.mouseover)){
-		_Utils_registerListenerCallbackForSelf(
-			"mouseover",
-			formElement.selector,
-			obj.focusin,
-			self,
-			preventDefault,
-			stopPropagation
-		);
-		
-	}
 }
-FormEventsHandler.prototype = {
-};
+FormEventsHandler.prototype = {};
 
+
+function ComponentDefaults(obj,self){
+	return new FormComponentDefaults(obj,self);
+}
 
 // 9999
 function FormComponentDefaults(obj,self){
@@ -1126,6 +1305,12 @@ function FormComponentDefaults(obj,self){
 		}
 	}
 
+	var href = "#";
+	if(!Utils.isNull(obj.href)){
+		href = obj.href;
+	}
+	this.href = href;
+
 	if(obj.selector!=undefined){
 		if(obj.selector.charAt(0)!="#" && obj.selector.charAt(0)!="."){
 			selector = "#"+obj.selector;
@@ -1150,6 +1335,13 @@ function FormComponentDefaults(obj,self){
 		id = Utils.randomGenerator(12,false)
 	}
 
+	var remember = false;
+	if(!Utils.isNull(obj.remember)){
+		remember = obj.remember;
+	}
+
+
+	this.remember = remember;
 	this.id = id;
 	this.tag = tag;
 	this.selector = selector;
@@ -1241,6 +1433,7 @@ FormValidationDefaults.prototype = {
 	}
 };
 
+
 // 9999
 /** @exports FormComponent
 * @classdesc Creates a form component
@@ -1249,6 +1442,22 @@ FormValidationDefaults.prototype = {
 * @tutorial 04-building_forms
 */
 function FormComponent(obj){
+	if(Utils.isNull(obj)){
+		console.error("Tag is required for form component!");
+		return;
+	}
+	var tag = "";
+	if(typeof obj === 'string'){
+		tag = obj;
+		obj = {};
+	}else{
+		if(Utils.isNull(obj.tag)){
+			console.error("Tag is required for form component!");
+			return;
+		}else{
+			tag = obj.tag;
+		}
+	}
 	obj = (Utils.isNull(obj)) ? {} : obj;
 	_.extend(this,
 		new AppFactoryManager('FormComponent'), 
@@ -1257,6 +1466,8 @@ function FormComponent(obj){
 	);
 	applicationManager.register(this);
 
+	var self = this;
+
 	FormComponent_constructor(obj,this);
 
 	this.getHtml = function(){
@@ -1264,9 +1475,79 @@ function FormComponent(obj){
 	};
 
 	applicationManager.setComponent(this);
+
+	var isSet = sessionStorage.getItem(tag);
+	if(Utils.isNull(isSet)){
+		sessionStorage.setItem(tag,JSON.stringify({}));
+	}
+
+	this._props_._tag = tag;
+	this._props_._prevent_remember = false;
+	
+	this._props_._setRemeber = function(_tagId,_value){
+		if(self._props_._prevent_remember) return;
+		var rmb = sessionStorage.getItem(tag);
+		if(!Utils.isNull(rmb)){
+			rmb = JSON.parse(rmb);
+			rmb[_tagId] = _value;
+			sessionStorage.setItem(tag,JSON.stringify(rmb));
+		}else{
+			console.log('Value Not saved');
+		}
+
+	};
+	this._props_._getRemeber = function(_tagId){
+		if(self._props_._prevent_remember) return null;
+		var rmb = sessionStorage.getItem(tag);
+		rmb = JSON.parse(rmb);
+		return rmb[_tagId];
+	};
+	this._props_._stopRemembering = function(){
+		if(self._props_._prevent_remember) return;
+		sessionStorage.setItem(tag,JSON.stringify({}));
+	};
+
 }
 
 FormComponent.prototype = {
+
+	// 4444 - 
+	showElement: function(){},
+	hideElement: function(){},
+
+	/** 
+	* Clear form fields.
+	*
+	*/
+	clearForm: function(){
+		var form_data = this._props_._form_data;
+		for(var i in form_data){
+			var form = form_data[i];
+			var formElement = form.formElement;
+			if(form.type=='input'){
+				$(formElement.selector).val("");
+			}
+		}
+	},
+
+	/** 
+	* If the form elements are set to remember their values
+	* after page refresh or any other changes this will stop 
+	* last remembered values.
+	*
+	*/
+	stopRemembering: function(){
+		sessionStorage.setItem(this._props_._tag,JSON.stringify({}));
+	},
+
+	/**
+	* Even if remember is set form will not remember values.
+	* 
+	*/
+	preventRemembering: function(remember){
+		this._props_._prevent_remember = remember;
+	},
+
 
 	/**
 	* Update and/or change value of form element. A tag must be assigned
@@ -1304,11 +1585,35 @@ FormComponent.prototype = {
 	},
 
 	/**
+	* Add selection to this form.
+	* @param {Object} - options
+	*/
+	addSelection: function(opts){
+		FormComponent_addSelection(opts,this);
+	},
+
+	/**
+	* Add selection of US states to this form.
+	* @param {Object} - options
+	*/
+	addStateSelection: function(opts){
+		FormComponent_addStateSelection(opts,this);
+	},
+
+	/**
+	* Add date picker to this form.
+	* @param {Object} - options
+	*/
+	addDatePicker: function(opts){
+		FormComponent_datePicker(opts,this);
+	},
+
+	/**
 	* Builds the form. Must be called before form can be used.
 	*
 	*/
-	build: function(){
-		FormComponent_build(this);
+	build: function(pages){
+		FormComponent_build(pages,this);
 	},
 
 	/**
@@ -1332,259 +1637,6 @@ FormComponent.prototype = {
 };
 
 
-// 1212
-function FormComponent_addRadioButtonGroup(opts,self){
-	var formElement = new FormComponentDefaults(opts,self);
-	var tag = formElement.tag;
-
-	var createElement = Utils.createElement;
-	var topDiv = createElement();
-	if(!Utils.isNull(opts.buttons)){
-		var buttons = opts.buttons;
-		var btnElements = [];
-		for(var i=0; i<buttons.length; i++){
-			var button = buttons[i];
-			var defaults = new FormComponentDefaults(button,self);
-			var div = createElement({
-				className: 'form-check'
-			});
-			var label = createElement({
-				el: 'label',
-				for: defaults.id,
-				className: 'form-check-label',
-				innerHTML: defaults.label
-			});
-			var btn = createElement({
-				el: 'radio',
-				id: defaults.id,
-				name: formElement.name,
-				className: "form-check-input "+defaults.className,
-				style: defaults.style,
-				value: defaults.value
-			});
-			div.appendChild(btn);
-			div.appendChild(label);
-			topDiv.appendChild(div);
-		}// end of loop
-
-
-		_Utils_registerListenerCallback(opts,self);
-
-		var statusId = Utils.randomGenerator(12,false);
-		var status = Utils.createElement('span',{ id: statusId });
-		topDiv.appendChild(status);
-		var compContainer = new ContainerComponent({body:topDiv});
-
-		var form_handler = self._props_._form_handler;
-		var event_trigger_submit = self._props_._triggers.submit;
-		var event_trigger_reset = self._props_._triggers.reset;
-		compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
-			self._props_._form_data[tag].status = 2;
-			initializeValidationAndValues();
-			self._props_._form_data[tag].status = 1;
-		});
-		compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
-			self._props_._form_data[tag].status = 0;
-		});
-
-		function initializeValidationAndValues(){
-			var paramName = formElement.paramName;
-			var radioValue = $("input[name='"+formElement.name+"']:checked").val();
-			if (!Utils.isNull(radioValue)){
-				self._props_._values[paramName] = radioValue;
-			}else{
-				self._props_._values[paramName] = formElement.defaultValue;
-			}
-		}
-
-		self._props_._form_data[tag] = {
-			paramName: formElement.paramName,
-			component: compContainer,
-			type: 'radio',
-			formElement: formElement,
-			status: 0,
-			statusId: statusId,
-			isValid: true
-		};
-	}
-
-
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-//   <label class="form-check-label" for="exampleRadios1">
-//     Default radio
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-//   <label class="form-check-label" for="exampleRadios2">
-//     Second default radio
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
-//   <label class="form-check-label" for="exampleRadios3">
-//     Disabled radio
-//   </label>
-// </div>
-
-
-}
-function FormComponent_addCheckBoxGroup(opts,self){
-
-	if(Utils.isNull(opts.checkboxes)){
-		console.error('No checkboxes option provided!');
-		return;
-	}
-
-	var formElement = new FormComponentDefaults(checkbox,self);
-	var tag = formElement.tag;
-
-	var topDiv = Utils.createElement();
-	var storedCheckboxes = [];
-	for(var i = 0; i<opts.checkboxes.length; i++){
-		var checkbox = opts.checkboxes[i];
-		var formElementCheckbox = new FormComponentDefaults(checkbox,self);
-		storedCheckboxes.push({
-			checkbox: opts.checkboxes[i],
-			formElement: formElementCheckbox
-		});
-		var checkbox = Utils.createElement({
-			el: 'checkbox', 
-			id: formElementCheckbox.id,
-			value: formElementCheckbox.value,
-			name: formElementCheckbox.name,
-			selector: formElementCheckbox.selector,
-			className: "form-check-input",
-			placeholder: formElementCheckbox.placeholder,
-			style: formElementCheckbox.style
-		});
-		var label = Utils.createElement('label',{
-			for: formElementCheckbox.id,
-			className: "form-check-label",
-			innerHTML: formElementCheckbox.label
-		});
-
-		var div = Utils.createElement({
-			className: "form-check",
-		});
-		div.appendChild(checkbox);
-		div.appendChild(label);
-		topDiv.appendChild(div);
-		_Utils_registerListenerCallback(checkbox,self);
-
-	}
-	var statusId = Utils.randomGenerator(12,false);
-	var status = Utils.createElement('span',{ id: statusId });
-	topDiv.appendChild(status);
-	var compContainer = new ContainerComponent({body:topDiv});
-
-	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
-	var event_trigger_reset = self._props_._triggers.reset;
-	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
-		self._props_._form_data[tag].status = 2;
-		initializeValidationAndValues();
-		self._props_._form_data[tag].status = 1;
-	});
-	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
-		self._props_._form_data[tag].status = 0;
-	});
-	// _Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
-	// 	initializeValidationAndValues();
-	// },self,true);
-
-	function initializeValidationAndValues(){
-		var validation = new FormValidationDefaults(opts.validation);
-		for(var i = 0; i<storedCheckboxes.length; i++){
-			var checkbox = storedCheckboxes[i].checkbox;
-			var formEl = storedCheckboxes[i].formElement;
-			var paramName = formEl.name;
-			var selector = formEl.selector;
-			//console.log(paramName);
-			if ($(selector).is(":checked")){
-				self._props_._values[paramName] = checkbox.value;
-			}else{
-				self._props_._values[paramName] = formEl.defaultValue;
-			}
-		}
-	}
-
-
-	// inline: true,
-
-	// Surround rows with div's to contain them
-	// and create columns with css grid layout.
-	// !This DOES NOT actual create rows, this
-	// must be done through own css styles. This
-	// overrides the inline option.
-	// rows: 4,
-
-	// label: "Select what you want?",
-
-	// // Group these checkbox values into an object with the given name
-	// intoObject: "name_of_object",
-
-	// //required: "<p style='color:red;'>This is required!</p>",
-	// // or
-	// required: {
-	// 	min: 2,
-	// 	message: ""
-	// },
-	// checkboxes: [
-	// 	{	
-	// 		label:"One",
-	// 		value:"1",
-	// 		name: "hello1",
-	// 		defaultValue: "NOT",
-	// 		// Have this checkbox checked by default
-	// 		checked: true,
-	// 		listener: {
-	// 			type: "click",
-	// 			callback: function(){
-	// 				//alert("hello James Dog");
-	// 			}
-	// 		}
-	// 	},
-	// 	{	
-	// 		label:"Two",
-	// 		value:"2",
-	// 		name: "hello2"
-	// 	}
-	// ]
-
-	//var formElement = new FormComponentDefaults(opts,self);
-	//var compContainer = new ContainerComponent({body:layoutContainer});
-	self._props_._form_data[tag] = {
-		paramName: formElement.paramName,
-		component: compContainer,
-		type: 'checkbox',
-		formElement: formElement,
-		status: 0,
-		statusId: statusId,
-		isValid: true
-	};
-	//self._props_._values = val
-	//compContainer.listenTo(form_handler, event_trigger_submit, func) 
-	//compContainer.listenTo(form_handler, event_trigger_reset, func)
-
-
-// <div class="form-check">
-//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-//   <label class="form-check-label" for="defaultCheck1">
-//     Default checkbox
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck2" disabled>
-//   <label class="form-check-label" for="defaultCheck2">
-//     Disabled checkbox
-//   </label>
-// </div>
-
-
-
-}
 
 
 // 9999
@@ -2977,9 +3029,13 @@ function ApplicationManager_start_runInterval(self){
 			//console.log(components);
 			if(document.getElementById(components[i].id)){
 
+				//ApplicationManager_start_handleAttachEvents(comp);
+
 				// only run if component is not already apart of the 
 				// ALL_COMPONENTS object
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === false){
+					//console.log(components[i].component);
+					// 5555
 					components[i].component.initializeListeners();
 					// Add to 
 					CONNECTED_COMPONENTS.push(components[i].id);
@@ -2989,7 +3045,6 @@ function ApplicationManager_start_runInterval(self){
 				}
 			}else{
 				components[i].component.deInitializeListener();
-				if(!Utils.isNull())
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === true){
 					var index = CONNECTED_COMPONENTS.indexOf(components[i].id);
 					if (index > -1) {
@@ -3464,7 +3519,7 @@ function ViewManager_render(id,trigger,self){
 	// 	container: component_container,
 	// 	options: opts
 	// };
-
+	// 5555
 	var view = self._props_._component_containers['children'][id];
 	if(view!=null){
 		self._props_._current_view = view;
@@ -3552,6 +3607,7 @@ function ContainerComponent_constructor(obj,self){
 
 
 }
+// 5555
 function ContainerComponent_addComponent(component,isEmpty,self){
 	if( document.getElementById(self.getId()) ){
 		addToDOM();
@@ -3565,6 +3621,7 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 			$("#"+self.getId()).empty();
 		}
 		$("#"+self.getId()).append(component.getHtml());
+		component.initializeListeners();
 	}
 }
 
@@ -3716,12 +3773,201 @@ function FormComponent_getFormElements(self){
 	}
 	return elements;
 }
-function FormComponent_build(self){
-	var elements = self.getFormElements();//self._props_._form_elements;
+
+
+function FormComponent_build(pages,self){
+	if(!Utils.isNull(pages)){
+		handleFormPageBuild(pages,self);
+	}else{
+		handleFormNormalBuild(self);
+	}
+}
+function handleFormNormalBuild(self){
+	var elements = self.getFormElements();
 	for( var i=0; i<elements.length; i++ ){
 		self._props_._form.appendChild(elements[i]);
 	}
 	self._props_._form.appendChild(self._props_._submit_button.getHtml());
+}
+
+// 4444 - add layout to form pages
+// 		- handle remember through page turns
+function handleFormPageBuild(pages,self){
+	var view = new ViewManager({routable:false});
+	for(var i=0; i<pages.length; i++){
+		var page = pages[i];
+		var elements = [];
+		var viewId = "view-"+i;
+
+		add_label_to_elements(i,page,elements);
+		add_to_elements(i,page,elements);
+		var container = new ContainerComponent({body: elements});
+		add_pages(i,elements,view,page);
+		add_submit(i,pages,elements);
+		add_view(i,viewId,container,page);
+
+	}// end of loop
+
+
+	function add_label_to_elements(index,page,elements){
+		if(!Utils.isNull(page.label)){
+			if(typeof page.label === 'string'){
+				var label = Utils.createElement({
+					el: 'label',
+					innerHTML: page.label
+				});
+				elements.push(label);
+			}else{
+
+			}
+		}
+	}
+	function add_to_elements(index,page,elements){
+		for(var n=0; n<page.tags.length; n++){
+			var tag = page.tags[n];
+			var el = getFromElementFromTag(tag);
+			if(el==null) continue;
+			var formElement = el.formElement;
+			elements.push(el.component);
+		}
+	}
+	function add_submit(index,pages,elements){
+		if((index+1)==pages.length){
+			elements.push(rowCols(self._props_._submit_button.getHtml()));
+		}
+	}
+	function rowCols(el){
+		var row = Utils.createElement({
+			el: 'div',
+			style: 'margin-top: 2%;',
+			className: 'row'
+		});
+		var col = Utils.createElement({
+			el: 'div',
+			className: 'col-md-12'
+		});
+		col.appendChild(el);
+		row.appendChild(col);
+		return row;
+	}
+
+	function add_pages(index,elements,view,page){
+		//var prevBtn = new ButtonComponent({label:'Back'});
+		//var nextBtn = new ButtonComponent({label:'Next'});
+
+		var row = Utils.createElement({
+			el: 'div',
+			style: 'margin-top: 2%;',
+			className: 'row'
+		});
+		if(index>0){
+			var bb = _addBackButton();
+			var col1 = Utils.createElement({
+				el: 'div',
+				className: 'col-md-2'
+			});
+			col1.appendChild(bb.getHtml());
+			row.appendChild(col1);
+		}
+		if(index<(pages.length-1)){
+			var nb = _addNextButton();
+			var col2 = Utils.createElement({
+				el: 'div',
+				className: 'col-md-2'
+			});
+			col2.appendChild(nb.getHtml());
+			row.appendChild(col2);
+		}
+		elements.push(row);
+
+		function _addBackButton(){
+			var backLabel = "Back";
+			var backBtnStyle = "";
+			var backBtnClass = "";
+			if(!Utils.isNull(page.back)){
+				if(!Utils.isNull(page.back.label)){
+					backLabel = page.back.label;
+				}
+				if(!Utils.isNull(page.back.style)){
+					backBtnStyle = page.back.style;
+				}
+				if(!Utils.isNull(page.back.className)){
+					backBtnClass = page.back.className;
+				}
+			}
+			var backButton = new ButtonComponent({
+				label: backLabel,
+				style: "width:100%; "+backBtnStyle,
+				className: backBtnClass,
+				listener: function(e){
+					e.event.preventDefault();
+					view.render("view-"+(index-1));
+				}
+			});
+			return backButton;
+			
+		}
+
+		// next button
+		function _addNextButton(){
+			var nextLabel = "Next";
+			var nextBtnStyle = "";
+			var nextBtnClass = "";
+			if(!Utils.isNull(page.next)){
+				if(!Utils.isNull(page.next.label)){
+					nextLabel = page.next.label;
+				}
+				if(!Utils.isNull(page.next.className)){
+					nextBtnClass = page.next.className;
+				}	
+				if(!Utils.isNull(page.next.style)){
+					v = page.next.style;
+				}				
+			}
+
+			var nextButton = new ButtonComponent({
+				label: nextLabel,
+				style: "width:100%; "+nextBtnStyle,
+				className: nextBtnClass,
+				listener: function(e){
+					e.event.preventDefault();
+					view.render("view-"+(index+1));
+				}
+			});
+			return nextButton;	
+		}
+
+
+	}
+
+	function add_view(index,viewId,container,page){
+		var init = false;
+		if(index==0) init = true;
+		view.newSubView({  
+			id: viewId,
+			init: init,
+			// route: 'yes',
+			body: container
+		});
+	}
+
+
+	console.log(view.getHtml());
+	console.log(view);
+	self._props_._form.appendChild(view.getHtml());
+
+
+	function getFromElementFromTag(_tag){
+		var form_data = self._props_._form_data;
+		var element = null;
+		for(var _tag_ in form_data){
+			if(_tag_ == _tag){
+				element = form_data[_tag_];
+				break;
+			}	
+		}
+		return element;
+	}
 }
 function FormComponent_onSubmit(opts,callback,self){
 	self._props_.on_submit_options = opts;
@@ -3748,9 +3994,11 @@ function FormComponent_onSubmit(opts,callback,self){
 
 	self._props_._submit_button_id = self._props_._submit_button.getId();
 }// 1212
+// 4444 - prevent form from being submitted when pressing enter 
 function FormComponent_addInput(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var layout_classes = (opts.layout==undefined) ? "" : opts.layout;
+	var statusId = Utils.randomGenerator(12,false);
 	var layoutContainer = Utils.createElement({ className: layout_classes });
 	var label = Utils.createElement('label',{ for: formElement.id, innerHTML: formElement.label });
 	var input = FromComponent_addInput_createElement(formElement);
@@ -3760,7 +4008,6 @@ function FormComponent_addInput(opts,self){
 	layoutContainer.appendChild(status);
 	var compContainer = new ContainerComponent({body:layoutContainer});
 	var tag = formElement.tag;
-	var statusId = Utils.randomGenerator(12,false);
 	self._props_._form_data[tag] = {
 		element: layoutContainer,
 		component: compContainer,
@@ -3773,9 +4020,10 @@ function FormComponent_addInput(opts,self){
 		// 3 - fail
 		status: 0,
 		statusId: statusId,
-		isValid: true
+		isValid: true,
+		_match_cache: null,
+		_match_cache_count: 0
 	};
-
 	var form_handler = self._props_._form_handler;
 	var event_trigger_submit = self._props_._triggers.submit;
 	var event_trigger_reset = self._props_._triggers.reset;
@@ -3787,9 +4035,18 @@ function FormComponent_addInput(opts,self){
 	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
 		self._props_._form_data[tag].status = 0;
 	});
-
 	_Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
 		initializeValidationAndValues();
+	},self,true);
+
+	_Utils_registerListenerCallbackForSelf("run","",function(b){
+		// 5555
+		if(formElement.remember){
+			var value = self._props_._getRemeber(tag);
+			if(!Utils.isNull(value)){
+				$(formElement.selector).val(value);
+			}
+		}
 	},self,true);
 
 	function initializeValidationAndValues(){
@@ -3797,6 +4054,10 @@ function FormComponent_addInput(opts,self){
 		var val = $(formElement.selector).val();
 		var value = val!="" ? val : formElement.defaultValue;
 		self._props_._values[formElement.paramName] = value;
+		if(formElement.remember){
+			self._props_._setRemeber(formElement.tag,value);
+		}
+
 		if(Utils.isNull(validation)){
 			return;
 		}
@@ -3822,100 +4083,492 @@ function FormComponent_addInput(opts,self){
 			self._props_._form_data[tag]['isValid'] = _isvalid;
 			if(!_isvalid) return;
 		}
+		if(!Utils.isNull(validation.match)){
+			var _isvalid = matchValidation(val,validation);
+			self._props_._form_data[tag]['isValid'] = _isvalid;
+			if(!_isvalid) return;
+		}
 
 		// 4444
-		if(!Utils.isNull(validation.match)){
-			if(!Utils.isNull(validation.match.matches)){
-				matchGiven();
-				self._props_._form_data[tag]['isValid'] = _isvalid;
-			}
-			if(!Utils.isNull(validation.match.ajax)){
-				matchAjax();
-				self._props_._form_data[tag]['isValid'] = _isvalid;
-			}
-			function matchGiven(){
-				var matches = validation.match.matches;
+		// let user run own ajax call
+		// remove white space
+		function matchValidation(val,validation){
+			if(!Utils.isNull(validation.match)){
 				var isAMatch = false;
-
-				// determine if value is a match
-				for(var i=0; i<matches.length; i++){
-					if(val==matches[i]){
-						doesMatch = true;
-						break;
-					}
-				}
 				var _isvalid = true;
 				var doesMatch = false;
-
-				// if a match, should trigger error or success
-				if(!Utils.isNull(validation.match.doesMatch)){
-					doesMatch = validation.match.doesMatch;
+				if(!Utils.isNull(validation.match.matches)){
+					matchGiven();
+					self._props_._form_data[tag]['isValid'] = _isvalid;
 				}
-				runMatch();
+				
+				if(!Utils.isNull(validation.match.request)){
+					matchAjax(validation.match.request);
+					self._props_._form_data[tag]['isValid'] = _isvalid;
+				}
+				function matchGiven(){
+					var matches = validation.match.matches;
 
-			}
-			function matchAjax(){
-
-			}
-			function runMatch(){
-				if(isAMatch){
-					if(doesMatch){
-						_isvalid = true;
-						runSuccess();
-					}else{
-						_isvalid = false;
-						runError();
+					// determine if value is a match
+					for(var i=0; i<matches.length; i++){
+						if(val==matches[i]){
+							doesMatch = true;
+							break;
+						}
 					}
-				}else{
-					if(doesMatch){
-						_isvalid = false;
-						runError();
+
+					// if a match, should trigger error or success
+					if(!Utils.isNull(validation.match.doesMatch)){
+						doesMatch = validation.match.doesMatch;
+					}
+					runMatch();
+
+				}
+				function matchAjax(ajax){
+					var type;
+					if(Utils.isNull(ajax.type)){
+						type = "post";
 					}else{
-						_isvalid = true;
-						runSuccess();
+						type = ajax.type;
+					}
+					// set defaults
+					if(Utils.isNull(ajax.cache_count)){
+						ajax.cache_count = 5;
+					}
+
+					if(Utils.isNull(ajax.url)){
+						console.error("Please provide a valid URL");
+						return;
+					}
+					if(Utils.isNull(ajax.data)){
+						console.error("Please provide data to send to server");
+						return;
+					}
+					//if(self._props_._form_data[tag]._match_cache==null){
+					if(!Utils.isNull(ajax.cache) && ajax.cache==true){
+						var result = self._props_._form_data[tag]._match_cache;
+						if(ajax.cache_count < 0){
+							_run_ajax_call();
+						}else{
+							if(self._props_._form_data[tag]._match_cache_count == 0){
+								self._props_._form_data[tag]._match_cache_count++;
+								_run_ajax_call();
+							}else{
+								if(self._props_._form_data[tag]._match_cache_count <= ajax.cache_count){
+									self._props_._form_data[tag]._match_cache_count++;
+									_ajaxSuccess(ajax,result);
+								}else{
+									self._props_._form_data[tag]._match_cache_count = 0;
+									_run_ajax_call();
+								}
+							}
+						}
+					}else{
+						_run_ajax_call();
+					}
+
+					function _run_ajax_call(){
+						$.ajax({
+							type: type,
+							url: ajax.url, 
+							data: ajax.data,
+							success: function(result){
+								if(!Utils.isNull(ajax.sanitize)){
+									result = ajax.sanitize(result);
+									if(result==undefined){
+										console.log("Returned value from sanitize call is undefined")
+									}
+								}
+								if(!Utils.isNull(ajax.cache) && ajax.cache==true){
+									self._props_._form_data[tag]._match_cache = result;
+								}
+								_ajaxSuccess(ajax,result);
+					    	}
+						});
 					}
 				}
-			}
-			function runSuccess(){
-				if(!Utils.isNull(validation.match.success)){
-					var error = validation.match.success;
-					if(typeof success === "function"){
-						_add_error_(success(val));
+				function runMatch(){
+					if(isAMatch){
+						if(doesMatch){
+							_isvalid = true;
+							runSuccess();
+						}else{
+							_isvalid = false;
+							runError();
+						}
 					}else{
-						_add_error_(success);
+						if(doesMatch){
+							_isvalid = false;
+							runError();
+						}else{
+							_isvalid = true;
+							runSuccess();
+						}
 					}
 				}
-			}
-			function runError(){
-				if(!Utils.isNull(validation.match.error)){
-					var error = validation.match.error;
-					if(typeof error === "function"){
-						_add_error_(error(val));
-					}else{
-						_add_error_(error);
+				function runSuccess(){
+					if(!Utils.isNull(validation.match.success)){
+						var success = validation.match.success;
+						if(typeof success === "function"){
+							var s = success(val);
+							_add_success_(s);
+						}else{
+							_add_success_(success);
+						}
 					}
 				}
-			}
-
-			// match: {
-			// 	ajax: {
-			// 		url: "",
-			// 		type: "post", // default is post
-			// 		params: {username: 'james'}
-			// 	},
-			// 	matches: ["",""],
-			// 	case: false, // default is false
-			// 	error: function(value){
-			// 		return "Name: "+value+" is not available"
-			// 	},
-			// 	success: function(value){
-			// 		return "Name: "+form.input.match+" is available"
-			// 	}
-			// }
+				function runError(){
+					if(!Utils.isNull(validation.match.error)){
+						var error = validation.match.error;
+						if(typeof error === "function"){
+							_add_error_(error(val));
+						}else{
+							_add_error_(error);
+						}
+					}
+				}
+				function _ajaxSuccess(ajax,result){
+					if(typeof result === "string"){
+						result = JSON.parse(result);
+					}
+					var _is_a_match = false;
+					if(Array.isArray(result)){
+						for(var i=0; i<result.length; i++){
+							if(result[i]==val){
+								_is_a_match = true;
+								break;
+							}
+						}
+					}else if(typeof result === "object"){
+						for(var i in result){
+							if(result[i]==val){
+								_is_a_match = true;
+								break;								
+							}
+						}
+					}
+		        	if(!Utils.isNull(ajax.response)){
+		        		var handle = ajax.response(result);
+		        		console.log(handle);
+		        		if(!Utils.isNull(handle) && typeof handle === 'boolean'){
+		        			if(handle){
+		        				isAMatch = true;  
+		        				runSuccess(); 
+		        			}else{
+		        				isAMatch = false;
+		        				runError();
+		        			}
+		        		}else{
+			        		isAMatch = _is_a_match;
+			        		runMatch();
+		        		}
+		        	}else{
+		        		isAMatch = _is_a_match;
+		        		runMatch();
+		        	}
+				}
+			}// end of match validation
 		}
 	}
+
+	// 4444
 	function charactersValidation(val,validation){
-		return true;
+		var  letters = [
+		 "a","b","c","d","e","f","g","h","i","j","c","l","m","n","o"
+		,"p","q","r","s","t","u","v","w","x","y","z"
+		,"A","B","C","D","E","F","G","H","I","J","K","L","M","N"
+		,"O","P","Q","R","S","T","U","V","W","X","Y","Z"
+		];
+		var numbers = ["0","1","2","3","4","5","6","7","8","9"];
+		var special = [
+		 "!","@","#","$","%","^","&","*","(",")","-","_","+","=","~"
+		,"`","{","}","[","]","\\","|","'","\"",";",":","<",">",",","."
+		,"/","?"," "
+		];
+
+		var error = (Utils.isNull(validation.characters.error)) ? "" : validation.characters.error;
+		var success = (Utils.isNull(validation.characters.success)) ? "" : validation.characters.success;
+
+		var beginChar = validation.characters.beginWithSpecialChar;
+		var beginCharMsg = "";
+		var endChar = validation.characters.endWithSpecialChar;
+		var endCharMsg = "";
+		var allowNumbers = validation.characters.numbers;
+		var allowNumbersMsg = "";
+		var beginNum = validation.characters.beginWithNumber;
+		var beginNumMsg = "";
+		var endNum = validation.characters.endWithNumber;
+		var endNumMsg = "";
+		var lowercase = validation.characters.lowercase;
+		var lowercaseMsg = "";
+		var uppercase = validation.characters.uppercase;
+		var uppercaseMsg = "";
+		var except = validation.characters.except;
+
+		if(typeof validation.characters === 'boolean'){
+			if(validation.characters){
+				var valid = run();
+				if(!valid) return false;
+			}
+		}else if(typeof validation.characters === 'string'){
+			error = validation.characters;
+			var valid = run();
+			if(!valid) return false;
+		}else{
+			var valid = run();
+			if(!valid) return false;
+		}
+
+		function run(){
+			runSetupDefualts();
+			valid = runBeginAndEndWithNum();
+			if(valid){ 
+				valid = runBeginAndEndWithChar(); 
+			}else{ 
+				return false;
+			}
+			if(valid){ 
+				valid = runCheckSpecialCharacters(); 
+			}else{ 
+				return false;
+			}
+			if(valid){ 
+				valid = runCase();
+			}else{
+				return false;
+			}
+			_add_success_(success);
+ 			return valid
+		}
+
+		function runCase(){
+			if(!Utils.isNull(validation.characters.changeToLowerCase)){
+				val = val.toLowerCase();
+			}
+			if(!Utils.isNull(validation.characters.changeToLowerCase)){
+				val = val.toLowerCase();
+			}
+			if(!Utils.isNull(lowercase)){
+				if(lowercase){
+					_add_error_(lowercaseMsg);
+					return false;
+				}
+			}
+			if(!Utils.isNull(uppercase)){
+				if(uppercase){
+					_add_error_(uppercaseMsg);
+					return false;
+				}
+			}
+		}
+		function runBeginAndEndWithNum(){
+			var isValid = true;
+			if(!beginNum){
+				var isNumber = checkIfNumber(val.charAt(1));
+				if(isNumber){
+					isValid = false;
+					_add_error_(beginNumMsg);
+				}
+			}
+			if(!endNum){
+				var isNumber = checkIfNumber(val.charAt(1));
+				if(isNumber){
+					isValid = false;
+					_add_error_(endNumMsg);
+				}
+			}
+			return isValid;
+		}
+
+		function runBeginAndEndWithChar(){
+			var isValid = true;
+			if(!beginChar){
+				var isLetter = checkIfLetter(val.charAt(1)); 
+				var isNumber = checkIfNumber(val.charAt(1));
+				var isExcept = checkIfException(val.charAt(1));
+				if(!isLetter && !isNumber && !isExcept){
+					isValid = false;
+					_add_error_(beginCharMsg);
+				}
+			}
+			if(!endChar){
+				var isLetter = checkIfLetter(val.charAt(1)); 
+				var isNumber = checkIfNumber(val.charAt(1));
+				var isExcept = checkIfException(val.charAt(1));
+				if(!isLetter && !isNumber && !isExcept){
+					isValid = false;
+					_add_error_(endCharMsg);
+				}
+			}
+			return isValid;
+		}
+
+	
+
+		function runCheckSpecialCharacters(){
+			
+			var isValid = true;
+			for(var i=0; i<val.length; i++){
+				var breakIt = false;
+				var isLetter = checkIfLetter(val[i]);
+				
+				if(!isLetter){
+					var isNumber = checkIfNumber(val[i]);
+					if(isNumber){
+						if(!allowNumbers){
+							_add_error_(allowNumbersMsg);
+							isValid = false;
+							breakIt = true;
+						}
+					}else{
+						var _valid_special_char = checkIfException(val[i]); 
+						if(!_valid_special_char){
+							isValid = false;
+							_add_error_(error);
+							breakIt = true;
+						}
+					}
+					if(breakIt) break;
+				}
+			}
+			return isValid;
+		}
+
+		
+		function checkIfException(char){
+			var _valid_special_char = false;
+			for(var g=0; g<except.length; g++){
+				if(val[i]==except[g]){
+					_valid_special_char = true;
+				}
+			}
+			return _valid_special_char;
+		}
+		function checkIfLetter(let){
+			var _is_letter = false;
+			for(var j=0; j<letters.length; j++){
+				if(letters[j]==let){
+					_is_letter = true;
+					break;
+				}
+			}
+			return _is_letter;
+		}
+		function checkIfNumber(num){
+			var _is_num = false;
+			for(var j=0; j<numbers.length; j++){
+				if(numbers[j]==num){
+					_is_num = true;
+					break;
+				}
+			}
+			return _is_num;			
+		}
+
+
+	// characters: {
+	// 	except: [],
+	// 	beginWithSpecialChar: true,
+	// 	endWithSpecialChar: true,
+	//	numbers: true,
+	// 	beginWithNumber: true,
+	// 	endWithNumber: true,
+	//  beginWithSpace: false,
+	//  trim: false,
+	//	lowercase: true,
+	//	uppercase: true,
+	//	changeToLowerCase: true,
+	//	changeToUpperrCase: false,
+	// 	error: "",
+	// 	success: ""
+	// },
+
+		function runSetupDefualts(){
+
+			if(!Utils.isNull(validation.characters.trim)){
+				if(validation.characters.trim)
+					val = val.trim();
+			}
+			if(Utils.isNull(except)){
+				except = [];
+			}	
+			if(Utils.isNull(beginChar)){
+				beginChar = false;
+			}else{
+				if(typeof beginChar === "string"){
+					beginCharMsg = beginChar;
+					beginChar = false;
+				}else{
+					beginCharMsg = error;
+				}
+			}
+			if(Utils.isNull(endChar)){
+				endChar = true;
+			}else{
+				if(typeof endChar === "sring"){
+					endCharMsg = endChar;
+					endChar = false;
+				}else{
+					endCharMsg = error;
+				}
+			}
+			if(Utils.isNull(allowNumbers)){
+				allowNumbers = true;
+			}else{
+				if(typeof allowNumbers === "string"){
+					allowNumbersMsg = allowNumbers;
+					allowNumbers = false;
+				}else{
+					allowNumbersMsg = error;
+				}
+			}
+			if(Utils.isNull(beginNum)){
+				beginNum = true;
+			}else{
+				if(typeof beginNum === 'string'){
+					beginNumMsg = beginNum;
+					beginNum = false;
+				}else{
+					beginNumMsg = error;
+				}
+			}
+			if(Utils.isNull(endNum)){
+				endNum = true;
+			}else{
+				if(typeof endNum === "string"){
+					endNumMsg = endNum;
+					endNum = false;
+				}else{
+					endNumMsg = error;
+				}
+			}
+			if(Utils.isNull(lowercase)){
+				lowercase = true;
+			}else{
+				if(typeof lowercase === "string"){
+					lowercaseMsg = lowercase;
+					lowercase = false;
+				}else{
+					lowercaseMsg = error;
+				}
+			}
+			if(Utils.isNull(uppercase)){
+				uppercase = true;
+			}else{
+				if(typeof uppercase === "string"){
+					uppercaseMsg = uppercase;
+					uppercase = false;
+				}else{
+					uppercaseMsg = error;
+				}
+			}
+		}
+
+
+
+
+
+		return _isvalid;
 	}
 	function requiredValidation(val,validation){
 		var _isvalid = true;
@@ -3947,7 +4600,7 @@ function FormComponent_addInput(opts,self){
 		if(typeof validation.max.number !== "number"){
 			return false;
 		}
-		if(val.length<validation.max.number){
+		if(val.length>validation.max.number){
 			_isvalid = false;
 			_add_error_(validation.max.error);
 		}else{
@@ -3963,6 +4616,8 @@ function FormComponent_addInput(opts,self){
 		}else if($("#"+statusId).hasClass("valid-feedback")){
 			$("#"+statusId).removeClass("valid-feedback")
 			_add_error_1();
+		}else{
+			_add_error_1();
 		}
 		function _add_error_1(){
 			_isvalid = false;
@@ -3977,6 +4632,8 @@ function FormComponent_addInput(opts,self){
 			_add_success_1();
 		}else if($("#"+statusId).hasClass("invalid-feedback")){
 			$("#"+statusId).removeClass("invalid-feedback")
+			_add_success_1();
+		}else{
 			_add_success_1();
 		}
 		function _add_success_1(){
@@ -4031,6 +4688,7 @@ function FormComponent_addInput(opts,self){
 				validation.max.success = "";
 			}
 		}
+		return validation;
 	}
 }// end of addInput
 function FromComponent_addInput_createElement(formElement){
@@ -4044,6 +4702,862 @@ function FromComponent_addInput_createElement(formElement){
 	});
 	return input;
 }
+function FormComponent_addSelection(opts,self){
+	var formElement = new FormComponentDefaults(opts,self);
+	var tag = formElement.tag;
+	var createElement = Utils.createElement;
+	var topDiv = createElement({
+		className: "form-group"
+	});
+
+	console.log(formElement);
+	var label = createElement({
+		el: 'label',
+		for: Utils.removeSelector(formElement.selector),
+		innerHTML: formElement.label
+	});
+	var select = createElement({
+		el: 'select',
+		id: Utils.removeSelector(formElement.selector),
+		style: formElement.style,
+		className: "form-control "+formElement.className
+	});
+
+	for(var i=0; i<opts.list.length; i++){
+		var option = createElement({
+			el: 'option',
+			innerHTML: opts.list[i]
+		});
+		select.appendChild(option);
+	}
+	topDiv.appendChild(label);
+	topDiv.appendChild(select);
+	var statusId = Utils.randomGenerator(12,false);
+	var status = Utils.createElement('span',{ id: statusId });
+	topDiv.appendChild(status);
+
+	function getSelectionValue(){
+		$(formElement.selector).on('change',function(e){
+			//if(obj.changeListener){
+				var optionSelected = $("option:selected", this);
+				self._props_._values[formElement.paramName] = this.value;
+
+				console.log(this.value);
+			//}
+		});
+	}
+
+	var compContainer = new ContainerComponent({body:topDiv});
+	var form_handler = self._props_._form_handler;
+	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_reset = self._props_._triggers.reset;
+	compContainer.listenTo(form_handler, event_trigger_submit, function(){
+		self._props_._form_data[tag].status = 2;
+		initializeValidationAndValues();
+		self._props_._form_data[tag].status = 1;
+	});
+	compContainer.listenTo(form_handler, event_trigger_reset, function(){
+		self._props_._form_data[tag].status = 0;
+	});
+	self._props_._form_data[tag] = {
+		paramName: formElement.paramName,
+		component: compContainer,
+		type: 'selection',
+		formElement: formElement,
+		status: 0,
+		statusId: statusId,
+		isValid: true
+	};
+
+	_Utils_registerListenerCallbackForSelf('run','',function(){
+		getSelectionValue();
+	},self);
+
+	function initializeValidationAndValues(){
+		getSelectionValue();
+	}
+
+
+// <select>
+//   <option value="volvo">Volvo</option>
+//   <option value="saab">Saab</option>
+//   <option value="mercedes">Mercedes</option>
+//   <option value="audi">Audi</option>
+// </select>
+}
+
+function FormComponent_addStateSelection(opts,self){
+	var formElement = new FormComponentDefaults(opts,self);
+	var tag = formElement.tag;
+	var createElement = Utils.createElement;
+	var topDiv = createElement({
+		className: "form-group"
+	});
+
+	var select = Utils.convertStringToHTMLNode(_us_states(opts,formElement,self));
+	topDiv.appendChild(select);
+	var statusId = Utils.randomGenerator(12,false);
+	var status = Utils.createElement('span',{ id: statusId });
+	topDiv.appendChild(status);
+
+	var compContainer = new ContainerComponent({body:topDiv});
+	var form_handler = self._props_._form_handler;
+	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_reset = self._props_._triggers.reset;
+	compContainer.listenTo(form_handler, event_trigger_submit, function(){
+		self._props_._form_data[tag].status = 2;
+		initializeValidationAndValues();
+		self._props_._form_data[tag].status = 1;
+	});
+	compContainer.listenTo(form_handler, event_trigger_reset, function(){
+		self._props_._form_data[tag].status = 0;
+	});
+
+	_Utils_registerListenerCallbackForSelf('run','',function(){
+		getSelectionValue();
+	},self);
+
+	function initializeValidationAndValues(){
+		getSelectionValue();
+	}
+
+	self._props_._values[formElement.paramName] = formElement.defaultValue;
+
+	function getSelectionValue(){
+		$(formElement.selector).on('change',function(e){
+			var optionSelected = $("option:selected", this);
+			self._props_._values[formElement.paramName] = this.value;
+		});
+	}
+
+	self._props_._form_data[tag] = {
+		paramName: formElement.paramName,
+		component: compContainer,
+		type: 'selection',
+		formElement: formElement,
+		status: 0,
+		statusId: statusId,
+		isValid: true
+	};
+
+}
+function _us_states(opts,formElement,self){
+	function get_selecton(st1,st2,sel){
+		if(sel==st1 || sel==st2){
+			return "selected";
+		}else{
+			return "";
+		}
+	}
+	function _state_(isAbrev,abrev,fullname){
+		var i = "";
+		if(isAbrev || isAbrev==undefined){
+			i = abrev;
+		}else{
+			i = fullname;
+		}
+		return i;
+	}
+	var sel = (Utils.isNull(opts.defaultSelection)) ? "" : opts.defaultSelection;
+	var isinitial = (Utils.isNull(opts.abbr)) ? false : opts.abbr;
+	var styles = formElement.style;
+	var id = Utils.removeSelector(formElement.selector);
+	var label = formElement.label;
+	var p = "<div class='form-group'>"
+	+"<label class='control-label' for='"+id+"'>"+label+"</label><br>"
+	+"<select style='"+styles+"' id='"+id+"'>"
+	+"<option class='state-selected' value='none'></option>"
+	+"<option class='state-selected' "+get_selecton("AL","Alabama",sel)+" value='"+_state_(isinitial,"AL","Alabama")+"'>"+_state_(isinitial,"AL","Alabama")+"</option>"
+	+"<option class='state-selected' "+get_selecton("AK","Alaska",sel)+" value='"+_state_(isinitial,"AK","Alaska")+"'>"+_state_(isinitial,"AK","Alaska")+"</option>"
+	+"<option class='state-selected' "+get_selecton("AZ","Arizona",sel)+" value='"+_state_(isinitial,"AZ","Arizona")+"'>"+_state_(isinitial,"AZ","Arizona")+"</option>"
+	+"<option class='state-selected' "+get_selecton("AR","Arkansas",sel)+" value='"+_state_(isinitial,"AR","Arkansas")+"'>"+_state_(isinitial,"AR","Arkansas")+"</option>"
+	+"<option class='state-selected' "+get_selecton("CA","California",sel)+" value='"+_state_(isinitial,"CA","California")+"'>"+_state_(isinitial,"CA","California")+"</option>"
+	+"<option class='state-selected' "+get_selecton("CO","Colorado",sel)+" value='"+_state_(isinitial,"CO","Colorado")+"'>"+_state_(isinitial,"CO","Colorado")+"</option>"
+	+"<option class='state-selected' "+get_selecton("CT","Connecticut",sel)+" value='"+_state_(isinitial,"CT","Connecticut")+"'>"+_state_(isinitial,"CT","Connecticut")+"</option>"
+	+"<option class='state-selected' "+get_selecton("DE","Delaware",sel)+" value='"+_state_(isinitial,"DE","Delaware")+"'>"+_state_(isinitial,"DE","Delaware")+"</option>"
+	+"<option class='state-selected' "+get_selecton("FL","Florida",sel)+" value='"+_state_(isinitial,"FL","Florida")+"'>"+_state_(isinitial,"FL","Florida")+"</option>"
+	+"<option class='state-selected' "+get_selecton("GA","Georgia",sel)+" value='"+_state_(isinitial,"GA","Georgia")+"'>"+_state_(isinitial,"GA","Georgia")+"</option>"
+	+"<option class='state-selected' "+get_selecton("HI","Hawaii",sel)+" value='"+_state_(isinitial,"HI","Hawaii")+"'>"+_state_(isinitial,"HI","Hawaii")+"</option>"
+	+"<option class='state-selected' "+get_selecton("ID","Idaho",sel)+" value='"+_state_(isinitial,"ID","Idaho")+"'>"+_state_(isinitial,"ID","Idaho")+"</option>"
+	+"<option class='state-selected' "+get_selecton("IL","Illinois",sel)+" value='"+_state_(isinitial,"IL","Illinois")+"'>"+_state_(isinitial,"IL","Illinois")+"</option>"
+	+"<option class='state-selected' "+get_selecton("IN","Indiana",sel)+" value='"+_state_(isinitial,"IN","Indiana")+"'>"+_state_(isinitial,"IN","Indiana")+"</option>"
+	+"<option class='state-selected' "+get_selecton("IA","Iowa",sel)+" value='"+_state_(isinitial,"IA","Iowa")+"'>"+_state_(isinitial,"IA","Iowa")+"</option>"
+	+"<option class='state-selected' "+get_selecton("KS","Kansas",sel)+" value='"+_state_(isinitial,"KS","Kansas")+"'>"+_state_(isinitial,"KS","Kansas")+"</option>"
+	+"<option class='state-selected' "+get_selecton("KY","Kentucky",sel)+" value='"+_state_(isinitial,"KY","Kentucky")+"'>"+_state_(isinitial,"KY","Kentucky")+"</option>"
+	+"<option class='state-selected' "+get_selecton("LA","Louisiana",sel)+" value='"+_state_(isinitial,"LA","Louisiana")+"'>"+_state_(isinitial,"LA","Louisiana")+"</option>"
+	+"<option class='state-selected' "+get_selecton("ME","Maine",sel)+" value='"+_state_(isinitial,"ME","Maine")+"'>"+_state_(isinitial,"ME","Maine")+"</option>"
+	+"<option class='state-selected' "+get_selecton("MD","Maryland",sel)+" value='"+_state_(isinitial,"MD","Maryland")+"'>"+_state_(isinitial,"MD","Maryland")+"</option>"
+	+"<option class='state-selected' "+get_selecton("MA","Massachusetts",sel)+" value='"+_state_(isinitial,"MA","Massachusetts")+"'>"+_state_(isinitial,"MA","Massachusetts")+"</option>"
+	+"<option class='state-selected' "+get_selecton("MI","Michigan",sel)+" value='"+_state_(isinitial,"MI","Michigan")+"'>"+_state_(isinitial,"MI","Michigan")+"</option>"
+	+"<option class='state-selected' "+get_selecton("MS","Mississippi",sel)+" value='"+_state_(isinitial,"MS","Mississippi")+"'>"+_state_(isinitial,"MS","Mississippi")+"</option>"
+	+"<option class='state-selected' "+get_selecton("MO","Missouri",sel)+" value='"+_state_(isinitial,"MO","Missouri")+"'>"+_state_(isinitial,"MO","Missouri")+"</option>"
+	+"<option class='state-selected' "+get_selecton("MT","Montana",sel)+" value='"+_state_(isinitial,"MT","Montana")+"'>"+_state_(isinitial,"MT","Montana")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NE","Nebraska",sel)+" value='"+_state_(isinitial,"NE","Nebraska")+"'>"+_state_(isinitial,"NE","Nebraska")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NH","NV","Nevada",sel)+" value='"+_state_(isinitial,"NH","NV","Nevada")+"'>"+_state_(isinitial,"NH","NV","Nevada")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NH","New Hampshire",sel)+" value='"+_state_(isinitial,"NH","New Hampshire")+"'>"+_state_(isinitial,"NH","New Hampshire")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NJ","New Jersey",sel)+" value='"+_state_(isinitial,"NJ","New Jersey")+"'>"+_state_(isinitial,"NJ","New Jersey")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NM","New Mexico",sel)+" value='"+_state_(isinitial,"NM","New Mexico")+"'>"+_state_(isinitial,"NM","New Mexico")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NY","New York",sel)+" value='"+_state_(isinitial,"NY","New York")+"'>"+_state_(isinitial,"NY","New York")+"</option>"
+	+"<option class='state-selected' "+get_selecton("NC","North Carolina",sel)+" value='"+_state_(isinitial,"NC","North Carolina")+"'>"+_state_(isinitial,"NC","North Carolina")+"</option>"
+	+"<option class='state-selected' "+get_selecton("ND","North Dakota",sel)+" value='"+_state_(isinitial,"ND","North Dakota")+"'>"+_state_(isinitial,"ND","North Dakota")+"</option>"
+	+"<option class='state-selected' "+get_selecton("OH","Ohio",sel)+" value='"+_state_(isinitial,"OH","Ohio")+"'>"+_state_(isinitial,"OH","Ohio")+"</option>"
+	+"<option class='state-selected' "+get_selecton("OR","Oregon",sel)+" value='"+_state_(isinitial,"OR","Oregon")+"'>"+_state_(isinitial,"OR","Oregon")+"</option>"
+	+"<option class='state-selected' "+get_selecton("OK","Oklahoma",sel)+" value='"+_state_(isinitial,"OK","Oklahoma")+"'>"+_state_(isinitial,"OK","Oklahoma")+"</option>"
+	+"<option class='state-selected' "+get_selecton("PA","Pennsylvania",sel)+" value='"+_state_(isinitial,"PA","Pennsylvania")+"'>"+_state_(isinitial,"PA","Pennsylvania")+"</option>"
+	+"<option class='state-selected' "+get_selecton("RI","Rhode Island",sel)+" value='"+_state_(isinitial,"RI","Rhode Island")+"'>"+_state_(isinitial,"RI","Rhode Island")+"</option>"
+	+"<option class='state-selected' "+get_selecton("SC","South Carolina",sel)+" value='"+_state_(isinitial,"SC","South Carolina")+"'>"+_state_(isinitial,"SC","South Carolina")+"</option>"
+	+"<option class='state-selected' "+get_selecton("SD","South Dakota",sel)+" value='"+_state_(isinitial,"SD","South Dakota")+"'>"+_state_(isinitial,"SD","South Dakota")+"</option>"
+	+"<option class='state-selected' "+get_selecton("TN","Tennessee",sel)+" value='"+_state_(isinitial,"TN","Tennessee")+"'>"+_state_(isinitial,"TN","Tennessee")+"</option>"
+	+"<option class='state-selected' "+get_selecton("TX","Texas",sel)+" value='"+_state_(isinitial,"TX","Texas")+"'>"+_state_(isinitial,"TX","Texas")+"</option>"
+	+"<option class='state-selected' "+get_selecton("UT","Utah",sel)+" value='"+_state_(isinitial,"UT","Utah")+"'>"+_state_(isinitial,"UT","Utah")+"</option>"
+	+"<option class='state-selected' "+get_selecton("VT","Vermont",sel)+" value='"+_state_(isinitial,"VT","Vermont")+"'>"+_state_(isinitial,"VT","Vermont")+"</option>"
+	+"<option class='state-selected' "+get_selecton("VA","Virginia",sel)+"value='"+_state_(isinitial,"VA","Virginia")+"'>"+_state_(isinitial,"VA","Virginia")+"</option>"
+	+"<option class='state-selected' "+get_selecton("WA","Washington",sel)+" value='"+_state_(isinitial,"WA","Washington")+"'>"+_state_(isinitial,"WA","Washington")+"</option>"
+	+"<option class='state-selected' "+get_selecton("WV","West Virginia",sel)+" value='"+_state_(isinitial,"WV","West Virginia")+"'>"+_state_(isinitial,"WV","West Virginia")+"</option>"
+	+"<option class='state-selected' "+get_selecton("WI","Wisconsin",sel)+" value='"+_state_(isinitial,"WI","Wisconsin")+"'>"+_state_(isinitial,"WI","Wisconsin")+"</option>"
+	+"<option class='state-selected' "+get_selecton("WY","Wyoming",sel)+" value='"+_state_(isinitial,"WY","Wyoming")+"'>"+_state_(isinitial,"WY","Wyoming")+"</option>"
+
+	+"</select>";
+
+	return p;
+}
+
+// 1212
+function FormComponent_addRadioButtonGroup(opts,self){
+	var formElement = new FormComponentDefaults(opts,self);
+	var tag = formElement.tag;
+
+	var createElement = Utils.createElement;
+	var topDiv = createElement();
+	if(!Utils.isNull(opts.buttons)){
+		var buttons = opts.buttons;
+		var btnElements = [];
+		for(var i=0; i<buttons.length; i++){
+			var button = buttons[i];
+			var defaults = new FormComponentDefaults(button,self);
+			var div = createElement({
+				className: 'form-check'
+			});
+			var label = createElement({
+				el: 'label',
+				for: defaults.id,
+				className: 'form-check-label',
+				innerHTML: defaults.label
+			});
+			var btn = createElement({
+				el: 'radio',
+				id: defaults.id,
+				name: formElement.name,
+				className: "form-check-input "+defaults.className,
+				style: defaults.style,
+				value: defaults.value
+			});
+			div.appendChild(btn);
+			div.appendChild(label);
+			topDiv.appendChild(div);
+		}// end of loop
+
+
+		_Utils_registerListenerCallback(opts,self);
+
+		var statusId = Utils.randomGenerator(12,false);
+		var status = Utils.createElement('span',{ id: statusId });
+		topDiv.appendChild(status);
+		var compContainer = new ContainerComponent({body:topDiv});
+
+		var form_handler = self._props_._form_handler;
+		var event_trigger_submit = self._props_._triggers.submit;
+		var event_trigger_reset = self._props_._triggers.reset;
+		compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
+			self._props_._form_data[tag].status = 2;
+			initializeValidationAndValues();
+			self._props_._form_data[tag].status = 1;
+		});
+		compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
+			self._props_._form_data[tag].status = 0;
+		});
+
+		function initializeValidationAndValues(){
+			var paramName = formElement.paramName;
+			var radioValue = $("input[name='"+formElement.name+"']:checked").val();
+			if (!Utils.isNull(radioValue)){
+				self._props_._values[paramName] = radioValue;
+			}else{
+				self._props_._values[paramName] = formElement.defaultValue;
+			}
+		}
+
+		self._props_._form_data[tag] = {
+			paramName: formElement.paramName,
+			component: compContainer,
+			type: 'radio',
+			formElement: formElement,
+			status: 0,
+			statusId: statusId,
+			isValid: true
+		};
+	}
+
+
+// <div class="form-check">
+//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+//   <label class="form-check-label" for="exampleRadios1">
+//     Default radio
+//   </label>
+// </div>
+// <div class="form-check">
+//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+//   <label class="form-check-label" for="exampleRadios2">
+//     Second default radio
+//   </label>
+// </div>
+// <div class="form-check">
+//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
+//   <label class="form-check-label" for="exampleRadios3">
+//     Disabled radio
+//   </label>
+// </div>
+
+
+}
+function FormComponent_addCheckBoxGroup(opts,self){
+
+	if(Utils.isNull(opts.checkboxes)){
+		console.error('No checkboxes option provided!');
+		return;
+	}
+
+	var formElement = new FormComponentDefaults(checkbox,self);
+	var tag = formElement.tag;
+
+	var topDiv = Utils.createElement();
+	var storedCheckboxes = [];
+	for(var i = 0; i<opts.checkboxes.length; i++){
+		var checkbox = opts.checkboxes[i];
+		var formElementCheckbox = new FormComponentDefaults(checkbox,self);
+		storedCheckboxes.push({
+			checkbox: opts.checkboxes[i],
+			formElement: formElementCheckbox
+		});
+		var checkbox = Utils.createElement({
+			el: 'checkbox', 
+			id: formElementCheckbox.id,
+			value: formElementCheckbox.value,
+			name: formElementCheckbox.name,
+			selector: formElementCheckbox.selector,
+			className: "form-check-input",
+			placeholder: formElementCheckbox.placeholder,
+			style: formElementCheckbox.style
+		});
+		var label = Utils.createElement('label',{
+			for: formElementCheckbox.id,
+			className: "form-check-label",
+			innerHTML: formElementCheckbox.label
+		});
+
+		var div = Utils.createElement({
+			className: "form-check",
+		});
+		div.appendChild(checkbox);
+		div.appendChild(label);
+		topDiv.appendChild(div);
+		_Utils_registerListenerCallback(checkbox,self);
+
+	}
+	var statusId = Utils.randomGenerator(12,false);
+	var status = Utils.createElement('span',{ id: statusId });
+	topDiv.appendChild(status);
+	var compContainer = new ContainerComponent({body:topDiv});
+
+	var form_handler = self._props_._form_handler;
+	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_reset = self._props_._triggers.reset;
+	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
+		self._props_._form_data[tag].status = 2;
+		initializeValidationAndValues();
+		self._props_._form_data[tag].status = 1;
+	});
+	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
+		self._props_._form_data[tag].status = 0;
+	});
+	// _Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
+	// 	initializeValidationAndValues();
+	// },self,true);
+
+	function initializeValidationAndValues(){
+		var validation = new FormValidationDefaults(opts.validation);
+		for(var i = 0; i<storedCheckboxes.length; i++){
+			var checkbox = storedCheckboxes[i].checkbox;
+			var formEl = storedCheckboxes[i].formElement;
+			var paramName = formEl.name;
+			var selector = formEl.selector;
+			//console.log(paramName);
+			if ($(selector).is(":checked")){
+				self._props_._values[paramName] = checkbox.value;
+			}else{
+				self._props_._values[paramName] = formEl.defaultValue;
+			}
+		}
+	}
+
+
+	// inline: true,
+
+	// Surround rows with div's to contain them
+	// and create columns with css grid layout.
+	// !This DOES NOT actual create rows, this
+	// must be done through own css styles. This
+	// overrides the inline option.
+	// rows: 4,
+
+	// label: "Select what you want?",
+
+	// // Group these checkbox values into an object with the given name
+	// intoObject: "name_of_object",
+
+	// //required: "<p style='color:red;'>This is required!</p>",
+	// // or
+	// required: {
+	// 	min: 2,
+	// 	message: ""
+	// },
+	// checkboxes: [
+	// 	{	
+	// 		label:"One",
+	// 		value:"1",
+	// 		name: "hello1",
+	// 		defaultValue: "NOT",
+	// 		// Have this checkbox checked by default
+	// 		checked: true,
+	// 		listener: {
+	// 			type: "click",
+	// 			callback: function(){
+	// 				//alert("hello James Dog");
+	// 			}
+	// 		}
+	// 	},
+	// 	{	
+	// 		label:"Two",
+	// 		value:"2",
+	// 		name: "hello2"
+	// 	}
+	// ]
+
+	//var formElement = new FormComponentDefaults(opts,self);
+	//var compContainer = new ContainerComponent({body:layoutContainer});
+	self._props_._form_data[tag] = {
+		paramName: formElement.paramName,
+		component: compContainer,
+		type: 'checkbox',
+		formElement: formElement,
+		status: 0,
+		statusId: statusId,
+		isValid: true
+	};
+	//self._props_._values = val
+	//compContainer.listenTo(form_handler, event_trigger_submit, func) 
+	//compContainer.listenTo(form_handler, event_trigger_reset, func)
+
+
+// <div class="form-check">
+//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+//   <label class="form-check-label" for="defaultCheck1">
+//     Default checkbox
+//   </label>
+// </div>
+// <div class="form-check">
+//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck2" disabled>
+//   <label class="form-check-label" for="defaultCheck2">
+//     Disabled checkbox
+//   </label>
+// </div>
+
+}
+
+function FormComponent_datePicker(obj,self){
+	var formElement = new FormComponentDefaults(obj,self);
+	var tag = formElement.tag;
+
+	var styles = formElement.style;
+	var classes = formElement.className;
+
+	var format = (Utils.isNull(obj.format)) ? "m d y" : obj.format;
+	var seperator = (Utils.isNull(obj.seperator)) ? "/" : obj.seperator;
+
+	var required = false;
+	var id = Utils.removeSelector(formElement.selector);//(isNull(obj.id)) ? "F-"+Support.Utils.randomGenerator(22,false) : obj.id;
+	var paramName = formElement.paramName;//(isNull(obj.paramName)) ? "F-"+Support.Utils.randomGenerator(22,false) : obj.paramName;
+	
+	var label = formElement.label;//(isNull(obj.label)) ? "" : obj.label;
+
+	var mFormat = ""
+	var monthFormat = (Utils.isNull(obj.monthFormat)) ? "num" : obj.monthFormat;
+	if(monthFormat=="abbr"){
+		mFormat = ""
+			+"<option selected>Jan</option>"
+	        +"<option>Feb</option>"
+	        +"<option>Mar</option>"
+	        +"<option>Apr</option>"
+	        +"<option>May</option>"
+	        +"<option>Jun</option>"
+	        +"<option>Jul</option>"
+	        +"<option>Aug</option>"
+	        +"<option>Sep</option>"
+	        +"<option>Oct</option>"
+	        +"<option>Nov</option>"
+	        +"<option>Dec</option>";
+    }
+    if(monthFormat=="full"){
+	mFormat = ""
+		+"<option selected>January</option>"
+        +"<option>February</option>"
+        +"<option>March</option>"
+        +"<option>April</option>"
+        +"<option>May</option>"
+        +"<option>June</option>"
+        +"<option>July</option>"
+        +"<option>August</option>"
+        +"<option>September</option>"
+        +"<option>October</option>"
+        +"<option>November</option>"
+        +"<option>December</option>";
+       }
+    if(monthFormat=="num"){
+    mFormat = ""
+		+"<option selected>1</option>"
+        +"<option>2</option>"
+        +"<option>3</option>"
+        +"<option>4</option>"
+        +"<option>5</option>"
+        +"<option>6</option>"
+        +"<option>7</option>"
+        +"<option>8</option>"
+        +"<option>9</option>"
+        +"<option>10</option>"
+        +"<option>11</option>"
+        +"<option>12</option>";
+    }
+	var i =
+		""
+		//+"<form>"
+    	+"	<div class=\"nativeDatePicker\">"
+    	+"		<label for=\""+id+"\">"+label+"</label>"
+      	+"		<input type=\"date\" id=\""+id+"\" name=\""+id+"\">"
+      	+"		<span class=\"validity\"></span>"
+    	+"	</div>"
+    	+"	<p class=\"fallbackLabel\">"+label+"</p>"
+		+"	<div class=\"fallbackDatePicker\">"
+      	+"		<span>"
+        +"			<label for=\""+id+"-day\">Day:</label>"
+        +"			<select id=\""+id+"-day\" name=\"day\">"
+       	+" 			</select>"
+      	+"		</span>"
+      	+"		<span>"
+        +"			<label for=\""+id+"-month\">Month:</label>"
+        +"			<select id=\""+id+"-month\" name=\"month\">"
+        + mFormat
+        /*
+        +"				<option selected>January</option>"
+        +"				<option>February</option>"
+        +"				<option>March</option>"
+        +"				<option>April</option>"
+        +"				<option>May</option>"
+        +"				<option>June</option>"
+        +"				<option>July</option>"
+        +"				<option>August</option>"
+        +" 				<option>September</option>"
+        +"				<option>October</option>"
+        +"				<option>November</option>"
+        +"				<option>December</option>"
+        */
+        +"			</select>"
+      	+"		</span>"
+      	+"		<span>"
+        +"			<label for=\""+id+"-year\">Year:</label>"
+        +"			<select id=\""+id+"-year\" name=\"year\">"
+        +"			</select>"
+      	+"		</span>"
+      	+"	</div>";
+      	//+"</form>";
+
+
+
+    var createElement = Utils.createElement;
+	var topDiv = createElement({
+		className: "form-group"
+	});
+
+	var select = Utils.convertStringToHTMLNode(i);
+	topDiv.appendChild(select);
+	console.log(topDiv)
+	var statusId = Utils.randomGenerator(12,false);
+	var status = Utils.createElement('span',{ id: statusId });
+	topDiv.appendChild(status);
+
+
+    var statusId = Utils.randomGenerator(12,false);
+	var status = Utils.createElement('span',{ id: statusId });
+	topDiv.appendChild(status);
+	var compContainer = new ContainerComponent({body:topDiv});
+
+	var form_handler = self._props_._form_handler;
+	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_reset = self._props_._triggers.reset;
+	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
+		self._props_._form_data[tag].status = 2;
+		initializeValidationAndValues();
+		self._props_._form_data[tag].status = 1;
+	});
+	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
+		self._props_._form_data[tag].status = 0;
+	});
+
+
+	self._props_._form_data[tag] = {
+		paramName: formElement.paramName,
+		component: compContainer,
+		type: 'datePicker',
+		formElement: formElement,
+		status: 0,
+		statusId: statusId,
+		isValid: true
+	};
+
+
+	// var len = self._props_._valueIds.datePicker.length;
+	// self._props_._valueIds.datePicker[id] = {
+	// 	id: id,
+	// 	selector: "#"+id,
+	// 	paramName: paramName,
+	// 	required: required,
+	// 	format: format,
+	// 	seperator: seperator
+	// };
+
+	function initializeValidationAndValues(){
+		var y = $("#"+id+"-year").val();
+		var m = $("#"+id+"-month").val();
+		var d = $("#"+id+"-day").val();
+		
+		var date = "";
+		var f = format.split(" ");
+		for(var i=0; i<f.length; i++){
+			_setup(f[i]);
+		}
+		function _setup(fm){
+			if(fm=="y"){
+				_setdate(y);
+			}else if(fm=="m"){
+				_setdate(m);
+			}else if(fm=="d"){
+				_setdate(d);
+			}
+		}
+		function _setdate(dateString){
+			if(date==""){
+				date += dateString;
+			}else{
+				date = date+""+seperator+""+dateString;
+			}
+		}
+
+		self._props_._values[formElement.paramName] = date;
+
+	}
+
+	_Utils.registerListenerCallbackForSelf("run","",function(d){
+
+		var nativePicker = document.querySelector('.nativeDatePicker');
+		var fallbackPicker = document.querySelector('.fallbackDatePicker');
+		var fallbackLabel = document.querySelector('.fallbackLabel');
+
+		var yearSelect = document.querySelector("#"+id+"-year");
+		var monthSelect = document.querySelector("#"+id+"-month");
+		var daySelect = document.querySelector("#"+id+"-day");
+
+		// hide fallback initially
+		fallbackPicker.style.display = 'none';
+		fallbackLabel.style.display = 'none';
+
+		// test whether a new date input falls back to a text input or not
+		var test = document.createElement('input');
+		test.type = 'text';
+
+		// if it does, run the code inside the if() {} block
+		if(test.type === 'text') {
+		  // hide the native picker and show the fallback
+		  nativePicker.style.display = 'none';
+		  fallbackPicker.style.display = 'block';
+		  fallbackLabel.style.display = 'block';
+
+		  // populate the days and years dynamically
+		  // (the months are always the same, therefore hardcoded)
+		  populateDays(monthSelect.value);
+		  populateYears();
+		}
+
+		function populateDays(month) {
+		  // delete the current set of <option> elements out of the
+		  // day <select>, ready for the next set to be injected
+		  while(daySelect.firstChild){
+		    daySelect.removeChild(daySelect.firstChild);
+		  }
+
+		  // Create variable to hold new number of days to inject
+		  var dayNum;
+
+		  // 31 or 30 days?
+		  if(month === 'January' | month === 'March' | month === 'May' | month === 'July' | month === 'August' | month === 'October' | month === 'December') {
+		    dayNum = 31;
+		  } else if(month === 'April' | month === 'June' | month === 'September' | month === 'November') {
+		    dayNum = 30;
+		  } else {
+		  // If month is February, calculate whether it is a leap year or not
+		    var year = yearSelect.value;
+		    (year - 2016) % 4 === 0 ? dayNum = 29 : dayNum = 28;
+		  }
+
+		  // inject the right number of new <option> elements into the day <select>
+		  for(i = 1; i <= dayNum; i++) {
+		    var option = document.createElement('option');
+		    option.textContent = i;
+		    daySelect.appendChild(option);
+		  }
+
+		  // if previous day has already been set, set daySelect's value
+		  // to that day, to avoid the day jumping back to 1 when you
+		  // change the year
+		  if(previousDay) {
+		    daySelect.value = previousDay;
+
+		    // If the previous day was set to a high number, say 31, and then
+		    // you chose a month with less total days in it (e.g. February),
+		    // this part of the code ensures that the highest day available
+		    // is selected, rather than showing a blank daySelect
+		    if(daySelect.value === "") {
+		      daySelect.value = previousDay - 1;
+		    }
+
+		    if(daySelect.value === "") {
+		      daySelect.value = previousDay - 2;
+		    }
+
+		    if(daySelect.value === "") {
+		      daySelect.value = previousDay - 3;
+		    }
+		  }
+		}
+
+		function populateYears() {
+		  // get this year as a number
+		  var date = new Date();
+		  var year;
+		  if(Utils.isNull(obj.yearsAgo)){
+		  	year = date.getFullYear();
+		  }else{
+		  	year = date.getFullYear()-obj.yearsAgo;
+		  }
+		  
+
+		  // Make this year, and the 100 years before it available in the year <select>
+		  for(var i = 0; i <= 100; i++) {
+		    var option = document.createElement('option');
+		    option.textContent = year-i;
+		    yearSelect.appendChild(option);
+		  }
+		}
+
+		// when the month or year <select> values are changed, rerun populateDays()
+		// in case the change affected the number of available days
+		yearSelect.onchange = function() {
+		  populateDays(monthSelect.value);
+		}
+
+		monthSelect.onchange = function() {
+		  populateDays(monthSelect.value);
+		}
+
+		//preserve day selection
+		var previousDay;
+
+		// update what day has been set to previously
+		// see end of populateDays() for usage
+		daySelect.onchange = function() {
+		  previousDay = daySelect.value;
+		}
+
+
+	},self);
+
+
+	
+
+}
+
+
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+/* 0000 - FormEventsHandler */
+function FormEventsHandler_constructor(obj,formElement,self){
+	var preventDefault = false;
+	var stopPropagation = false;
+	if(!Utils.isNull(obj.focusin)){
+		_Utils_registerListenerCallbackForSelf(
+			"focusin",
+			formElement.selector,
+			obj.focusin,
+			self,
+			preventDefault,
+			stopPropagation
+		);
+	}
+	if(!Utils.isNull(obj.focusout)){
+		_Utils_registerListenerCallbackForSelf(
+			"focusout",
+			formElement.selector,
+			obj.focusin,
+			self,
+			preventDefault,
+			stopPropagation
+		);
+		
+	}
+	if(!Utils.isNull(obj.keyup)){
+		_Utils_registerListenerCallbackForSelf(
+			"keyup",
+			formElement.selector,
+			obj.focusin,
+			self,
+			preventDefault,
+			stopPropagation
+		);
+		
+	}
+	if(!Utils.isNull(obj.keydown)){
+		_Utils_registerListenerCallbackForSelf(
+			"keydown",
+			formElement.selector,
+			obj.focusin,
+			self,
+			preventDefault,
+			stopPropagation
+		);
+		
+	}
+	if(!Utils.isNull(obj.mouseover)){
+		_Utils_registerListenerCallbackForSelf(
+			"mouseover",
+			formElement.selector,
+			obj.focusin,
+			self,
+			preventDefault,
+			stopPropagation
+		);
+		
+	}
+}
+
+
 
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -4965,12 +6479,13 @@ function isEventRegistered(selector,self){
 }
 
 
+
+// 4444 - stop multiple registration of events
+
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
 	stopPropagation = (Utils.isNull(stopPropagation)) ? false : stopPropagation;
 	var alreadyRegistered = isEventRegistered(selector,self);
-	// 4444
-	//if(alreadyRegistered) return;
 	self._props_._events.push({
 		selector: selector,
 		type: type,
@@ -4996,7 +6511,6 @@ function _Utils_registerListenerCallback(obj,self){
 				for(var i=0;i<obj.callback.length;i++){
 					
 					var alreadyRegistered = isEventRegistered(obj.callback[i].selector,self);
-					//if(alreadyRegistered) continue;
 
 					var eventType = (Utils.isNull(obj.callback[i].type)) ? "click" : obj.callback[i].type;
 					//function _Utils_registerListenerCallbackForSelf(type,selector,moreData,func,self,preventDefault,stopPropagation){
