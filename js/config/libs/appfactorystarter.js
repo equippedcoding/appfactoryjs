@@ -1,16 +1,55 @@
-(function(){
+var AppFactoryStart = (function(){
 
+function a(configFile){
+	return new Promise(resolve => {
+		var rawFile = new XMLHttpRequest();
+    	rawFile.open("GET", configFile, false);
+    	rawFile.send(null); 
+    	
+    	//setTimeout(function(){
+    		resolve(rawFile.responseText)
+    	//},2000);
+	});
+}
 
-window.AppFactoryStart = { 
+function mergeToFrom(obj, src) {
+    for (var key in src) {
+        if (src.hasOwnProperty(key)) obj[key] = src[key];
+    }
+    return obj;
+}
 
+var _AppFactoryStart = {
 
-	main: function(configFile,extra,callback){
+	Capture: 'Capture',
+	NoCapture: 'NoCapture',
+	cb: null,
+	config: null,
+	main: async function(configFile,extra,callback,type){
+		if(type==this.Capture){
+			this.cb = callback;
+			this.config = setup(configFileString22);
+		}else{
+			var configFileString = await a(configFile);
+			run(configFileString);
+		}
 
-		readTextFile(configFile,function(configJSON){
+		function run(configFileString){
+			var config = setup(configFileString);
+			console.log(config);
+			requirejs.config(config.config);
+			requirejs(extra.require, function(a){
+				callback();
+			});
+		}
 
-			var config = JSON.parse(configJSON);
-
-
+		function setup(configJSON){
+			var config;
+			if(typeof configJSON === 'string'){
+				config = JSON.parse(configJSON);
+			}else{
+				config = configJSON;
+			}
 			if(extra==null || extra==undefined){
 				extra = {};
 				extra.paths = {};
@@ -25,55 +64,22 @@ window.AppFactoryStart = {
 						console.error("require object needs to be an Array");
 					}
 				}
-				if(extra.require==null || extra.paths==undefined){
+				if(extra.paths==null || extra.paths==undefined){
 					extra.paths = {};
 				}
 			}
 			config.paths = mergeToFrom(extra.paths, config.paths);
-			require.config(config);
-			require(extra.require, function(a){
-
-				console.log(a);
-
-				// if(typeof callback === "function"){
-				// 	ApplicationManager_start(callback,this);
-				// }else if(typeof callback === "boolean" && callback==true){
-				// 	ApplicationManager_start(param,this);
-				// 	pages.init();
-				// 	pages.render();
-				// 	// 5555
-				// }
-
-				callback();
-			});
-
-
-
-
-		});
-	},
-
-
+			return {
+				config: config,
+				require: extra
+			};
+		}
+	}
 };
 
 
-function mergeToFrom(obj, src) {
-    for (var key in src) {
-        if (src.hasOwnProperty(key)) obj[key] = src[key];
-    }
-    return obj;
-}
-function readTextFile(file,callback){
-     var rawFile = new XMLHttpRequest();
-     rawFile.open("GET", file, false);
-     rawFile.onreadystatechange = function (){
-        if(rawFile.readyState === 4) {
-            if(rawFile.status === 200 || rawFile.status == 0){
-                var allText = rawFile.responseText;
-                callback(allText,rawFile);
-            }
-        }
-    }
-    rawFile.send(null);    
-}
+	return _AppFactoryStart;
+
+
+
 })();
