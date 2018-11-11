@@ -3,7 +3,7 @@
 	"shim" : {},
 	"paths": {
 		"appfactory": "libs/appfactoryjs/appfactory",
-		"jquery": "libs/jquery/dist/jquery",
+		"jquery": "libs/jquery/jquery",
 		"jqueryui": "libs/jquery-ui-1.12.1/jquery-ui",
 		"underscore": "libs/underscore/underscore",
 		"backbone": "libs/backbone/backbone",
@@ -15,7 +15,7 @@
 	  	"raphael.svg":  "libs/raphael/raphael.2.1.0.svg",
 	  	"raphael.vml":  "libs/raphael/raphael.2.1.0.vml",
 	  	"raphael":      "libs/raphael/raphael.2.1.0.amd",
-		"bootstrap": "libs/bootstrap/bootstrap-amd",
+		"bootstrap": "libs/bootstrap/bootstrap.bundle",
 		"transition": "libs/bootstrap/transition",
 		"debug-addIndicators": "libs/scrollmagic/uncompressed/plugins/debug.addIndicators",
 		"scrollmagic": "libs/scrollmagic/uncompressed/ScrollMagic",

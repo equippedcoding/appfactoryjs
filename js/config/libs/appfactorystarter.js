@@ -1,7 +1,7 @@
 (function(){
 
 
-window.AppFactoryStart = {
+window.AppFactoryStart = { 
 
 
 	main: function(configFile,extra,callback){
