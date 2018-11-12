@@ -1,4 +1,4 @@
-AppFactoryStart.main("../../config.appfac.js",{
+AppFactoryStart.main("config.appfac.js",{
 	paths:{},
 	require: []
 },function(){  

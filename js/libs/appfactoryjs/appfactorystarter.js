@@ -47,6 +47,7 @@ var _AppFactoryStart = {
 			var config;
 			if(typeof configJSON === 'string'){
 				config = JSON.parse(configJSON);
+				config = config['requirejs-config'];
 			}else{
 				config = configJSON;
 			}
