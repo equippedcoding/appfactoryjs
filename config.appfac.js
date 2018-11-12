@@ -15,7 +15,7 @@
 		"body": [],
 		"scripts": {
 			"requirejs-script": "<script data-main=\"js/main.js\" src=\"js/libs/requirejs/require.js\"></script>",
-			"appfactorystarter-script": "<script src=\"js/config/libs/appfactorystarter.js\"></script>",
+			"appfactorystarter-script": "<script src=\"js/libs/appfactorystarter.js\"></script>",
 			"build-output-script":""
 		}
 	},
