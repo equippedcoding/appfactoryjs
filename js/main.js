@@ -1,7 +1,7 @@
-AppFactoryStart.main("js/config/config.json",{
+AppFactoryStart.main("../../config.appfac.js",{
 	paths:{},
 	require: []
-},function(){ 
+},function(){  
 
 
 
