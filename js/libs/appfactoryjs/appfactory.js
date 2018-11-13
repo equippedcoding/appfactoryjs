@@ -938,7 +938,7 @@ ComponentFactory.prototype = {
 	},
 
 	/**
-	* BrickComponent
+	* BrickComponent !Incomplete
 	*/
 	brick: function(obj){
 		return new BrickComponent(obj);
@@ -952,10 +952,17 @@ ComponentFactory.prototype = {
 	},
 
 	/**
-	*
+	* 
 	*/
 	form: function(obj){
 		return new FormComponent(obj);
+	},
+
+	/**
+	* fileUploader
+	*/
+	fileUploader: function(obj){
+		return new FileUploaderComponent(obj);
 	},
 
 	/**
@@ -966,11 +973,18 @@ ComponentFactory.prototype = {
 	},
 
 	/**
-	*
+	* dialog
 	*/
 	dialog: function(opts){
-		return new DialogComponent(opts);
+		return new ModalComponent(opts);
 	},
+
+	/**
+	* mobileDialog
+	*/
+	mobileDialog: function(obj){
+		return ModalDialogComponent_mobile(obj,this);
+	}
 
 };
 
@@ -983,7 +997,7 @@ ComponentFactory.prototype = {
 * @constructor
 * @tutorial 04-building_forms
 */
-function DialogComponent(opts){
+function ModalComponent(opts){
 	opts = (Utils.isNull(opts)) ? {} : opts;
 	_.extend(this,
 		new AppFactoryManager('DialogComponent'), 
@@ -1004,7 +1018,7 @@ function DialogComponent(opts){
 		return this._props_._dialog;
 	}
 }
-DialogComponent.prototype = {
+ModalComponent.prototype = {
 
 	/**
 	* Toggle modal dialog
@@ -1019,11 +1033,17 @@ DialogComponent.prototype = {
 	*
 	*/
 	setContent: function(opts){
-		ListComponent_setContent(opts,this);
+		ModalComponent_setContent(opts,this);
 	}
 }
+
+
+
+
+
+
 // 4444 - dynamically change content of dialog
-function ListComponent_setContent(opts,self){
+function ModalComponent_setContent(opts,self){
 	if(Utils.isNull(opts.type)){
 		opts.type = 'normal';
 	}
@@ -1637,6 +1657,49 @@ FormComponent.prototype = {
 };
 
 
+// 9999
+/** @exports FileUploader
+* @classdesc Creates a file upload component
+* @class
+* @constructor
+*/
+function FileUploaderComponent(opts){
+	_.extend(this,
+		new AppFactoryManager('FormComponent'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager(this)
+	);
+	applicationManager.register(this);
+	var topComponentElement = Utils.createElement({ id:this.getId() });
+	applicationManager.setComponent(this);
+	this._props_._upload_element = null;
+
+	this._props_._errorcallback = null;
+	this._props_._beforLoadcallback = null;
+	this._props_._requestHeader = [];
+	this._props_._name = "";
+	this._props_._data = [];
+
+	this._props_._fileUploadPercentElement
+
+	FormComponent_addFileUpload(opts,this);
+
+	this.getHtml = function(){
+		return this._props_._upload_element;
+	}
+}
+FileUploaderComponent.prototype = {
+
+	setRequestHeaders: function(headers){
+		this._props_._requestHeader = headers;
+	},
+	before: function(callback){
+		this._props_._beforLoadcallback = callback;
+	},
+	error: function(callback){
+		this._props_._errorcallback = callback;
+	}
+};
 
 
 // 9999
@@ -2798,16 +2861,6 @@ var Utils = {
 	    return false;
 	},
 
-	/**
-	* Determins if an array has duplicates.
-	*
-	* @param {Number} - bytes
-	* @param {Number} - maxSize
-	* @return {Object} - size:String|isOver:boolean
-	*/
-	validateFileByteSize: function(bytes,maxSize){
-		return Utils_validateFileByteSize(bytes,maxSize);
-	},
 
 	/**
 	* Truncate decimal place goo for things like 
@@ -2829,32 +2882,21 @@ var Utils = {
 	},
 
 	/**
-	* fileSizeLimit
+	* Formates bytes into either KB,MB,GB,TB,PB,EB,ZB,YB
 	*
+	* @return {Number}
 	*/
-	fileSizeLimit: function(e,element,limit,sizeToBigAlert){
-		var totalSize = 0;
-		var input = document.getElementById(element);
-		var size;
-		if(totalSize==0){
-			size = Utils.validateFileByteSize(input.files[0].size,limit);
-		}else{
-			size = Utils.validateFileByteSize(totalSize,limit);
-		}
-		//var size = Support.Utils.validateFileSize("email-file-attachment","22 mb");
-		//console.log(size);
-		if(size["isOver"]){
-			e.preventDefault();
-			if(sizeToBigAlert) alert("File is too big max size is 22MB!");
-			return false;
-		}else{
-			return true;
-		}
-		totalSize += Number(input.files[0].size);
+	formatBytes: function(bytes,decimals) {
+	   if(bytes == 0) return '0 Byte';
+	   var k = 1000; // or 1024 for binary
+	   var dm = decimals + 1 || 3;
+	   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	   var i = Math.floor(Math.log(bytes) / Math.log(k));
+	   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 	},
 
 	/**
-	* getFileSize
+	* getFileSize 
 	*
 	*/
 	getFileSize: function(file){
@@ -2882,8 +2924,11 @@ var Utils = {
 	},
 
 	/**
-	* validatefilesize
+	* Determins if files are too big.
 	*
+	* @param {Files} - file
+	* @param {String} - maxSize Bytes,KB,MB,GB,TB,PB,EB,ZB,YB
+	* @return {Object} - size:String|isOver:boolean
 	*/
 	validatefilesize: function(file, maxSize){
 		//file = input.files[0];
@@ -2906,7 +2951,7 @@ var Utils = {
 		for(var i=0;i<file.length;i++){
 			totalFileSize += Number(file[i].size);
 		}
-		var filesize = Support.Utils.formatBytes(totalFileSize);
+		var filesize = Utils.formatBytes(totalFileSize);
 		var filesizeAmount = filesize.split(" ")[0];
 		var filesizeType = filesize.split(" ")[1];
 		var fileToBig = false;
@@ -4379,7 +4424,6 @@ function FormComponent_addInput(opts,self){
 			}
 			return isValid;
 		}
-
 		function runBeginAndEndWithChar(){
 			var isValid = true;
 			if(!beginChar){
@@ -4402,9 +4446,6 @@ function FormComponent_addInput(opts,self){
 			}
 			return isValid;
 		}
-
-	
-
 		function runCheckSpecialCharacters(){
 			
 			var isValid = true;
@@ -4444,10 +4485,10 @@ function FormComponent_addInput(opts,self){
 			}
 			return _valid_special_char;
 		}
-		function checkIfLetter(let){
+		function checkIfLetter(letter){
 			var _is_letter = false;
 			for(var j=0; j<letters.length; j++){
-				if(letters[j]==let){
+				if(letters[j]==letter){
 					_is_letter = true;
 					break;
 				}
@@ -5289,7 +5330,6 @@ function FormComponent_datePicker(obj,self){
 
 	var select = Utils.convertStringToHTMLNode(i);
 	topDiv.appendChild(select);
-	console.log(topDiv)
 	var statusId = Utils.randomGenerator(12,false);
 	var status = Utils.createElement('span',{ id: statusId });
 	topDiv.appendChild(status);
@@ -5488,10 +5528,539 @@ function FormComponent_datePicker(obj,self){
 
 
 	},self);
+}
+function FormComponent_addFileUpload(opts,self){
 
+	if(Utils.isNull(opts.url)){
+		console.error("Please provide a URL");
+		return;
+	}
+
+	var url = opts.url;
+
+	var showPercent = false;
+	if(Utils.isNull(opts.percent)){
+		opts.percent = {};
+	}else{
+		showPercent = true;
+	}
+	opts.percent = _handle_percent_defaults(opts.percent);
+	function _handle_percent_defaults(p){
+		if(Utils.isNull(p.id)){
+			id: Utils.randomGenerator(12,false);
+		}
+		if(Utils.isNull(p.classes)){
+			p.classes = "";
+		}
+		if(Utils.isNull(p.style)){
+			p.style = "";
+		}
+		if(Utils.isNull(p.handle)){
+			p.handle = false;
+		}
+		if(Utils.isNull(p.el)){
+			p.el = "div";
+		}
+		return p;
+	}
+
+	// 7777
+
+
+	var containerDefaults = new ComponentDefaults(opts,self);
+	var formDefaults = new ComponentDefaults(opts.form,self);
+	var inputDefaults = new ComponentDefaults(opts.input,self);
+	var submitDefaults = new ComponentDefaults(opts.submit,self);
+
+	var createElement = Utils.createElement;
+	var topDiv = createElement({
+		className: "custom-file",
+		id: self.getId()
+	});
+	var formElement = createElement({
+		el: "form",
+		className: formDefaults.className+"",
+		id: formDefaults.id,
+		style: formDefaults.style,
+		className: formDefaults.className
+	});
+	var labelId = Utils.randomGenerator(12,false);
+	var labelElement = createElement({
+		el: "label",
+		innerHTML: containerDefaults.label,
+		className: "custom-file-label",
+		id: labelId
+	});
+	var inputId = Utils.randomGenerator(12,false);
+	var inputElement = createElement({
+		type: "file",
+		name: inputDefaults.name,
+		id: inputId,
+		style: inputDefaults.style,
+		className: inputDefaults.className+" custom-file-input"
+	});
+	var submitElement = createElement({
+		type: "submit",
+		value: submitDefaults.label,
+		name: submitDefaults.name,
+		id: submitDefaults.id,
+		className: submitDefaults.className,
+		style: submitDefaults.style
+	});
+	var percentElement = createElement({
+		el: opts.percent.el,
+		id: opts.percent.id,
+		className: opts.percent.classes,
+		style: opts.percent.style
+	});
+
+	formElement.appendChild(labelElement);
+	formElement.appendChild(inputElement);
+	formElement.appendChild(submitElement);
+	topDiv.appendChild(formElement);
+	if(showPercent){
+		topDiv.appendChild(percentElement);
+	}
+
+	self._props_._name = inputDefaults.name;
+
+	self._props_._upload_element = topDiv;
+
+
+	_Utils_registerListenerCallbackForSelf('run','',function(){
+
+		document.getElementById(inputId).onchange = function(e){
+			var fileInput = this;
+			if(fileInput.files.length>0){
+				if(!Utils.isNull(opts.characters)){
+					var doesIncludeSpaces = fileInput.files[0].name.includes(" ");
+					if(doesIncludeSpaces){
+						alert("File name cannot contain spaces");
+						return;
+					}
+				}
+				if(!Utils.isNull(opts.limit)){
+					var isOver = _handle_file_size_limit(fileInput);
+					if(isOver) return;
+ 				}else{
+					document.getElementById(labelId).innerHTML = fileInput.files[0].name;
+				}
+			}
+		};
+
+		function _handle_file_size_limit(fileInput){
+			var limit = Utils.validatefilesize(fileInput.files,opts.limit.size);
+			if(limit.isOver){
+				if(!Utils.isNull(opts.limit.func)){
+					opts.limit.func(fileInput.files[0]);
+				}
+			}else{
+				document.getElementById(labelId).innerHTML = fileInput.files[0].name;
+			}
+			return limit.isOver;
+		}
+
+		$('#'+submitDefaults.id).click(function(e){
+			e.preventDefault();
+
+			if(!Utils.isNull(opts.characters)){
+				var doesIncludeSpaces = fileInput.files[0].name.includes(" ");
+				if(doesIncludeSpaces){
+					alert("File name cannot contain spaces");
+					return;
+				}
+			}
+
+			var request = new XMLHttpRequest();
+			var fileInput = document.getElementById(inputId);
+			if(fileInput.files.length==0){
+				if(self._errorcallback!=null || self._errorcallback!=undefined){
+					var t = { type:1, message:"No File" };
+					self._errorcallback(t);
+				}
+				return false;
+			}
+
+			if(!Utils.isNull(opts.limit)){
+				var isOver = _handle_file_size_limit(fileInput);
+				if(isOver) return;
+			}
+
+			var requestHeader;
+			if(!Utils.isNull(self._props_._requestHeader)){
+				 requestHeader = self._props_._requestHeader;
+			}else{
+				 requestHeader = [];
+			}
+
+			var data = new FormData();
+			//for(var i=0; i<fileInput.files.length; i++){ data.append("files", fileInput.files[i]); }
+			for(var i=0; i<fileInput.files.length; i++){
+				data.append(self._props_._name, fileInput.files[i]); 
+			}
+
+			// if(!isNull(self._props_._data)){
+			// 	for(var d in self._props_._data){
+			// 		data.append(d,self._props_._data[d]);
+			// 	}
+			// }
+
+
+			if(self._beforLoadcallback!=null && self._beforLoadcallback!=undefined){
+				stop = self._beforLoadcallback(fileInput.files[0],stop);
+				if(stop==null || stop==undefined) stop = false;
+			}
+
+			request.upload.addEventListener('progress', function(e){
+				//$("#file-upload-form").hide();
+				if(e.lengthComputable){
+					var percent = e.loaded / e.total;
+					console.log(percent);
+			
+					if(!showPercent) return;
+					if(opts.percent.handle==false){
+						var progress = document.getElementById(opts.percent.id);
+						//if(isNull(progress)) return;
+						while(progress.hasChildNodes()){
+							progress.removeChild(progress.firstChild);
+						}
+						progress.appendChild(document.createTextNode(Math.round(percent * 100) + " %" ));
+					}else{
+						if(!Utils.isNull(opts.percent.func)){
+							opts.percent.func(percent,e);
+						}
+					}
+				}
+			});
+
+			// when upload is complete
+			request.upload.addEventListener('load', function(e){
+				self.completed = true;
+				var r = {
+					filename: self.filename,
+					self: self,
+					event: e
+				};
+				if(self._loadcallback!=null && self._loadcallback!=undefined){
+					self._loadcallback(r);
+				} 
+			});
+
+			request.upload.addEventListener('error', function(e){
+				if(self._errorcallback!=null || self._errorcallback!=undefined){
+					var t = { type:2, message:"", event:e, request:request };
+					self._errorcallback(t);
+				}
+			});
+
+			request.open("POST", url);
+			request.setRequestHeader("Cache-Control","no-cache");//enctype="multipart/form-data"
+			if(requestHeader!=null || requestHeader!=undefined){
+				for(var g=0;g<requestHeader.length;g++){
+					request.setRequestHeader(requestHeader[g].param, requestHeader[g].value);
+				}
+			}
+			request.send(data);
+		});
+
+	},self);
+}
+
+// 4444 - handle valid characters
+function charactersValidation(val,validation){
+	var _isvalid = false;
+	var  letters = [
+	 "a","b","c","d","e","f","g","h","i","j","c","l","m","n","o"
+	,"p","q","r","s","t","u","v","w","x","y","z"
+	,"A","B","C","D","E","F","G","H","I","J","K","L","M","N"
+	,"O","P","Q","R","S","T","U","V","W","X","Y","Z"
+	];
+	var numbers = ["0","1","2","3","4","5","6","7","8","9"];
+	var special = [
+	 "!","@","#","$","%","^","&","*","(",")","-","_","+","=","~"
+	,"`","{","}","[","]","\\","|","'","\"",";",":","<",">",",","."
+	,"/","?"," "
+	];
+
+	var error = (Utils.isNull(validation.characters.error)) ? "" : validation.characters.error;
+	var success = (Utils.isNull(validation.characters.success)) ? "" : validation.characters.success;
+
+	var beginChar = validation.characters.beginWithSpecialChar;
+	var beginCharMsg = "";
+	var endChar = validation.characters.endWithSpecialChar;
+	var endCharMsg = "";
+	var allowNumbers = validation.characters.numbers;
+	var allowNumbersMsg = "";
+	var beginNum = validation.characters.beginWithNumber;
+	var beginNumMsg = "";
+	var endNum = validation.characters.endWithNumber;
+	var endNumMsg = "";
+	var lowercase = validation.characters.lowercase;
+	var lowercaseMsg = "";
+	var uppercase = validation.characters.uppercase;
+	var uppercaseMsg = "";
+	var except = validation.characters.except;
+
+	if(typeof validation.characters === 'boolean'){
+		if(validation.characters){
+			var valid = run();
+			if(!valid) return false;
+		}
+	}else if(typeof validation.characters === 'string'){
+		error = validation.characters;
+		var valid = run();
+		if(!valid) return false;
+	}else{
+		var valid = run();
+		if(!valid) return false;
+	}
+
+	function run(){
+		runSetupDefualts();
+		valid = runBeginAndEndWithNum();
+		if(valid){ 
+			valid = runBeginAndEndWithChar(); 
+		}else{ 
+			return false;
+		}
+		if(valid){ 
+			valid = runCheckSpecialCharacters(); 
+		}else{ 
+			return false;
+		}
+		if(valid){ 
+			valid = runCase();
+		}else{
+			return false;
+		}
+		_add_success_(success);
+			return valid
+	}
+
+	function runCase(){
+		if(!Utils.isNull(validation.characters.changeToLowerCase)){
+			val = val.toLowerCase();
+		}
+		if(!Utils.isNull(validation.characters.changeToLowerCase)){
+			val = val.toLowerCase();
+		}
+		if(!Utils.isNull(lowercase)){
+			if(lowercase){
+				_add_error_(lowercaseMsg);
+				return false;
+			}
+		}
+		if(!Utils.isNull(uppercase)){
+			if(uppercase){
+				_add_error_(uppercaseMsg);
+				return false;
+			}
+		}
+	}
+	function runBeginAndEndWithNum(){
+		var isValid = true;
+		if(!beginNum){
+			var isNumber = checkIfNumber(val.charAt(1));
+			if(isNumber){
+				isValid = false;
+				_add_error_(beginNumMsg);
+			}
+		}
+		if(!endNum){
+			var isNumber = checkIfNumber(val.charAt(1));
+			if(isNumber){
+				isValid = false;
+				_add_error_(endNumMsg);
+			}
+		}
+		return isValid;
+	}
+	function runBeginAndEndWithChar(){
+		var isValid = true;
+		if(!beginChar){
+			var isLetter = checkIfLetter(val.charAt(1)); 
+			var isNumber = checkIfNumber(val.charAt(1));
+			var isExcept = checkIfException(val.charAt(1));
+			if(!isLetter && !isNumber && !isExcept){
+				isValid = false;
+				_add_error_(beginCharMsg);
+			}
+		}
+		if(!endChar){
+			var isLetter = checkIfLetter(val.charAt(1)); 
+			var isNumber = checkIfNumber(val.charAt(1));
+			var isExcept = checkIfException(val.charAt(1));
+			if(!isLetter && !isNumber && !isExcept){
+				isValid = false;
+				_add_error_(endCharMsg);
+			}
+		}
+		return isValid;
+	}
+	function runCheckSpecialCharacters(){
+		
+		var isValid = true;
+		for(var i=0; i<val.length; i++){
+			var breakIt = false;
+			var isLetter = checkIfLetter(val[i]);
+			
+			if(!isLetter){
+				var isNumber = checkIfNumber(val[i]);
+				if(isNumber){
+					if(!allowNumbers){
+						_add_error_(allowNumbersMsg);
+						isValid = false;
+						breakIt = true;
+					}
+				}else{
+					var _valid_special_char = checkIfException(val[i]); 
+					if(!_valid_special_char){
+						isValid = false;
+						_add_error_(error);
+						breakIt = true;
+					}
+				}
+				if(breakIt) break;
+			}
+		}
+		return isValid;
+	}
 
 	
+	function checkIfException(char){
+		var _valid_special_char = false;
+		for(var g=0; g<except.length; g++){
+			if(val[i]==except[g]){
+				_valid_special_char = true;
+			}
+		}
+		return _valid_special_char;
+	}
+	function checkIfLetter(letter){
+		var _is_letter = false;
+		for(var j=0; j<letters.length; j++){
+			if(letters[j]==letter){
+				_is_letter = true;
+				break;
+			}
+		}
+		return _is_letter;
+	}
+	function checkIfNumber(num){
+		var _is_num = false;
+		for(var j=0; j<numbers.length; j++){
+			if(numbers[j]==num){
+				_is_num = true;
+				break;
+			}
+		}
+		return _is_num;			
+	}
 
+
+// characters: {
+// 	except: [],
+// 	beginWithSpecialChar: true,
+// 	endWithSpecialChar: true,
+//	numbers: true,
+// 	beginWithNumber: true,
+// 	endWithNumber: true,
+//  beginWithSpace: false,
+//  trim: false,
+//	lowercase: true,
+//	uppercase: true,
+//	changeToLowerCase: true,
+//	changeToUpperrCase: false,
+// 	error: "",
+// 	success: ""
+// },
+
+	function runSetupDefualts(){
+
+		if(!Utils.isNull(validation.characters.trim)){
+			if(validation.characters.trim)
+				val = val.trim();
+		}
+		if(Utils.isNull(except)){
+			except = [];
+		}	
+		if(Utils.isNull(beginChar)){
+			beginChar = false;
+		}else{
+			if(typeof beginChar === "string"){
+				beginCharMsg = beginChar;
+				beginChar = false;
+			}else{
+				beginCharMsg = error;
+			}
+		}
+		if(Utils.isNull(endChar)){
+			endChar = true;
+		}else{
+			if(typeof endChar === "sring"){
+				endCharMsg = endChar;
+				endChar = false;
+			}else{
+				endCharMsg = error;
+			}
+		}
+		if(Utils.isNull(allowNumbers)){
+			allowNumbers = true;
+		}else{
+			if(typeof allowNumbers === "string"){
+				allowNumbersMsg = allowNumbers;
+				allowNumbers = false;
+			}else{
+				allowNumbersMsg = error;
+			}
+		}
+		if(Utils.isNull(beginNum)){
+			beginNum = true;
+		}else{
+			if(typeof beginNum === 'string'){
+				beginNumMsg = beginNum;
+				beginNum = false;
+			}else{
+				beginNumMsg = error;
+			}
+		}
+		if(Utils.isNull(endNum)){
+			endNum = true;
+		}else{
+			if(typeof endNum === "string"){
+				endNumMsg = endNum;
+				endNum = false;
+			}else{
+				endNumMsg = error;
+			}
+		}
+		if(Utils.isNull(lowercase)){
+			lowercase = true;
+		}else{
+			if(typeof lowercase === "string"){
+				lowercaseMsg = lowercase;
+				lowercase = false;
+			}else{
+				lowercaseMsg = error;
+			}
+		}
+		if(Utils.isNull(uppercase)){
+			uppercase = true;
+		}else{
+			if(typeof uppercase === "string"){
+				uppercaseMsg = uppercase;
+				uppercase = false;
+			}else{
+				uppercaseMsg = error;
+			}
+		}
+	}
+
+
+
+
+
+	return _isvalid;
 }
 
 
@@ -5559,6 +6128,294 @@ function FormEventsHandler_constructor(obj,formElement,self){
 
 
 
+
+
+
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+/* 0000 - ModalComponent */
+function ModalDialogComponent_mobile(){
+
+
+	function addClass(e, c) {
+		var newclass = e.className.split(" ");
+		if (e.className === "") newclass = [];
+		newclass.push(c);
+		e.className = newclass.join(" ");
+	};
+
+	function extend(source, target) {
+		for (var key in target) {
+			source[key] = target[key];
+		}
+		return source;
+	}
+
+	function getAnimationEndName(dom) {
+		var cssAnimation = ["animation", "webkitAnimation"];
+		var animationEnd = {
+			"animation": "animationend",
+			"webkitAnimation": "webkitAnimationEnd"
+		};
+		for (var i = 0; i < cssAnimation.length; i++) {
+			if (dom.style[cssAnimation[i]] != undefined) {
+				return animationEnd[cssAnimation[i]];
+			}
+		}
+		return undefined;
+	}
+	function getFontSize() {
+		var clientWidth = document.documentElement.clientWidth;
+		if (clientWidth < 640) return 16 * (clientWidth / 375) + "px";else return 16;
+	}
+
+	var layer = {
+		initOpen: function initOpen(dom, options) {
+
+			dom.style.fontSize = getFontSize();
+
+			var body = document.querySelector("body");
+			var bg = document.createElement("div");
+			addClass(bg, "dialog-mobile-bg");
+			if (options.showBottom == true) {
+				addClass(bg, "animation-bg-fadeIn");
+			}
+
+			if (options.bottom) {
+				bg.addEventListener("click", function () {
+					handleClose();
+				});
+			}
+
+			body.appendChild(bg);
+			body.appendChild(dom);
+
+			var animationEndName = getAnimationEndName(dom);
+			function handleClose() {
+				if (animationEndName) {
+					layer.close([bg]);
+					addClass(dom, options.closeAnimation);
+					dom.addEventListener(animationEndName, function () {
+						layer.close([dom]);
+					});
+				} else {
+					layer.close([bg, dom]);
+				}
+			}
+
+			//set button click event
+			options.btns.forEach(function (btn, i) {
+				if (i != 0 && i <= options.btns.length - 1) {
+					if (!options.bottom) {
+						btn.addEventListener("click", function () {
+							handleClose();
+							options.sureBtnClick();
+						});
+					} else {
+						btn.addEventListener("click", function () {
+							handleClose();
+							options.btnClick(this.getAttribute("i"));
+						});
+					}
+				} else {
+					btn.addEventListener("click", handleClose);
+				}
+			});
+
+			if (!options.bottom) {
+				//set position
+				dom.style.top = (document.documentElement.clientHeight - dom.offsetHeight) / 2 + "px";
+				dom.style.left = (document.documentElement.clientWidth - dom.offsetWidth) / 2 + "px";
+			}
+		},
+		close: function close(doms) {
+			var body = document.querySelector("body");
+			for (var i = 0; i < doms.length; i++) {
+				body.removeChild(doms[i]);
+			}
+		}
+	};
+
+	var mcxDialog = {
+		alert: function alert(content) {
+			var btn = document.createElement("div");
+			btn.innerText = "Ok";
+			addClass(btn, "dialog-button");
+
+			var opts = {};
+			opts.btns = [btn];
+
+			this.open(content, opts);
+		},
+		confirm: function confirm(content, options) {
+			var opts = {
+				sureBtnText: "Ok",
+				sureBtnClick: function sureBtnClick() {}
+			};
+			opts = extend(opts, options);
+
+			var cancelBtn = document.createElement("div");
+			cancelBtn.innerText = "Cancel";
+			addClass(cancelBtn, "dialog-cancel-button");
+
+			var sureBtn = document.createElement("div");
+			sureBtn.innerText = opts.sureBtnText;
+			addClass(sureBtn, "dialog-sure-button");
+
+			opts.btns = [cancelBtn, sureBtn];
+			this.open(content, opts);
+		},
+		open: function open(content, options) {
+			var dialog = document.createElement("div");
+			var dialogContent = document.createElement("div");
+
+			addClass(dialog, "dialog-mobile");
+			addClass(dialog, "animation-zoom-in");
+			addClass(dialogContent, "dialog-content");
+
+			dialogContent.innerText = content;
+
+			dialog.appendChild(dialogContent);
+
+			options.btns.forEach(function (btn, i) {
+				dialog.appendChild(btn);
+			});
+			options.closeAnimation = "animation-zoom-out";
+
+			layer.initOpen(dialog, options);
+		},
+		showBottom: function showBottom(options) {
+			var opts = {
+				btn: ["Ok"],
+				btnColor: [],
+				btnClick: function btnClick(index) {}
+			};
+			opts = extend(opts, options);
+			opts.bottom = true;
+			if (opts.btn.length == 1 && opts.btn[0] == "删除") {
+				opts.btnColor = ["#EE2C2C"];
+			}
+
+			var bottomDialog = document.createElement("div");
+			var dialogItem = document.createElement("div");
+			var cancelBtn = document.createElement("div");
+			cancelBtn.innerText = "Cancel";
+			addClass(bottomDialog, "dialog-mobile-bottom");
+			addClass(bottomDialog, "animation-bottom-in");
+			addClass(dialogItem, "bottom-btn-item");
+			addClass(cancelBtn, "dialog-cancel-btn");
+
+			bottomDialog.appendChild(dialogItem);
+			bottomDialog.appendChild(cancelBtn);
+
+			opts.btns = [];
+			opts.btns.push(cancelBtn);
+			opts.btn.forEach(function (b, i) {
+				var btn = document.createElement("div");
+				btn.innerText = opts.btn[i];
+				btn.setAttribute("i", i + 1);
+				addClass(btn, "dialog-item-btn");
+				if (opts.btnColor[i]) btn.style.color = opts.btnColor[i];
+				dialogItem.appendChild(btn);
+				opts.btns.push(btn);
+			});
+			opts.closeAnimation = "animation-bottom-out";
+			opts.showBottom = true;
+
+			layer.initOpen(bottomDialog, opts);
+		},
+		toast: function toast(content, time) {
+			time = time || 3;
+			var toast = document.createElement("div");
+			var toastContent = document.createElement("div");
+
+			addClass(toast, "dialog-mobile-toast");
+			addClass(toast, "animation-fade-in");
+			addClass(toastContent, "toast-content");
+
+			toastContent.innerText = content;
+
+			toast.appendChild(toastContent);
+
+			var body = document.querySelector("body");
+			body.appendChild(toast);
+
+			toast.style.fontSize = getFontSize();
+			toast.style.left = (document.documentElement.clientWidth - toast.offsetWidth) / 2 + "px";
+
+			setTimeout(function () {
+				body.removeChild(toast);
+			}, time * 1000);
+		},
+
+		loadElement: [],
+		loading: function loading(options) {
+			var opts = {
+				src: "assets/img",
+				hint: ""
+			};
+			var type = "";
+			opts = extend(opts, options);
+			if(opts.type==undefined){
+				type = "/loading-1.gif";
+			}else{
+				if(typeof opts.type === 'number'){
+					if(opts.type == 1){
+						type = "/loading-1.gif";
+					} 
+					if(opts.type == 2){
+						type = "/loading-2.gif";
+					}
+				}else if(typeof opts.type === 'string'){
+					type = opts.type;
+				}
+			}
+
+			var loadingBg = document.createElement("div");
+			var loading = document.createElement("div");
+			var img = document.createElement("img");
+
+			addClass(loadingBg, "mobile-loading-bg");
+			addClass(loading, "mobile-loading");
+			addClass(loading, "animation-zoom-in");
+			img.src = opts.src + type;//"/loading-1.gif";
+			loading.appendChild(img);
+
+			if (opts.hint) {
+				var loadingContent = document.createElement("div");
+				addClass(loadingContent, "loading-content");
+				loadingContent.innerText = opts.hint;
+				loading.appendChild(loadingContent);
+			}
+
+			var body = document.querySelector("body");
+			body.appendChild(loadingBg);
+			body.appendChild(loading);
+
+			loading.style.fontSize = getFontSize();
+			loading.style.left = (document.documentElement.clientWidth - loading.offsetWidth) / 2 + "px";
+			loading.style.top = (document.documentElement.clientHeight - loading.offsetHeight) / 2 + "px";
+
+			this.loadElement.push(loadingBg);
+			this.loadElement.push(loading);
+		},
+		closeLoading: function closeLoading() {
+			layer.close(this.loadElement);
+			this.loadElement = [];
+		}
+	};
+
+	// providing better operations in Vue
+	mcxDialog.install = function (Vue, options) {
+		Vue.prototype.$mcxDialog = mcxDialog;
+	};
+
+	return mcxDialog;
+
+
+
+}// END of ModalDialogComponent_mobile
+
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 /* 0000 - Utils */
@@ -5566,16 +6423,21 @@ function Utils_createELement(type,options){
 	if(Utils.isNull(type)){
 		return document.createElement('div');
 	}
-	var inputTypes = ["input","checkbox","radio"];
+	var inputTypes = ["input","checkbox","radio","submit","button","file"];
 	var ownTypes = ["el","selector","_el","_selector"];
 	if(typeof type !== 'string'){
 		options = type;
 		if(!Utils.isNull(options) && !Utils.isNull(options.el)){
 			type = options.el;
 		}else{
-			type = "div";
+			if(!Utils.isNull(options.type) && isInputType(options.type)){
+				type = options.type;
+			}else{
+				type = "div";
+			}
 		}
 	}
+
 	var element = document.createElement(type);
 	for(var i=0; i<inputTypes.length; i++){
 		if(inputTypes[i]==type){
@@ -5583,6 +6445,16 @@ function Utils_createELement(type,options){
 			element.type = type;
 			break;
 		}
+	}
+	function isInputType(t){
+		var isType = false;
+		for(var i=0; i<inputTypes.length; i++){
+			if(inputTypes[i]==t){
+				isType = true;
+				break;
+			}
+		}
+		return isType;
 	}
 	if(Utils.isNull(element)){
 		return document.createElement('div');
@@ -5810,44 +6682,7 @@ function Utils_detectEngine(){
 		isBlink: isBlink
 	};
 }
-function Utils_validateFileByteSize(bytes,maxSize){
-	var givenMaxSize = maxSize.split(" ")[0];
-	var givenSizeType = maxSize.split(" ")[1];
 
-	var formateBytes = Support.Utils.formatBytes(bytes);
-	var formatedSize = formateBytes.split(" ")[0];
-	var formatedSizeType = formateBytes.split(" ")[1];
-
-	var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-	var maxsize = "incorrect size";
-	var sizeIndex;
-	for(var i=0; i<sizes.length; i++){
-		if(givenSizeType.toLowerCase().trim()==sizes[i].toLowerCase().trim()){
-			maxsize = sizes[i].toLowerCase().trim();
-			sizeIndex = i;
-		}
-	}
-	if(maxsize == "incorrect size") {
-		return "incorrect size given - 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'"
-	}
-	var fileToBig = false;
-	sizeIndex++;
-	for(var i=sizeIndex; i<sizes.length; i++){
-		if(formatedSizeType.toLowerCase().trim()==sizes[i].toLowerCase().trim()){
-			fileToBig = true;
-		}
-	}
-	if(formatedSizeType.toLowerCase().trim()==givenSizeType.toLowerCase().trim()){
-		if(Number(givenMaxSize) < Number(formatedSize)){
-			fileToBig = true;
-		}
-	}
-
-	return {
-		size: formatedSize,
-		isOver: fileToBig
-	};
-}
 
 
 
