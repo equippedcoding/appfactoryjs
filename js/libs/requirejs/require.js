@@ -656,6 +656,7 @@ var requirejs, require, define;
 
             //Figure out the state of all the modules.
             eachProp(enabledRegistry, function (mod) {
+
                 var map = mod.map,
                     modId = map.id;
 
@@ -691,7 +692,7 @@ var requirejs, require, define;
                         }
                     }
                 }
-            });
+            }); 
 
             if (expired && noLoads.length) {
                 //If wait time expired, throw error of unloaded modules.

@@ -5,7 +5,7 @@ if(file_exists("includes/core/config/master_config.php")){
 	exit();
 }
 
-if(isset($_POST['dbhost'])){
+if(isset($_POST['dbhost'])){ 
 
 
 	$failed = false;

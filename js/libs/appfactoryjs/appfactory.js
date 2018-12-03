@@ -10,7 +10,7 @@
 * @see {@link http://bootstrap.org/} 
 *
 * @author Joseph Mitchell
-* @license BSD-2-Clause
+* @license BSD-2-Clause. 
 * @version 0.0.1   
 */
 (function (root, factory) {             
@@ -66,7 +66,7 @@ applicationManager.setComponent(this);
 */
 
 
-/* Global Variables */
+/* Global Variables */ 
 
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
@@ -171,15 +171,19 @@ function ApplicationManager(stateManager,sessionManager){
 }
 ApplicationManager.prototype = {
 
+
+	config: {},
+
 	/**
 	* Starts the application life cycle. Must be called before 
 	* running any application code.
 	*/
 	init: function(callback,param){
+		var self = this;
 		if(typeof callback === "function"){
-			ApplicationManager_start(callback,this);
+			ApplicationManager_start(callback,self);
 		}else if(typeof callback === "boolean" && callback==true){
-			ApplicationManager_start(param,this);
+			ApplicationManager_start(param,self);
 			pages.init();
 			pages.render();
 		}
@@ -220,6 +224,11 @@ ApplicationManager.prototype = {
 		}
 	},
 
+
+	getAll: function(){
+		return this._application_manager._any;
+	},
+
 	/**
 	*
 	*/
@@ -241,8 +250,21 @@ ApplicationManager.prototype = {
 		return this._application_manager._components;
 	},
 
-	getComponent: function(tag){
-		return this._application_manager._componentElements[tag];
+	// 5555
+	getMethod: function(id){
+		return this._application_manager._methods[id];
+	},
+
+	getComponent: function(id){
+		var components = this._application_manager._components;
+		var component = null;
+		for(var i=0; i<components.length; i++){
+			if(components[i].id == id){
+				component = components[i];
+				break;
+			}
+		}
+		return component;
 	},
 
 	setComponent: function(tag){
@@ -402,6 +424,61 @@ StateManager.prototype = {
 	}
 };
 
+
+
+
+// 9999
+/** @exports PluginManager
+* @classdesc The PluginManager creates plugins for the AppfactoryJS application.
+* @class
+* @constructor
+*/ 
+function ApplicationPlugin(){
+	this.plugins = [];
+
+}
+ApplicationPlugin.prototype = {
+
+	registerPlugin: function(plugin){
+		this.plugins.push(plugin);
+	},
+
+	loadPlugin: function(pluginId){
+		var plugin = null
+		for(var i=0; i<gl_app_plugins.length; i++){
+			var p = gl_app_plugins[i].id;
+			if(p==pluginId){
+				plugin = gl_app_plugins[i];
+				break;
+			}
+		}
+		return plugin;	
+	},
+
+	loadClientPlugin: function(pluginId){
+		var plugin = this.loadPlugin(pluginId);
+		if(plugin==null) return null;
+
+		var admin = plugin.admin(gl_applicationContextManager);
+		var client = plugin.client(gl_applicationContextManager);
+
+		return client;
+	},
+
+	loadAdminPlugin: function(pluginId){
+		var plugin = this.loadPlugin(pluginId);
+		if(plugin==null) return null;
+
+		var admin = plugin.admin(gl_applicationContextManager);
+		var client = plugin.client(gl_applicationContextManager);
+
+		return {
+			admin: admin,
+			client: client
+		}
+	}
+
+};
 
 
 /* Components */
@@ -638,9 +715,13 @@ Pages.prototype = {
 */
 function ViewManager(opt){
 	//ComponentManager.call(this,arguments);
+
+	// 4444 - classifing this component as Flags.Type.view instead of
+	// Flags.Type.component causes problems in the layoutmanager
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
-		new ComponentManager(Flags.Type.view,this),
+		new ComponentManager(Flags.Type.component,this),
+		//new ComponentManager(Flags.Type.view,this),
 		new EventManager()
 	);
 	applicationManager.register(this);
@@ -666,6 +747,9 @@ function ViewManager(opt){
 	self._props_._options = opt;
 	self._props_._obj = {};
 
+	self._props_._views_objects = [];
+
+	// 5555
 	self.getHtml = function(){
 		return this._props_._component_containers.parent.getHtml();
 	};
@@ -714,10 +798,11 @@ ViewManager.prototype = {
 		// 1111
 		var self = this;
 		var opt = self._props_._options;
-		if(opt.routable==true && Utils.isNull(obj.route)){
+		if(opt.routable==true && Utils.isNull(opts.route)){
 			opts.route = opts.id;
 		}
 
+		self._props_._views_objects.push(opts); 
 
 		var component_container = new ContainerComponent({
 			body: opts.body
@@ -764,7 +849,7 @@ LayoutManager.prototype = {
 	* @see AppLayout
 	*/
 	newLayout: function(obj){
-		return new AppLayout(obj);
+		return new AppLayout(obj,this.Application);
 	}
 };
 
@@ -870,6 +955,7 @@ AppLayout.prototype = {
 	* Adds a bootstrap columne class div element to the layout.
 	* @param {Object} columns - lg,md,sm,xs offset
 	* @param {Array} arrayOfItems - an array of ViewComponentControllers, ViewCollectionControllers and/or other ViewLayoutControllers
+	* @param {Object} elementProperties - Add classes or id to this column
 	* @return {objec} this
 	*/
 	col: function(columns,arrayOfItems,obj){
@@ -1008,6 +1094,8 @@ function ModalComponent(opts){
 	var main_container = Utils.createElement({ id:this.getId() });
 	applicationManager.setComponent(this);
 
+	this._props_._show = false;
+
 	this._props_._container_id = this._props_._id;
 
 	$('body').append(Utils.createElement({
@@ -1021,11 +1109,19 @@ function ModalComponent(opts){
 ModalComponent.prototype = {
 
 	/**
+	* Set modal options.
+	*
+	*/
+	options: function(opts){
+		$("#"+this._props_._modal_id).modal(opts);
+	},
+
+	/**
 	* Toggle modal dialog
 	*
 	*/
-	toggle: function(){
-		$("#"+this._props_._modal_id).modal({show:true});
+	toggle: function(show){
+		$("#"+this._props_._modal_id).modal('toggle');
 	},
 
 	/**
@@ -1088,13 +1184,20 @@ function ModalComponent_setContent(opts,self){
 			innerHTML: opts.title
 		});		
 
-		var exitBtn = createElement({
-			el: 'button',
-			className: 'close',
-			'data-dismiss': 'modal',
-			innerHTML: '<span aria-hidden="true">&times;</span>'
-		});
+		// var exitBtn = createElement({
+		// 	el: 'button',
+		// 	className: 'close',
+		// 	'data-dismiss': 'modal',
+		// 	innerHTML: '<span aria-hidden="true">&times;</span>'
+		// });
 
+		var exitBtn = Utils.convertStringToHTMLNode(`
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+		`);
+
+		
 		modalHeaderDiv.appendChild(modalHeaderTitle);
 		modalHeaderDiv.appendChild(exitBtn);
 		modalContent.appendChild(modalHeaderDiv);
@@ -1727,32 +1830,47 @@ function ButtonComponent(opts){
 	var label = (opts.label==undefined) ? "" : opts.label;
 	var style = (opts.style==undefined) ? "" : opts.style;
 	var className = (opts.className==undefined) ? "" : opts.className;
-
-	var button = Utils.createElement({
-		el: 'button',
-		innerHTML: label,
-		id: id,
-		style: style,
-		className: className
-	});
-
-	if(!Utils.isNull(opts.listener) && typeof opts.listener==="function"){
-		var func = opts.listener;
-		opts.listener = {
-			type: 'click',
-			selector: selector,
-			func: func
-		};
-	}else if(!Utils.isNull(opts.callback)  && typeof opts.callback==="function" ){
-		var func = opts.callback;
-		opts.callback = {
-			type: 'click',
-			selector: selector,
-			func: func
-		};
+	if(className==""){
+		className = (opts.classes==undefined) ? "" : opts.classes;
 	}
 
-	_Utils_registerListenerCallback(opts,self);
+	// var button = Utils.createElement({
+	// 	el: 'button',
+	// 	innerHTML: label,
+	// 	id: id,
+	// 	style: style,
+	// 	className: className
+	// });
+
+	var button = document.createElement('button');
+	button.id = id;
+	button.style = style;
+	button.className = className;
+	button.innerHTML = label;
+
+	// if(!Utils.isNull(opts.listener) && typeof opts.listener==="function"){
+	// 	var func = opts.listener;
+	// 	opts.listener = {
+	// 		type: 'click',
+	// 		selector: selector,
+	// 		func: func
+	// 	};
+	// }else if(!Utils.isNull(opts.callback)  && typeof opts.callback==="function" ){
+	// 	var func = opts.callback;
+	// 	opts.callback = {
+	// 		type: 'click',
+	// 		selector: selector,
+	// 		func: func
+	// 	};
+	// }
+
+	//_Utils_registerListenerCallbackForSelf(opts,self);
+	if(!Utils.isNull(opts.listener)){
+		_Utils_registerListenerCallbackForSelf("click",selector,opts.listener,self);
+	}
+	else if (!Utils.isNull(opts.callback)) {
+		_Utils_registerListenerCallbackForSelf("click",selector,opts.callback,self);
+	}
 
 	this.getHtml = function(){
 		return button;//defaultBody.getHtml();
@@ -1804,6 +1922,7 @@ function ContainerComponent(obj){
 	self._props_._loader_container_class = "appfactory-container-loader";
 	self._props_._loader_spinner_class = "appfactory-container-loader-spinner";
 
+	// 1111
 	this.getHtml = function(route){
 		return AppComponent_getHtml_component_fragment(self,route);
 	}
@@ -2265,30 +2384,8 @@ function NavigationComponent(obj){
  	self._props_._current_view = null;
  	self._props_._container_main_class = (obj.container==undefined) ? "container" : obj.container;
 
- 	this.build = function(){
- 		var selector = "#"+self._props_.view_id
-		var view = new ViewManager({routable: self._props_._opts._routable});
-		var pages = self._props_._obj['pages'];
-		for(var i=0; i<pages.length; i++){
-			var page = pages[i];
-			new_sub_view(page);
-		}
-		function new_sub_view(page){
-			view.newSubView({
-				id: page.id,
-				init: page.init,  
-				route: page.route,
-				body: page.body
-			});
-		}
-
-		self._props_._viewManager = view;
-
-		var t = self._props_._nav_type;
-		var element = _navigation1(self,view);
-		this._props_._html = element;
-
- 	};
+ 	self._props_._is_built = false;
+ 	//this.build = function(){};
 
 	this.getHtml = function(){
 		return this._props_._html;
@@ -2323,6 +2420,18 @@ NavigationComponent.prototype = {
 	},
 
 
+	removeSubView: function(id){
+		for(var i=0; i<this._props_._obj['pages'].length; i++){
+			var tag = this._props_._obj['pages'][i].id;
+			if(tag==id){
+				$('#'+id).remove();
+				break;
+			}
+		}
+	},
+	addSubView: function(opts){
+		this.newSubView(opts);
+	}, 
 
 	newSubView: function(obj){
 		var self = this;
@@ -2344,9 +2453,73 @@ NavigationComponent.prototype = {
 		}
 		this._props_._obj['pages'].push(obj);
 
+		if(document.getElementById('mySidenav') && self._props_._is_built == true){
+			var view = self._props_._viewManager;
+			if(!Utils.isNull(view)){
+				view.newSubView({
+					id: obj.id,
+					init: obj.init,  
+					route: obj.route,
+					body: obj.body
+				});
+
+				var container_nav = document.getElementById('mySidenav');
+
+				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
+				container_nav.appendChild(a1);
+				//console.log(page)
+					
+				// if(!Utils.isNull(page.init) && page.init==true){
+				// 	defaultBody.onAttachOnceListener(function(){
+				// 		$("#"+page.id).addClass('appfactory-sidenav-active');
+				// 	});
+				// }
+				//_Utils.registerListenerCallbackForSelf("click","#"+obj.id,function(){
+					$("#"+obj.id).click(function(){
+					self._props_._viewManager.render(obj.id);
+					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
+					$("#"+obj.id).addClass('appfactory-sidenav-active');
+					});
+				//},self,true);
+
+
+			}
+		}
+
 		//console.log(obj);
 		//_Utils.registerListenerCallback(obj,this);
 
+	},
+
+
+	/**
+	* Build the navigation component.
+	*
+	*/
+	build: function(){
+		var self = this;
+ 		var selector = "#"+self._props_.view_id
+		var view = new ViewManager({routable: self._props_._opts._routable});
+		var pages = self._props_._obj['pages'];
+		for(var i=0; i<pages.length; i++){
+			var page = pages[i];
+			new_sub_view(page);
+		}
+		function new_sub_view(page){
+			view.newSubView({
+				id: page.id,
+				init: page.init,  
+				route: page.route,
+				body: page.body
+			});
+		}
+
+		self._props_._viewManager = view;
+
+		var t = self._props_._nav_type;
+		var element = _navigation1(self,view);
+		this._props_._html = element;
+		this._props_._is_built = true;
 	}
 };
 
@@ -2429,6 +2602,9 @@ function _navigation1(self,view){
 	}
 
 	return defaultBody.getHtml();
+}
+function _navigation_side_link_setup(){
+
 }
 
 function _side_navigation(self){
@@ -3232,7 +3408,7 @@ function AppComponent_getHtml_component_fragment(self,route){
 	var obj = self._props_._obj;
 	var bodies = [];
 	self._props_._container = document.createElement('div');
-	self._props_._container.id = self.getId();
+	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";//self.getId();
 	if(!Utils.isNull(obj)){
 		if(!Utils.isNull(obj.classes)){
 			self._props_._container.className = obj.classes;
@@ -3244,33 +3420,45 @@ function AppComponent_getHtml_component_fragment(self,route){
 	var createdBody;
 	if(Array.isArray(obj.body)){
 		for(var i=0; i<obj.body.length; i++){
-			createdBody = _create_body(obj.body[i],self);
+			console.log(obj.body[i]);
+			createdBody = _create_body({body: obj.body[i] });
 			self._props_._container.appendChild(createdBody);
 		}
 	}else{
-		createdBody = _create_body(obj.body,self);
+		createdBody = _create_body({body: obj.body});
 		self._props_._container.appendChild(createdBody);
 	}
-	
-
+	var span = Utils.createElement('span',{id:self.getId()});
 	self._props_._container.appendChild(self._props_._loader_el);
+	self._props_._container.appendChild(span);
 
 	var fragment = document.createDocumentFragment();
 	fragment.appendChild(self._props_._container);
 	self._props_._elements._fragment = fragment;
 	return self._props_._elements._fragment.cloneNode(true);
 }
-function _create_body(body,self){
+// 5555
+function _create_body(object){
+	var body = object.body;
+	var template = (Utils.isNull(object.template)) ? "" : object.template;
+	var obj = (Utils.isNull(object.obj)) ? {} : object.obj;
+	//var original = (Utils.isNull(obj.original)) ? false : obj.original;
+
 	var mBody;
 	if(typeof body === "string"){
 		if(body.charAt(0) === "@"){
 			var view = _getView(body,obj);
 			if(Utils.isNull(view)){ return; }
-			_create_body(view);
+			if(!Utils.isNull(object.original) && object.original==true){
+				return view;
+			}else{
+				return view.getHtml();
+			}
+			//return _create_body({ body: view, original: original });
 		}else if(body.charAt(0) === "&"){
 			var p = body.substr(1);
 			var t = applicationManager.getLoadedFileContents(p);
-			t = applicationManager.templateParser(t,self._props_._obj.template);
+			t = applicationManager.templateParser(t,template);
 			var view = Utils.convertStringToHTMLNode(t);
 			return view;
 		}else{
@@ -3279,7 +3467,11 @@ function _create_body(body,self){
 		}
 	}else if(typeof body === "object"){
 		if(!Utils.isNull(body.TYPE)){
-			return body.getHtml();
+			if(Utils.isNull(object.original) && object.original==true){
+				return body;
+			}else{
+				return body.getHtml();
+			}
 		}else{
 			return body;
 		}
@@ -3314,7 +3506,7 @@ function convertIntoAppFactoryObject(body){
 }
 function _getView(body,obj){
 	var bodyWithoutAt = body.slice(0);
-	var params = (obj.params) ? obj.params : {};
+	var params = (!Utils.isNull(obj) && obj.params) ? obj.params : {};
 	var paramValues = null;
 	for(var i in params){
 		if(i==body || i==bodyWithoutAt){
@@ -3322,7 +3514,11 @@ function _getView(body,obj){
 			break;
 		}
 	}
-	return applicationManager.get(body.slice(1),paramValues);
+
+	// 5555
+	var method = body.slice(1);
+	var v = applicationManager.getMethod(method)(paramValues);
+	return v;
 }
 function AppComponent_initializeListeners(self,myComponent){
 
@@ -3564,7 +3760,7 @@ function ViewManager_render(id,trigger,self){
 	// 	container: component_container,
 	// 	options: opts
 	// };
-	// 5555
+	// 1111
 	var view = self._props_._component_containers['children'][id];
 	if(view!=null){
 		self._props_._current_view = view;
@@ -6205,6 +6401,11 @@ function ModalDialogComponent_mobile(){
 
 			//set button click event
 			options.btns.forEach(function (btn, i) {
+				if(i==0){
+					btn.addEventListener("click", function () {
+						if(options.onClose!=undefined) options.onClose();
+					});	
+				}
 				if (i != 0 && i <= options.btns.length - 1) {
 					if (!options.bottom) {
 						btn.addEventListener("click", function () {
@@ -6718,6 +6919,8 @@ function AppLayout_build(self){
 			topRowClasses = (Utils.isNull(layout[prop].obj.classes)) ? "" : layout[prop].obj.classes;
 		}
 		
+		row.id = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
+		//topRowClasses = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
 		row.className = "row "+topRowClasses;
 		for(var i=0;i<columns.length;i++){
 			if(Utils.isNull(columns[i][1])){
@@ -6775,8 +6978,6 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 
 	var divRow = null;
 
-	//var div = "<div id='"+viewId+"' class='"+colClasses+" "+cl+"'>";
-
 	for(var i=0;i<arrayOfItems.length;i++){
 		if(typeof arrayOfItems[i]=="string"){
 			if(arrayOfItems[i]=="row"){
@@ -6811,7 +7012,11 @@ function _getComponentFromRout(obj123,self){
 		if(typeof f === "function"){
 			mycomp = f(self._props_._routes);
 		}else{
-			console.error(arrayOfItems[i]+" is not a function for rout: "+self._props_._routes.route);
+			// 1212
+			mycomp = _create_body({ body: arrayOfItems[i], original: true });
+
+			console.log(mycomp);
+			//console.error(arrayOfItems[i]+" is not a function for rout: "+self._props_._routes.route);
 		}
 	}
 	return mycomp;
@@ -6847,12 +7052,6 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			topDiv.appendChild(node.cloneNode(true));
 		}
 
-		// console.log(topDiv);
-		// console.log(divRow);
-		// console.log(node);
-
-		//nodes[nodes.length] = divRow;
-		//div = div+""+arrayOfItems[i].getHtml();
 	}else
 	if(arrayOfItems[i].TYPE==Flags.Type.layout){
 		if(arrayOfItems[i].setParent){
@@ -6877,8 +7076,6 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			topDiv.appendChild(node);
 		}
 
-		//nodes[nodes.length] = divRow;
-		//div = div+arrayOfItems[i].getHtml();
 	}else
 	if(arrayOfItems[i].TYPE==Flags.Type.view){
 		if(arrayOfItems[i].setParent){
@@ -6888,20 +7085,11 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		
 		self._props_._extensionObject[self._props_._extensionObject.length] = arrayOfItems[i];
 
-		// var ty = arrayOfItems[i].getParentElementName();
-		// var p = "";
-
-		// arrayOfItems[i].render();
-
-		//console.log(arrayOfItems[i].getHtml());
-		
-		// MutliView's getHtml() code
 		var _view_ = arrayOfItems[i];
 		var options = _view_._props_._options;
 		var routeView;
 		if(options.routable){
 			routeView = _getViewFromRoute(); 
-			//console.log(routeView);
 		}else{
 			routeView = _gethandledView();
 		}
@@ -6913,7 +7101,6 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		/////////////////////////////////////
 
 
-		// 1111
 		function _getComponentType(obj){
 			if(Utils.isNull(obj.body)){
 				var blankComponent = componentManager.container({
@@ -6947,7 +7134,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			}
 			return null;
 		}
-		// 1111
+
 		function _gethandledView(){
 			var rt = _view_._props_._views_objects;
 			var view;
@@ -6972,6 +7159,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			var validRoute = false;
 			// get init view as a default 
 			var route_view = null;
+			console.log(rt)
 			for(var i=0; i<rt.length; i++){
 				if(!Utils.isNull(rt[i].route)){
 					for(var n=0; n<params.length; n++){
@@ -7094,7 +7282,6 @@ function _getLayoutColumnClasses(columns){
 	.visible-*-inline-block	display: inline-block;
 
 	*/
-
 
 
 	var colClasses = "";
@@ -7487,25 +7674,159 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 
 
 
-var pages = new Pages();
-var stateManager = new StateManager();
-var sessionManager = new SessionManager();
-var applicationManager = new ApplicationManager(stateManager,sessionManager);
-var layoutManager = new LayoutManager();
-var componentFactory = new ComponentFactory();
 
 
 
-/** 
-* Main application object that exports singilton objects classes.
-* Use this object to access  
-*
-*
-*
-* @exports AppFactory
-*
+
+
+
+
+// function setAppGlobals(){
+// 	window.AppManager = applicationManager;
+// 	window.AppPages = pages;
+// 	window.AppUtils = Utils;
+// 	window.AppView = ViewManager;
+// 	window.AppLayout = layoutManager;
+// 	window.AppFlags = Flags;
+// 	window.AppComp = componentFactory;
+// 	window.AppDialog = componentFactory.dialog();
+// 	window.AppStateManager = stateManager;
+// 	window.AppPlugin = appPlugin;
+// 	window.AppSessionManager = sessionManager;
+// }
+function setBaseURL(url){
+	this._props_._baseURL = url;
+}
+
+function appfactory_url(partialUrl,isProd){
+	var url = "";
+	var config = this.application_configuration;
+	if(config!=null && config['application']!=undefined){
+		var app = config['application'];
+		if(isProd!=null & isProd!=undefined){
+			url =_funcConfigProd(app,partialUrl,isProd);
+		}else{
+			url = _appConfigProd(app,partialUrl)
+		}
+	}else{
+		url = partialUrl;
+	}
+
+	return url;
+}
+function _funcConfigProd(app,partialUrl,isProd){
+	var url;
+	if(isProd){
+		url = _prod(app,partialUrl);
+	}else{
+		url = _devel(app,partialUrl);
+	}
+	return url;
+}
+function _appConfigProd(app,partialUrl){
+	var url;
+	if(app.prod){
+		url = _prod(app,partialUrl);
+	}else{
+		url = _devel(app,partialUrl);
+	}
+	return url;
+}
+function _prod(app,partialUrl){
+	var p = "";
+	if(app.production_url.endsWith("/")){
+		p = app.production_url;
+	}else{
+		p = app.production_url+"/";
+	}
+	return p+""+partialUrl; 
+}
+function _devel(app,partialUrl){
+	var p = "";
+	if(app.development_url.endsWith("/")){
+		p = app.development_url;
+	}else{
+		p = app.development_url+"/";
+	}
+	return p+""+partialUrl; 
+}
+
+
+
+var pages;
+var stateManager;
+var sessionManager;
+var applicationManager;
+var layoutManager;
+var componentFactory;
+var appPlugin;
+
+var gl_applicationContextManager = null;
+var gl_app_plugins = [];
+
+function registerAppFactoryPlugin(plugin){
+	gl_app_plugins.push(plugin);
+}
+
+/** @exports ApplicationContextManager
+* @classdesc The ApplicationContextManager.
+* @class
+* @constructor
+* @tutorial GettingStarted
 */
-var AppFactory = {
+function ApplicationContextManager(){
+	pages = new Pages(this);
+	stateManager = new StateManager(this);
+	sessionManager = new SessionManager(this);
+	applicationManager = new ApplicationManager(this,stateManager,sessionManager);
+	layoutManager = new LayoutManager(this);
+	componentFactory = new ComponentFactory(this);
+	appPlugin = new ApplicationPlugin(this);
+
+
+	this._props_ = {
+		_baseURL: "",
+		_application_configuration: null,
+
+		_Pages: pages,
+		_StateManager: stateManager,
+		_SessionManager: sessionManager,
+		_ApplicationManager: applicationManager,
+		_LayoutManager: layoutManager,
+		_ComponentFactory: componentFactory,
+		_ApplicationPlugin: appPlugin,
+		_ViewManager: ViewManager
+	};
+
+	gl_applicationContextManager = this;
+	window.AppDialog = componentFactory.dialog();
+
+	// this.Pages = pages;
+	// this.StateManager = stateManager;
+	// this.sessionManager = sessionManager;
+	// this.ApplicationManager = applicationManager;
+	// this.ComponentFactory = componentFactory;
+	// this.AppPlugin = appPlugin;
+
+	// this.AppComp = componentFactory;
+}
+ApplicationContextManager.prototype = {
+
+
+	/**
+	* 
+	* @param {String} partialUrl - required
+	* @param {Boolean} isProduction - optional override config file settings to use development url or production url. 
+	*/
+	URL: appfactory_url,
+
+	setBaseURL: setBaseURL,
+
+
+	/**
+	* Set globals so that AppFactory does not have to be called
+	*/
+	// setAppGlobals: setAppGlobals,
 
 	/**
 	* Flags
@@ -7518,53 +7839,87 @@ var AppFactory = {
 	Utils: Utils,
 
 	/**
+	* Sets the global configuration file config.appfac.js. The configuration file
+	* is returned from AppfactoryStarter with project setup.
+	* 
+	*/
+	SetApplicationConfiguration: function(config){
+		this._props_._application_configuration = config;
+	},
+
+	/**
 	* Pages
 	*/
-	Pages: pages,
+	Pages: function(){
+		return this._props_._Pages;
+	},
+
+	/**
+	* PluginManager
+	*/
+	Plugin: function(){
+		return this._props_._ApplicationPlugin;
+	},
 
 	/**
 	* ApplicationManager
 	*/
-	ApplicationManager: applicationManager,
+	Manager: function(){
+		return this._props_._ApplicationManager;
+	},
 
 	/**
 	* StateManager
 	*/
-	StateManager: stateManager,
+	State: function(){
+		return this._props_._StateManager;
+	},
 
 	/**
 	* SessionManager
 	*/
-	SessionManager: sessionManager,
+	Session: function(){
+		return this._props_._SessionManager;
+	},
 
 	/**
 	* LayoutManager
 	*/
-	LayoutManager: layoutManager,
+	Layout: function(){
+		return this._props_._LayoutManager;
+	},
 
 
 	/**
 	* ComponentFactory
 	*/
-	ComponentFactory: componentFactory,
+	Comp: function(){
+		return this._props_._ComponentFactory;
+	},
 
 	/**
 	* ViewManager
 	*/
-	ViewManager: ViewManager,
+	View: function(){
+		return this._props_._ViewManager;
+	},
 
 	/**
 	* ContentManagementSystem
 	*/
-	ContentManagementSystem: ContentManagementSystem
+	ContentManagementSystem: null
+
 };
 
-window.AppFactory = AppFactory;
-return AppFactory;
+
+
+window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
+window.ApplicationContextManager = ApplicationContextManager;
+
+return ApplicationContextManager;
 
 
 })); // End
-
 
 
 

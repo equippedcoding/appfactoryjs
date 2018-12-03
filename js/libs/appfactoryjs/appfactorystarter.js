@@ -5,12 +5,9 @@ function a(configFile){
 		var rawFile = new XMLHttpRequest();
     	rawFile.open("GET", configFile, false);
     	rawFile.send(null); 
-    	
-    	//setTimeout(function(){
-    		resolve(rawFile.responseText)
-    	//},2000);
+    	resolve(rawFile.responseText)
 	});
-}
+} 
 
 function mergeToFrom(obj, src) {
     for (var key in src) {
@@ -25,25 +22,35 @@ var _AppFactoryStart = {
 	NoCapture: 'NoCapture',
 	cb: null,
 	config: null,
-	main: async function(configFile,extra,callback,type){
+	main: async function(isAdmin,configFile,extra,callback,type){
+
+		var appfac_config = null;
 		if(type==this.Capture){
 			this.cb = callback;
-			this.config = setup(configFileString22);
+			var configuration = setup(configFileString);
+			//if(isAdmin) configuration.config.paths = reformPath(configuration.config.paths);
+			this.config = config;
 		}else{
 			var configFileString = await a(configFile);
-			run(configFileString);
-		}
-
-		function run(configFileString){
-			var config = setup(configFileString);
-			console.log(config);
-			requirejs.config(config.config);
-			requirejs(extra.require, function(a){
-				callback();
+			appfac_config = JSON.parse(configFileString);
+			console.log(appfac_config)
+			addPluginsSupported(function(plugins){
+				run(configFileString,plugins);
 			});
+			
 		}
 
-		function setup(configJSON){
+		function run(configFileString,plugins){
+			var configuration = setup(configFileString,plugins);
+			configuration.config.paths = reformPath(configuration.config.paths);
+			requirejs.config(configuration.config);
+			requirejs(configuration.require, function(a){
+				callback(appfac_config,plugins);
+			});
+
+		}
+
+		function setup(configJSON,plugins){
 			var config;
 			if(typeof configJSON === 'string'){
 				config = JSON.parse(configJSON);
@@ -51,16 +58,18 @@ var _AppFactoryStart = {
 			}else{
 				config = configJSON;
 			}
+
+			console.log(config);
 			if(extra==null || extra==undefined){
 				extra = {};
 				extra.paths = {};
-				extra.require = ['appfactory'];
+				extra.require = [];
 			}else{
 				if(extra.require==null || extra.require==undefined){
-					extra.require = ['appfactory'];
+					extra.require = [];
 				}else{
 					if(Array.isArray(extra.require)){
-						extra.require.push('appfactory');
+						//extra.require.push('appfactory');
 					}else{
 						console.error("require object needs to be an Array");
 					}
@@ -70,11 +79,106 @@ var _AppFactoryStart = {
 				}
 			}
 			config.paths = mergeToFrom(extra.paths, config.paths);
+			if(plugins!=undefined){
+				for(var i=0; i<plugins.length; i++){
+					var f;
+					if(isAdmin){
+						f = "../../js/plugins/"+plugins[i].location+"/"+plugins[i].start;
+					}else{
+						f = "js/plugins/"+plugins[i].location+"/"+plugins[i].start+".js";
+					}
+					//console.log(f);
+					extra.require.push(f);
+				}
+			}
+			var nonOverrides = ['paths','require'];
+			for(var obj in extra){
+				var isNot = false;
+				for(var i=0; i<nonOverrides.length; i++){
+					if(obj!=nonOverrides[i]){
+						isNot = true;
+						break;
+					}
+				}
+				if(isNot==false){
+					config[obj] = extra[obj];
+				}
+			}
+
+
+
 			return {
 				config: config,
-				require: extra
+				require: extra.require
 			};
 		}
+
+		function reformPath(path){
+			var newPath = {};
+
+			if(isAdmin){
+				for(var i in path){
+					newPath[i] = "../../js/"+path[i];
+				}
+			}else{
+				for(var i in path){
+					newPath[i] = "js/"+path[i];
+				}
+			}
+
+			return newPath;
+		}
+
+
+
+	    function addPluginsSupported(cb1){
+	    	//cb1();
+			var rawFile = new XMLHttpRequest();
+			var routeForPluginConfig;
+			var routeForPluginDirs;
+			if(isAdmin){
+				routeForPluginConfig = "../../js/plugins/plugin.config.json";
+				routeForPluginDirs = "../../js/plugins/";
+			}else{
+				routeForPluginConfig = "js/plugins/plugin.config.json";
+				routeForPluginDirs = "js/plugins/";
+			}
+			rawFile.open("GET", routeForPluginConfig, false);
+			rawFile.onreadystatechange = function (){
+			   if(rawFile.readyState === 4) {
+				  if(rawFile.status === 200 || rawFile.status == 0){
+					 var allText = rawFile.responseText;
+
+					 var main_file = JSON.parse(allText);
+					 var dirs = main_file.directories;
+					 var some = [];
+					 for(var i=0; i<dirs.length; i++){
+					 	setupAdminGet(some, routeForPluginDirs+dirs[i]+"/plugin.config.json");
+					 }
+
+					 cb1(some);
+				  }
+			   }
+		    }
+		    rawFile.send(null);  
+	    }
+
+	    function setupAdminGet(some,fileLoc){
+			var rawFile = new XMLHttpRequest();
+			rawFile.open("GET", fileLoc, false);
+			rawFile.onreadystatechange = function (){
+			   if(rawFile.readyState === 4) {
+				  if(rawFile.status === 200 || rawFile.status == 0){
+					 var allText = rawFile.responseText;
+					 some.push(JSON.parse(allText));
+				  }
+			   }
+		    }
+		    rawFile.send(null);  
+	    }
+
+
+
 	}
 };
 
