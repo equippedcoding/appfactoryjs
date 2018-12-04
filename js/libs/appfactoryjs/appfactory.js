@@ -1,6 +1,17 @@
 /**
-* @overview {@link AppFactory} {@link Utils} {@link ApplicationManager}
-* 
+* @overview AppFactoryJS is a javscript framework tha can be including as a single 
+* js file (but with limitations) or as a whole application framework. 
+* The application is incapsulated around the The {@link ApplicationContextManager} 
+* which is a single object that manages the application and application state.<br>
+* AppFactoryJS consist of a client app and the admin dashboard. To add modular 
+* components for users to add to their application.
+*  
+*
+*
+*
+*
+*
+*
 *
 * @requires jQuery
 * @see {@link https://jquery.com/}
@@ -224,7 +235,9 @@ ApplicationManager.prototype = {
 		}
 	},
 
-
+	/**
+	* Get all saved objects.
+	*/
 	getAll: function(){
 		return this._application_manager._any;
 	},
@@ -2749,28 +2762,6 @@ function _side_navigation(self){
 
 
 
-
-
-// 9999
-/** 
-* @exports ContentManagementSystem
-*/
-var ContentManagementSystem = {
-
-	/**
-	*	Users
-	* @see CMSUsers
-	*/
-	Users: function(){
-
-	},
-
-	/**
-	*	Manager
-	* @see CMSManager
-	*/
-	Manager: function(){}
-};
 
 
 // 9999
@@ -7698,22 +7689,7 @@ function setBaseURL(url){
 	this._props_._baseURL = url;
 }
 
-function appfactory_url(partialUrl,isProd){
-	var url = "";
-	var config = this.application_configuration;
-	if(config!=null && config['application']!=undefined){
-		var app = config['application'];
-		if(isProd!=null & isProd!=undefined){
-			url =_funcConfigProd(app,partialUrl,isProd);
-		}else{
-			url = _appConfigProd(app,partialUrl)
-		}
-	}else{
-		url = partialUrl;
-	}
 
-	return url;
-}
 function _funcConfigProd(app,partialUrl,isProd){
 	var url;
 	if(isProd){
@@ -7764,6 +7740,11 @@ var appPlugin;
 var gl_applicationContextManager = null;
 var gl_app_plugins = [];
 
+
+/**
+* Register plugin
+*
+*/
 function registerAppFactoryPlugin(plugin){
 	gl_app_plugins.push(plugin);
 }
@@ -7814,21 +7795,6 @@ ApplicationContextManager.prototype = {
 
 
 	/**
-	* 
-	* @param {String} partialUrl - required
-	* @param {Boolean} isProduction - optional override config file settings to use development url or production url. 
-	*/
-	URL: appfactory_url,
-
-	setBaseURL: setBaseURL,
-
-
-	/**
-	* Set globals so that AppFactory does not have to be called
-	*/
-	// setAppGlobals: setAppGlobals,
-
-	/**
 	* Flags
 	*/
 	Flags: Flags,  
@@ -7837,6 +7803,34 @@ ApplicationContextManager.prototype = {
 	* Utils
 	*/
 	Utils: Utils,
+
+
+	setBaseURL: setBaseURL,
+
+
+	/**
+	* 
+	* @param {String} partialUrl - required
+	* @param {Boolean} isProduction - optional override config file settings to use development url or production url. 
+	*/
+	URL: function appfactory_url(partialUrl,isProd){
+		var url = "";
+		var config = this.application_configuration;
+		if(config!=null && config['application']!=undefined){
+			var app = config['application'];
+			if(isProd!=null & isProd!=undefined){
+				url =_funcConfigProd(app,partialUrl,isProd);
+			}else{
+				url = _appConfigProd(app,partialUrl)
+			}
+		}else{
+			url = partialUrl;
+		}
+
+		return url;
+	},
+
+
 
 	/**
 	* Sets the global configuration file config.appfac.js. The configuration file
@@ -7902,18 +7896,14 @@ ApplicationContextManager.prototype = {
 	*/
 	View: function(){
 		return this._props_._ViewManager;
-	},
-
-	/**
-	* ContentManagementSystem
-	*/
-	ContentManagementSystem: null
+	}
 
 };
 
 
 
 window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
+
 window.ApplicationContextManager = ApplicationContextManager;
 
 return ApplicationContextManager;

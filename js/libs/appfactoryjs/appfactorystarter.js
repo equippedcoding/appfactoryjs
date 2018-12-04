@@ -112,6 +112,15 @@ var _AppFactoryStart = {
 				require: extra.require
 			};
 		}
+		// function reformPath(path){
+		// 	var newPath = {};
+		// 	for(var i in path){
+		// 		newPath[i] = "http://localhost/newapp3/2wokegurls/js/"+path[i];
+		// 	}
+
+		// 	console.log(newPath);
+		// 	return newPath;
+		// }
 
 		function reformPath(path){
 			var newPath = {};
