@@ -207,7 +207,11 @@ ApplicationManager.prototype = {
 		if(!Utils.isNull(method)){
 			this._application_manager._methods[id] = method;
 		}else{
-			this._application_manager._components.push({id: id.getId(), component: id});
+			if(id.TYPE){
+				this._application_manager._components.push({id: id.getId(), component: id});
+			}else{
+				console.error("Element not registered, Must be a component");
+			}
 		}
 	},
 
@@ -253,7 +257,11 @@ ApplicationManager.prototype = {
 	*
 	*/
 	getAny: function(id){
-		return this._application_manager._any[id];
+		var any = this._application_manager._any[id];
+		if(Utils.isNull(any)){
+			console.error("No object found for: "+id);
+		}
+		return any;
 	},	
 
 	/**
@@ -264,8 +272,36 @@ ApplicationManager.prototype = {
 	},
 
 	// 5555
-	getMethod: function(id){
-		return this._application_manager._methods[id];
+	getMethod: function(id,params){
+		var method = this._application_manager._methods[id];
+		if(Utils.isNull(method)){
+			console.error("Method: "+id+" does not exist");
+		}
+		return method;
+	},
+
+	run: function(id,params){
+		var method = this._application_manager._methods[id];
+		if(Utils.isNull(method)){
+			console.error("Method: "+id+" does not exist");
+		}
+		var component = method(params);
+		if(Utils.isNull(component)){
+			console.error("Component: "+id+" is null");
+		}
+		return component;
+	},
+
+	get: function(id,params){
+		var method = this._application_manager._methods[id];
+		if(Utils.isNull(method)){
+			console.error("Method: "+id+" does not exist");
+		}
+		var component = method(params);
+		if(Utils.isNull(component)){
+			console.error("Component: "+id+" is null");
+		}
+		return component;
 	},
 
 	getComponent: function(id){
@@ -276,6 +312,9 @@ ApplicationManager.prototype = {
 				component = components[i];
 				break;
 			}
+		}
+		if(component==null){
+			console.error("Component: "+id+" not found");
 		}
 		return component;
 	},
@@ -404,7 +443,8 @@ StateManager.prototype = {
 	/**
 	* 
 	*/
-	go: function(path,trigger){
+	go: function(path,trigger,body){
+		// 4444 - add dynamic body
 		if(Utils.isNull(trigger)){
 			trigger = true;
 		}
@@ -448,7 +488,6 @@ StateManager.prototype = {
 */ 
 function ApplicationPlugin(){
 	this.plugins = [];
-
 }
 ApplicationPlugin.prototype = {
 
@@ -771,9 +810,18 @@ ViewManager.prototype = {
 
 	/**
 	* Render the view
+	*
+	*
+	* @param {String} - (required) Id of the view to render.
+	* @param {Component} - (optional) component body to add.
+	* @param {Boolean} - (optional) When a body is added it will not replace the
+	* initial body but if this is set to true the component body supplied will
+	* replace the initial body.
+	* @param {Boolean} (optional) If this ViewManager is router capable then this
+	* will trigger it route.
 	*/
-	render: function(id,trigger){
-		ViewManager_render(id,trigger,this);
+	render: function(id,body,replace,trigger){
+		ViewManager_render(id,body,replace,trigger,this);
 	},
 
 	/**
@@ -817,9 +865,15 @@ ViewManager.prototype = {
 
 		self._props_._views_objects.push(opts); 
 
+		var body = new ContainerComponent();
+		self._props_._temp_body = body;
+		if(opts.body){
+			body = opts.body;
+		}
+
 		var component_container = new ContainerComponent({
-			body: opts.body
-		});
+			body: body
+		});// nnnnn
 
 		self._props_._component_containers['children'][opts.id] = {
 			container: component_container,
@@ -1050,6 +1104,11 @@ ComponentFactory.prototype = {
 		return new NavigationComponent(obj);
 	},
 
+
+	nav: function(opts){
+		return new NavComponent(opts);
+	},
+
 	/**
 	* 
 	*/
@@ -1079,6 +1138,13 @@ ComponentFactory.prototype = {
 	},
 
 	/**
+	* table
+	*/
+	table: function(opts){
+		return new TableComponent(opts);
+	},
+
+	/**
 	* mobileDialog
 	*/
 	mobileDialog: function(obj){
@@ -1086,6 +1152,263 @@ ComponentFactory.prototype = {
 	}
 
 };
+
+
+
+
+// 9999
+/** @exports NavComponent
+* @classdesc Creates a Nav component
+* @class
+* @constructor
+*/
+function NavComponent(opts){
+	opts = (Utils.isNull(opts)) ? {} : opts;
+	_.extend(this,
+		new AppFactoryManager('NavComponent'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager(this)
+	);
+
+	var createElement = Utils.createElement;
+	var isNull = Utils.isNull;
+	var self = this;
+	applicationManager.register(this);
+	//var main_container = new ContainerComponent({ id:this.getId() });//createElement({ id:this.getId() });
+	applicationManager.setComponent(this);
+
+	// top [default]
+	// top-center
+	// top-left
+	// side
+
+
+	var view = new ViewManager();
+	var frag = document.createDocumentFragment();
+
+	self._props_._position_class = "";
+	self._props_._active_item = "";
+	self._props_._elements = {
+		_view: view,
+		_ul: null,
+		_navbar_container: new ContainerComponent(), //createElement(),
+		_content_container: new ContainerComponent(), //createElement(),
+		_container: new ContainerComponent({ id:self.getId() }), //createElement(),
+		_fragment: frag,
+		_layout: null
+	};
+
+	// {
+	// 	//top[default], top-center, top-left, right, left
+	// 	position: "",
+	// 	layout: {
+	// 		navbar: {},
+	// 		content: {}
+	// 	}
+	// }
+
+	var positionTopNavbarLayout = {md:12};
+	var positionTopContentLayout = {md:12};
+
+	var positionLeftNavbarLayout = {md:3};
+	var positionLeftContentLayout = {md:9};
+
+	var positionRightNavbarLayout = {md:3};
+	var positionRightContentLayout = {md:9};
+
+	var layoutPosition = "";
+	var position = "top";
+	if(!isNull(opts.position)){
+		position = opts.position;
+	}
+
+	if(position=="top"){
+		layoutPosition = "top";
+		self._props_._position_class = "";
+		setPositionTopLayout();
+
+	}else if(position == "top-left"){
+		layoutPosition = "top";
+		self._props_._position_class = "justify-content-end";
+		setPositionTopLayout();
+
+	}else if(position == "top-center"){
+		layoutPosition = "top";
+		self._props_._position_class = "justify-content-center";
+		setPositionTopLayout();
+
+	}else if(position == "right"){
+		layoutPosition = "right";
+		self._props_._position_class = "flex-column";
+		if(!isNull(opts.layout)){
+			var lay = opts.layout;
+			var n = (!isNull(lay.navbar)) ? lay.navbar : {md:3};
+			var c = (!isNull(lay.content)) ? lay.content : {md:9};
+			positionRightNavbarLayout = n;
+			positionRightContentLayout = c;
+		}
+
+	}else if(position == "left"){
+		layoutPosition = "left";
+		self._props_._position_class = "flex-column"
+		if(!isNull(opts.layout)){
+			var lay = opts.layout;
+			var n = (!isNull(lay.navbar)) ? lay.navbar : {md:3};
+			var c = (!isNull(lay.content)) ? lay.content : {md:9};
+			positionLeftNavbarLayout = n;
+			positionLeftContentLayout = c;
+		}
+
+	}
+	function setPositionTopLayout(){
+		if(!isNull(opts.layout)){
+			var lay = opts.layout;
+			var n = (!isNull(lay.navbar)) ? lay.navbar : {md:12};
+			var c = (!isNull(lay.content)) ? lay.content : {md:12};
+			positionTopNavbarLayout = n;
+			positionTopContentLayout = c;
+		}
+	}
+
+	var layout = layoutManager.newLayout();
+
+	if(layoutPosition == "right"){	
+		layout.row()
+			  .col(positionRightNavbarLayout,[self._props_._elements._navbar_container])
+			  .col(positionRightContentLayout,[self._props_._elements._content_container])
+	}else if(layoutPosition == "left"){
+		layout.row()
+			  .col(positionLeftNavbarLayout,[self._props_._elements._content_container])
+			  .col(positionLeftContentLayout,[self._props_._elements._navbar_container])
+	}else if(layoutPosition == "top"){
+		layout.row()
+			  .col(positionTopNavbarLayout,[self._props_._elements._navbar_container])
+			  .row()
+			  .col(positionTopContentLayout,[self._props_._elements._content_container])
+	}
+	layout.build();
+
+	var container = new ContainerComponent({ id:self.getId(),body: layout });
+	self._props_._elements._layout = layout;
+
+	self._props_._elements._container.addComponent(container,true);
+
+
+	var navClasses = "nav "+self._props_._position_class;
+	self._props_._elements._ul = createElement({
+		el:'ul',
+		className: navClasses
+	});
+
+
+ 
+ 	this.getHtml = function(){
+ 		return this._props_._elements._fragment.cloneNode(true);
+ 	};
+
+
+}
+NavComponent.prototype = {
+
+	/**
+	* Adds a navigation item to this component.
+	*
+	* @param {Object} - nav options
+	*/
+	add: function(opts){
+
+		var self = this;
+		var isNull = Utils.isNull;
+		var createElement = Utils.createElement;
+
+		var label = "";
+		var init = false;
+		var body = new ContainerComponent();
+		if(!isNull(opts.label)){
+			label = opts.label;
+		}
+		if(!isNull(opts.init)){
+			init = opts.init;
+		}
+		if(!isNull(opts.body)){
+			body = opts.body;
+		}
+
+		var id = Utils.randomGenerator(16,false);
+		self._props_._elements._view.newSubView({
+			init: init,
+			id: id,
+			body: body
+		});
+		if(init==true){
+			self._props_._active_item = id;
+		}
+		// nnnnn
+		var li = createElement({el:'li',className:'nav-item'});
+		var a = createElement({el:'a',id:id,className:'nav-link',href:'#',innerHTML:label});
+		li.appendChild(a);
+		self._props_._elements._ul.appendChild(li);
+ 
+		_Utils_registerListenerCallbackForSelf('run','',function(){
+
+			setTimeout(function(){
+
+				$("#"+id).click(function(e){
+					e.preventDefault();
+					var current = self._props_._active_item;
+
+					// console.log("=========================================")
+					// console.log(current);
+					// console.log(id)
+
+					if(current == id) return;
+					if(current!=""){
+						$("#"+current).removeClass('active');
+					}
+					$("#"+id).addClass('active');
+					self._props_._active_item = id;
+					self._props_._elements._view.render(id);
+				});
+
+			},1000);
+		},self);
+
+
+	},
+
+
+	/**
+	* builds this navigation component. 
+	*
+	*
+	*/
+	build: function(){
+		var self = this;
+		// self._props_._elements = {
+		// 	_view: view,
+		// 	_ul: ul,
+		// 	_navbar_container: createElement(),
+		// 	_content_container: createElement(),
+		// 	_container: createElement(),
+		// 	_fragment: frag
+		// };
+
+		// add navbar to its container
+		self._props_._elements._navbar_container
+			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
+		// add content to its container
+		self._props_._elements._content_container
+			.addComponent(self._props_._elements._view,true);
+
+		self._props_._elements._fragment
+			.appendChild(self._props_._elements._container.getHtml());
+
+	}
+
+};
+
+
+
 
 
 
@@ -1647,7 +1970,7 @@ function FormComponent(obj){
 
 FormComponent.prototype = {
 
-	// 4444 - 
+	// 4444 - remove and show form elements
 	showElement: function(){},
 	hideElement: function(){},
 
@@ -1734,6 +2057,10 @@ FormComponent.prototype = {
 	*/
 	addStateSelection: function(opts){
 		FormComponent_addStateSelection(opts,this);
+	},
+
+	addTextarea: function(opts){
+		FormComponent_addTextarea(opts,this);
 	},
 
 	/**
@@ -1935,9 +2262,52 @@ function ContainerComponent(obj){
 	self._props_._loader_container_class = "appfactory-container-loader";
 	self._props_._loader_spinner_class = "appfactory-container-loader-spinner";
 
+
+	//AppComponent_getHtml_component_fragment(self,route)
+	var createElement = Utils.createElement;
+	var obj = self._props_._obj;
+	var bodies = [];
+	self._props_._container = document.createElement('div');
+	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";//self.getId();
+	if(!Utils.isNull(obj)){
+		if(!Utils.isNull(obj.classes)){
+			self._props_._container.className = obj.classes;
+		}
+		if(!Utils.isNull(obj.style)){
+			self._props_._container.style = obj.style;
+		}
+	}
+
+
+	var firstdivid = "j"+Utils.randomGenerator(12,false);
+	self._props_._component_element_container_id = firstdivid;
+	var firstdiv = createElement({id:firstdivid});
+	if(Array.isArray(obj.body)){
+		for(var i=0; i<obj.body.length; i++){ _create_bodies_(i); }
+		function _create_bodies_(index){
+			var createdBody = _create_body({body: obj.body[index] });
+			firstdiv.appendChild(createdBody);
+		}
+	}else{
+		var createdBody = _create_body({body: obj.body});
+		firstdiv.appendChild(createdBody);
+	}
+	self._props_._container.appendChild(firstdiv)
+
+	var seconddivid = "j"+Utils.randomGenerator(12,false);
+	var seconddiv = createElement({id:seconddivid});
+	var span = Utils.createElement('span',{id:self.getId()});
+	seconddiv.appendChild(self._props_._loader_el);
+	seconddiv.appendChild(span);
+	self._props_._container.appendChild(seconddiv);
+
+	var fragment = document.createDocumentFragment();
+	fragment.appendChild(self._props_._container);
+	self._props_._elements._fragment = fragment;
+
 	// 1111
 	this.getHtml = function(route){
-		return AppComponent_getHtml_component_fragment(self,route);
+		return self._props_._elements._fragment.cloneNode(true);
 	}
 
 
@@ -1947,12 +2317,64 @@ ContainerComponent.prototype = {
 
 	/**
 	* Adds a component to this component
-	*
-	* @param {ComponentManager} component
-	* @param {Boolean} empty
-	*/
-	addComponent: function(component,empty){
-		return ContainerComponent_addComponent(component,empty,this);
+	* nnnnn
+	* @param {ComponentManager} (required) The component to add.
+	* @param {Boolean} (optional) Default is true - Empties the component 
+	* of all other components before adding the new component. If set to
+	* false then all other previous components will still be attached.
+	* @param {Boolean} (optional) Default is false - If set to true then the added
+	* component is only added once, so if this component is removed from 
+	* the DOM and re-added then the added component will not be attached.
+	*/ 
+	addComponent: function(component,empty,attachOnce){
+		//return ContainerComponent_addComponent(component,empty,this);
+		var self = this;
+		var isEmpty = (!Utils.isNull(empty)) ? empty : true;
+		attachOnce = (!Utils.isNull(attachOnce)) ? attachOnce : false;
+
+		var setComponent;
+
+		if(Array.isArray(component)){
+			var params = [];
+			for(var i=1; i<component.length; i++){
+				params.push(component[i]);
+			}
+
+			setComponent = gl_applicationContextManager.Manager().getMethod(component[0])(params);
+			//console.log(setComponent);
+			if(Utils.isNull(setComponent)){
+				console.error("Component does Not exist: "+component[0])
+			}
+		}else{
+			setComponent = component;
+		}
+
+		if( document.getElementById(self.getId()) ){
+			addToDOM(setComponent);
+		}//else{
+			if(attachOnce){
+				self.onAttachOnceListener(function(){
+					addToDOM(setComponent);
+				});
+			}else{ // nnnnn
+				self.onAttachListener(function(){
+					addToDOM(setComponent);
+				});
+			}
+		//}
+		function addToDOM(setComponent1){
+
+			//console.log(setComponent);
+			//var id = self.getId();
+			var id = self._props_._component_element_container_id;
+			if(isEmpty==true){
+				$("#"+id).empty();
+			}
+			//if(Utils.isNull(setComponent1)) return;
+			$("#"+id).append(setComponent1.getHtml());
+			setComponent1.initializeListeners();
+		}
+
 	},
 
 
@@ -1961,6 +2383,7 @@ ContainerComponent.prototype = {
 	*
 	* @return {Boolean} - The current state of the component.
 	*/
+
 	getActive: function(){
 		return self._props_._active;
 	},
@@ -1974,11 +2397,13 @@ ContainerComponent.prototype = {
 	* @param {Boolean} stillSet - Set the state of the component even if not appended to the 
 	* 	DOM. 
 	*/
+
 	setActive: function(active,stillSet){
 		ContainerComponent_setActive(active,stillSet,this);
 	},
 
 };
+
 
 
 // 9999
@@ -2749,6 +3174,1589 @@ function _side_navigation(self){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 1001
+/** @exports TableComponent
+* @classdesc Instatiated by the  {@link ViewLayoutController} class
+* @class
+* @constructor
+* @param {Object} obj
+* @param {string} obj.id
+* @param {string} obj.classes
+* @param {string} obj.styles
+*/
+function TableComponent (obj){
+
+	var isNull = Utils.isNull;
+
+	_.extend(this, 
+		new AppFactoryManager('TableComponent'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager()
+	);
+	applicationManager.register(this);
+
+
+	if(isNull(obj)){
+		obj = {};
+		obj.columns = [];
+	}
+
+
+	this.TYPE = Flags.Type.component;
+	this.ID = "d-"+Utils.randomGenerator(13,false);
+	var randomId = Utils.randomGenerator(10,false);
+	this._tableBodyId = Utils.randomGenerator(10,false);
+	var id = this.ID;//(obj.id == null || obj.id==undefined) ? randomId : obj.id;
+	var classes = (obj.classes == null || obj.classes==undefined) ? "" : obj.classes;
+
+	applicationManager.setComponent(this);
+
+
+	var _container = document.createElement('div');
+	_container.id = "container-id-"+Utils.randomGenerator(22,false);
+	var _table = document.createElement('table');
+	var _thead = document.createElement('thead');
+	var _tbody = document.createElement('tbody');
+	
+	_table.appendChild(_thead);
+	_table.appendChild(_tbody);
+
+	_table.className = "table table-hover uieb-table";
+	_tbody.className = "uieb-table-tbody";
+	_thead.className = "uieb-table-thead";
+	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
+
+	/*
+	self._props_._tableStructure._rows.push({
+		column_line_num: self._props_._tableStructure._rowCount,
+		rowId: _tr.id,
+		rows: _rows, [id,val]..
+	});
+	*/
+
+
+
+	// Head elements
+	var _columnNames = [];
+	var _columnNameHeader = document.createElement('tr');
+	var _column_ = [];
+	_columnNameHeader.id = "col-name-header-"+Utils.randomGenerator(12,false);
+	for(var i=0; i<obj.columns.length; i++){
+		var _th = document.createElement('th');
+		_th.innerHTML = obj.columns[i].name;
+		_th.id = "column-"+Utils.randomGenerator(22,false);
+		var lastChar = obj.columns[i].name.substr(obj.columns[i].name.length - 1);
+		var _type = "normal";// normal|remote
+		if(lastChar=="&"){
+			_type = "remote";
+		}
+
+		//console.log(obj.columns[i].name);
+		_column_[i] = { 
+			id: _th.id,
+			name: obj.columns[i].name,
+			type: _type 
+		};
+		_columnNames[i] = obj.columns[i].name;
+		_columnNameHeader.appendChild(_th);
+
+	}
+	_thead.appendChild(_columnNameHeader);
+
+	//console.log(obj.columns);
+
+	this._props_ = {
+		_elements: {
+			_fragment: document.createDocumentFragment(),
+			_tbody:_tbody
+		},
+		_row_count: 0,
+		_events: [],
+		_extensionObject: [],
+		_event_object: {},
+		_parent: null,
+		_dom_events:{
+			_addToDOMEvent:[],
+			_addToDOMEventOnce: null,
+			_addToDOMCount: 0,
+			_removeFromDOMEvent:[],
+			_removeFromDOMEventOnce: null,
+			_removeFromDOMCount: 0,
+		}, 
+		_updatable: (isNull(obj.updatable)) ? false : obj.updatable,
+		_tableStructure: {
+			_rows: [],
+			_column: _column_,
+			_columnCount:obj.columns.length,
+			_columnNames:_columnNames,
+			_rowCount:0,
+			_rowData: [],
+			_columns: obj.columns,
+			_columnNameHeader: _columnNameHeader,
+			_connected_data: {},
+			_row_cell_data: [],
+			_cellRequestForConnectedData: obj.cellRequestForConnectedData
+		}
+	};
+
+	this._props_._elements._tbody.id = "table-body-"+Utils.randomGenerator(12,false);
+
+	if(this._props_._updatable){
+		var addRowBtn = document.createElement("button");
+		addRowBtn.innerHTML = "Add Row";
+		addRowBtn.id = "add-row-" + this.ID;
+		var addColBtn = document.createElement("button");
+		addColBtn.innerHTML = "Add Column";
+		addColBtn.id = "add-col-" + this.ID;
+		var addDownloadBtn = document.createElement("button");
+		addDownloadBtn.innerHTML = "Download";
+		addDownloadBtn.id = "download-" + this.ID;
+		var addSaveBtn = document.createElement("button");
+		addSaveBtn.innerHTML = "Save";
+		addSaveBtn.id = "save-" + this.ID;
+
+		_container.appendChild(addRowBtn);
+		_container.appendChild(addColBtn);
+		_container.appendChild(addDownloadBtn);
+		_container.appendChild(addSaveBtn);
+
+		var self = this;
+
+		this._props_._delemeter = (isNull(obj.delemeter)) ? "\t" : obj.delemeter;
+
+		//_Utils_registerListenerCallbackForSelf(this,"run","",function(data){
+		_Utils_registerListenerCallbackForSelf("run","",function(data){
+			$("#"+_thead.id).click(function(e){
+				TableComponent__column_adjustment(self,obj,e);
+			});
+			$("#"+addRowBtn.id).click(function(e){
+				TableComponent__add_row(self);
+			});
+			$("#"+addColBtn.id).click(function(e){
+				TableComponent__add_col(obj,self,_container.id);
+			});
+			$("#"+addDownloadBtn.id).click(function(e){
+				elementTextDownloadAsFile("houstonvote_downloaded_file.txt", self.getTableAsString());
+			})
+			$("#"+addSaveBtn.id).click(function(e){
+				Utils.toggleFullScreenLoader();
+				if(!isNull(obj.save)){
+					obj.save(self);
+				}
+				setTimeout(function(){
+					Utils.toggleFullScreenLoader();
+				},1500);
+			});
+
+		},self,true);
+	}
+	
+	_container.appendChild(_table);
+	this._props_._elements._fragment.appendChild(_container);
+
+	if(!isNull(obj.bodyStyles)){
+		_tbody.style = obj.bodyStyles;
+	}
+
+	var ap = document.createElement("span");
+	ap.id = this.ID;
+	this._props_._elements._fragment.appendChild(ap);
+
+	// this._props_._modalDialog = compFactory.modalDialog({
+	// 	content: {
+	// 		id: "",
+	// 		title: "",
+	// 		styles: "",
+	// 		classes: "",
+	// 		fade: true
+	// 	}
+	// });
+
+	this._props_._extensionObject.push(this._props_._modalDialog);
+	//this._props_._elements._fragment.appendChild(Utils.convertStringToHTMLNode( this._props_._modalDialog.getHtml() ));
+
+	this.getHtml = function(){
+		return this._props_._elements._fragment.cloneNode(true);
+	};
+
+	
+}
+
+TableComponent.prototype = {
+
+	getRowCellData: function(rowId){
+		if(isNull(rowId) || rowId==false){
+			return this._props_._tableStructure._row_cell_data;
+		}else{
+			return this._props_._tableStructure._row_cell_data[rowId];
+		}
+		
+	},
+
+	getColumnData: function(columnIndex){
+		var isNull = Utils.isNull;
+		// setConnectedData: function(cellId,connectId,type,value,available,modified)
+		/*
+		_column_[i] = { 
+			id: _th.id,
+			name: obj.columns[i].name,
+			type: _type //remote|normal
+		};
+		*/
+		if(isNull(columnIndex)){
+			return this._props_._tableStructure._column;
+		}else{
+			return this._props_._tableStructure._column[columnIndex];
+		}
+
+		
+	},
+
+
+	/**
+	* Create column
+	* @param {Array}
+	*/
+	columns: function(arry){
+		TableComponent_columns(arry,this);
+	},
+
+	reload: function(content){
+
+	},
+
+	getConnectedData: function(cellId){
+		var isNull = Utils.isNull;
+		if(!isNull(cellId)){
+			return this._props_._tableStructure._connected_data[cellId];
+		}else{
+			return this._props_._tableStructure._connected_data;
+		}
+	},
+
+	getAvailableConnectedData: function(){
+		var data = this._props_._tableStructure._connected_data;
+		var d = {};
+		for(var i in data){
+			if(data[i].available){
+				d[i] = data[i];
+			}
+		}
+		return d;
+	},
+
+	isModifiedConnectedData: function(isObj){
+		var isNull = Utils.isNull;
+		var data = this._props_._tableStructure._connected_data;
+		var d = {};
+		var length = 0;
+		for(var i in data){
+			length++;
+			if(data[i].modified){
+				d[i] = data[i];
+			}
+		}
+		var is = false; 
+		if(length>0){
+			is = true;
+		}
+		if(!isNull(isObj) && isObj){
+			return {
+				is: is,
+				length: length
+			};
+		}else{
+			return is;
+		}
+		
+	},
+
+	getModifiedConnectedData: function(){
+		var data = this._props_._tableStructure._connected_data;
+		var d = {};
+		for(var i in data){
+			if(data[i].modified){
+				d[i] = data[i];
+			}
+		}
+		return d;
+	},
+
+	// setConnectedData(id,connect_id,_type,val)
+
+	/**
+	*  cellId:String - The DOM id of the cell
+	*  connectId:String - The id/string that is in the cell
+	*  type:String - Optionsa = text|file
+	*  value:String - The value
+	*  available:Boolean - Is this data available
+	*  modified:Boolean - Data is available but has it been modified 
+	*
+	*/
+	setConnectedData: function(cellId,connectId,type,value,available,modified){
+		this._props_._tableStructure._connected_data[cellId] = {
+			connectId: connectId,
+			type: type,
+			value:value,
+			available: available,
+			modified: modified
+		};
+	},
+
+	clearModifiedConnectedData: function(){
+		var data = this._props_._tableStructure._connected_data;
+		var d = {};
+		for(var i in data){
+			if(data[i].modified){
+				this._props_._tableStructure._connected_data[i].modified = false;
+			}
+		}
+	},
+
+
+	/**
+	* Create row
+	* @param {Array}
+	*/
+	row: function(obj){
+		TableComponent_row(obj,this);
+	},
+
+	/**
+	* Delete column from table
+	* @param {Number} index of column to delete
+	*/
+	deleteRow: function(index){
+		document.getElementById(this._tableId).deleteRow(index);
+	},
+
+
+	getRows: function(getObj){
+		var isNull = Utils.isNull;
+		if(isNull(getObj)){
+			return this._props_._tableStructure._rowData;
+		}else{
+			if(getObj){
+				return this._props_._tableStructure._rows;
+			}else{
+				return this._props_._tableStructure._rowData;
+			}
+		}
+	},
+
+	updateCell : function(cellId,newValue,updateOnDOM){
+		//console.log(cellId);
+		//console.log(newValue);
+		this.updateRow(cellId,newValue,updateOnDOM);
+	},
+
+	updateRow: function(cellId,newValue,updateOnDOM){
+		var isNull = Utils.isNull;
+		/*
+			self._props_._tableStructure._rows.push({
+				column_line_num: self._props_._tableStructure._rowCount,
+				rowId: _tr.id,
+				rows: _rows,
+			});
+
+
+		*/
+		var self = this;
+		var found = false;  
+		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
+			var rows = this._props_._tableStructure._rows[i].rows;
+			for(var n=0; n<rows.length; n++){
+				if(rows[n].id==cellId){
+					this._props_._tableStructure._rows[i].rows[n].val = newValue;
+					found = true;
+					if(!isNull(updateOnDOM) && updateOnDOM==true){
+						document.getElementById(cellId).innerHTML = newValue;
+					}
+					break;
+				}
+			}
+			if(found==true) break;
+		}
+	},
+
+	getColumnNames: function(){
+		return this._props_._tableStructure._columnNames;
+	},
+
+	getColumns: function(){
+		return this._props_._tableStructure._column;
+	},
+
+	/**
+	* Returns a String representation of the table.
+	* a newline is given for each row in the table.
+	* 
+	* @param {String } delemeter
+	*/
+	getTableAsString: function(delemeter){
+		return TableComponent_getTableAsString(delemeter,this);
+	}, 
+
+	
+
+	/**
+	* Returns an object with the table object and the holder object.
+	* The holder object is a uieb CUstomizerComponent
+	*
+	* If contents is nothing then this method will return a
+	* uieb element with the no_conents_error_message displayed.
+	* 
+	* 
+	* @param {String} delemeter
+	*/
+	createTable: function(withContainer,obj){
+		var isNull = Utils.isNull;
+
+		/*
+			table({
+				updatable: true,
+				
+				// add this if you only want columns
+				// this is overridden by content
+				columns: columns,
+				content: content,
+				delemeter: delemeter,
+				no_conents_error_message: no_conents_error_message,
+				filename: filename
+			});
+		*/
+
+		console.log(obj);
+
+		// get the file contents then spilt by newline
+
+		///console.log(obj);
+		var file_rows = obj.content.split("\n");
+		//var file_rows = d.trim().split("\n");
+		//var t = table(file_rows,"polling_locations.cvs");
+
+		if(file_rows.length==0){
+			var cust = new ContainerComponent({
+				styles: "margin-bottom:10%;",
+				body:no_conents_error_message
+			});
+			
+
+			return {holder:cust};
+		}
+
+		var columns = [];
+		for(var i=0; i<1; i++){
+			var row = file_rows[i].split("\t");
+			for (var p = 0; p < row.length; p++) {
+				columns[p] = {name:row[p]};
+			}
+			break;
+		}
+
+		var editable = (isNull(obj.editable)) ? false : obj.editable;
+
+		// mode = mormal|edit|present
+		var mode = (isNull(obj.mode)) ? "normal" : obj.mode;
+		var tm = new ComponentFactory();
+		var table = tm.table({
+			updatable: true,
+			editable: editable,
+			mode: mode,
+			columns: columns,
+			save: obj.save,
+			cellRequestForConnectedData: obj.cellRequestForConnectedData
+		});
+
+		//console.log(file_rows);
+	
+		var columnsData = [];
+		//console.log(file_rows);
+		for(var i=1; i<file_rows.length; i++){
+			var row = file_rows[i].split("\t");
+			//console.log(row);
+			//row.shift();
+			//console.log(row);
+
+
+
+			for (var p = 0; p < row.length; p++) {
+				columnsData[p] = {
+					html: row[p]
+				};
+			}
+			table.row({
+				id:"table-row-id-"+Utils.randomGenerator(22,false),
+				columnsData: columnsData
+			});
+
+			//console.log(columnsData);
+		}
+		
+		
+		var cust = new ContainerComponent({
+			id: "h-"+Utils.randomGenerator(22,false),
+			styles: "margin-bottom:10%;",
+			body: table
+		});
+
+		if(!withContainer){
+			return table;
+		}else{
+			return cust;
+		}
+
+	}
+};
+
+
+/*
+
+	* Returns an object with the table object and the holder object.
+	* The holder object is a uieb CUstomizerComponent
+	*
+	* If contents is nothing then this method will return a
+	* uieb element with the no_conents_error_message displayed.
+	* 
+	* 
+	* @param {String } delemeter
+	
+	createTable: function(obj){
+*/
+/*
+table({
+	updatable: true,
+	
+	// add this if you only want columns
+	// this is overridden by content
+	columns: columns,
+	content: content,
+	delemeter: delemeter,
+	no_conents_error_message: no_conents_error_message,
+	filename: filename
+});
+*/
+function TableComponent__add_col(obj,self,containerId){
+	var isNull = Utils.isNull;
+
+	var delemeter = self._props_._delemeter;
+	var oldTable = self.getTableAsString();
+
+
+	var form = "<label>Enter Column Name (required): </label><br>";
+	form += "<input type='text' id='new-column-name-for-table' /><br>";
+	form += "<label>Enter Default Value: </label><br>";
+	form += "<input type='text' id='new-column-value-default' /><br>";
+	form += "<button id='new-column-name-for-table-submit'>Submit</button>"; 
+
+	var c = new ContainerComponent({ 
+		body: form,
+		callback: {
+			type:'run',
+			func: function(){
+				$("#new-column-name-for-table-submit").click(function(e){
+
+					var colName = $("#new-column-name-for-table").val().trim();
+					var defaultValue = $("#new-column-value-default").val();
+
+					if(colName=="") return;
+					
+
+					var firstRow = 0;
+					var ot = oldTable.split("\n");
+
+					var g = ot[0].split(delemeter);
+					g.push(colName);
+					var r = g.join(delemeter);
+
+					var r1 = [];
+					r1.push(r);
+					for(var i=1; i<ot.length; i++){
+						var g1 = ot[i].split(delemeter);
+						//console.log(defaultValue);
+						g1.push(defaultValue);
+						var g3 = g1.join(delemeter);
+						r1.push(g3);
+					}
+					//console.log(r1);
+					r1.pop();
+					//console.log(r1);
+					var newOldTable = r1.join("\n");
+
+					//console.log(obj.columns);
+
+					console.log(newOldTable);
+
+					
+
+					//var v = new ViewComponentController();
+					var v = new ComponentFactory();
+					var table = v.table().createTable(false,{
+						updatable: obj.updatable,
+						
+						// add this if you only want columns
+						// this is overridden by content
+						columns: obj.columns,
+						content: newOldTable,
+						delemeter: obj.delemeter,
+						no_conents_error_message: obj.no_conents_error_message,
+						filename: obj.filename,
+						save: obj.save
+					});
+					// 5555
+
+					if(document.getElementById(containerId)){
+						$("#"+containerId).empty();
+						$("#"+containerId).append(table.getHtml());
+						table.initializeListeners();
+					}
+
+
+
+
+
+					/*
+					var new_row_data = [];
+					for(var b=0; b<row_items.length; b++){
+						dosome(b);
+					}
+
+					function dosome(indx){
+						var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
+						new_row_data[indx] = val;
+					}
+					_updateRow(new_row_data);
+
+					//console.log(table.getRows());
+					*/
+
+					// self._props_._modalDialog.toggle();
+				});
+
+				
+			}
+		}
+	});
+	// self._props_._modalDialog.set({
+	// 	title: "Update",
+	// 	body: c,
+	// 	styles: "padding:5%;"
+	// });
+	// self._props_._modalDialog.toggle(); 
+
+
+	
+
+}
+function TableComponent__column_adjustment(self,obj,e){
+	var isNull = Utils.isNull;
+
+	// self._props_._tableStructure._columnNames;
+	// self._props_._tableStructure._rows;
+	// var comp = new ViewComponentController();
+
+	// var tableEditMenu = comp.cust();
+	// tableEditMenu.make({});
+
+	var tableEditMenu = new ContainerComponent();
+
+
+
+	var id = "table-columns-dialog-"+Utils.randomGenerator(22,false);
+	//var cont = new ViewCollectionController("#"+id);
+	var cont = new ViewManager();
+	cont.newSubView({
+		id: "edit-select",
+		layout: _x1(self,cont,tableEditMenu),
+		init: true
+	});
+	cont.newSubView({
+		id: "edit-menu",
+		layout: tableEditMenu,
+		init: false
+	});
+
+	var cust = comp.cust();
+	cust.make({
+		id: id,
+		body: cont
+	});
+
+
+	// self._props_._modalDialog.set({
+	// 	title: "Edit Table",
+	// 	body: cust,
+	// 	styles: "padding:5%;"
+	// });
+	// self._props_._modalDialog.toggle();
+
+}
+function _x1(self,cont,tableEditMenu){
+	var comp = new ComponentFactory();// ViewComponentController();
+
+	var rows = self._props_._tableStructure._rows;
+	var columns = self._props_._tableStructure._columnNames;
+
+	var buttons = [];
+	for(var i=0; i<columns.length; i++){
+		_setupBtns(columns[i],i);
+	}
+	function _setupBtns(col,index){
+		buttons[index] = comp.button({
+			label: col,
+			callback: function(){
+
+				cont.render('edit-menu');
+				tableEditMenu.addComponent(_editTableByGroup(col,self),true);
+
+			}
+		});
+	}
+
+	// var cust = comp.cust();
+	// cust.make({
+	// 	body: buttons
+	// });
+
+	var cust = comp.container({
+		body: buttons
+	});
+
+	// nnnnn
+	var layout = LayoutManager.newLayout()
+		.row()
+		.col({md:12},[cust])
+		.build(); 
+
+	return layout;
+}
+function _editTableByGroup(button,self){
+	var isNull = Utils.isNull;
+	var comp = new ComponentFactory();// ViewComponentController();
+	var cust = comp.container();
+	// get the button position
+	var matchColumnIndex = -1;
+	var colNames = self.getColumnNames();
+	for(var i=0; i<colNames.length; i++){
+		if(button==colNames[i]){
+			matchColumnIndex = i;
+			break;
+		}
+	}
+
+	var rows = self.getRows();
+	var _rows = self.getRows(true);
+	var select = [];
+	for(var i=0; i<rows.length; i++){
+		var row = rows[i];
+		var val = row[matchColumnIndex];
+		select[i] = val;
+	}
+	function onlyUnique(value, index, self) { 
+	    return self.indexOf(value) === index;
+	}
+	var a = ['a', 1, 'a', 2, '1'];
+	var unique = select.filter( onlyUnique ); // returns ['a', 1, 2, '1']
+
+	var selectElement = "<select id='select-something'><option></option>";
+	for(var i=0; i<unique.length; i++){
+		selectElement += "<option>"+unique[i]+"</option>";
+	}
+	selectElement += "</select>";
+
+	var c2 = comp.cust();
+	c2.make({});
+
+
+	var c1 = comp.container({
+		body: selectElement,
+		callback: {
+			type: 'run',
+			func: function(){
+				// var sel = document.getElementById('select-something');
+				// sel.addEventListener('change',function(e){
+				// 	var sel_item = sel.options[sel.selectedIndex].text;
+				// 	//console.log(strUser);
+				//     	//console.log('changed');
+
+				// 	var collectedRows = [];
+				// 	var count = 0;
+
+					
+
+				//     	var b1 = [];
+
+				//     	for(var i=0; i<rows.length; i++){
+				// 		var row = rows[i];
+				// 		var val = row[matchColumnIndex];
+				// 		if(val==sel_item){
+				// 			b1.push(row);
+				// 			collectedRows[count] = _rows[i];
+				// 			count++;
+				// 		}
+				// 	}
+
+				// 	//console.log(collectedRows);
+
+
+				// 	var compuForm = '<br><br><div style="width:550px;max-height:400px;"><div style="overflow:scroll;display:Block;white-space: nowrap;    height: 260px;">';
+				// 	for(var i=0; i<colNames.length; i++){
+				// 		compuForm += '<div style="width:20%;display:inline-block"><strong> #'+colNames[i]+'</strong></div>';
+				// 	}
+
+				// 	compuForm += '<br><br>';
+
+				// 	var formElementIds = [];
+
+
+					
+				// 	for(var i=0; i<collectedRows.length; i++){
+				// 		var b2 = collectedRows[i].rows;
+				// 		var form = '<div>';
+				// 		for(var g=0; g<b2.length; g++){
+				// 			var id = b2[g].id+'---cell'
+				// 			formElementIds.push(id);
+				// 			form += ''
+				// 			+'<div style="width:20%;display:inline-block" class="">'
+				// 			//+'	<label for="exampleInputName2">Name</label>'
+				// 			+'	<input style="width:115px;" type="text" value="'+b2[g].val+'" class="" id="'+id+'" >'
+				// 			+'</div>';
+				// 		}
+				// 		form += '</div><br>';
+				// 		compuForm = compuForm+""+form;
+				// 	}
+				// 	compuForm = compuForm+"</div></div></div><br><button id='update-as-group-btn' style='width:35%;'>Update</button>";
+
+					
+
+
+				// 	var cust5 = comp.cust();
+				// 	cust5.make({
+				// 		body: compuForm,
+				// 		callback: {
+				// 			type: 'run',
+				// 			func: function(){
+
+				// 				//console.log(collectedRows);
+				// 				$("#update-as-group-btn").click(function(e){
+				// 					e.preventDefault();
+				// 					for(var i=0; i<formElementIds.length; i++){
+				// 						var newVal = $("#"+formElementIds[i]).val();
+				// 						var _cell_id = formElementIds[i].split('---')[0];
+				// 						var el = document.getElementById(_cell_id);
+				// 						el.innerHTML = newVal;
+				// 						self.updateRow(_cell_id,newVal);
+										
+				// 					}
+				// 					self._props_._modalDialog.toggle();
+
+				// 					//console.log(self.getTableAsString());
+
+				// 				});
+								
+
+
+				// 			}
+				// 		}
+				// 	});
+
+				// 	c2.addComponent(cust5,true);
+
+				//});
+
+			}
+		}
+	});
+
+	
+
+
+
+	// grab all values in that position
+
+	// sort out same values
+
+
+
+
+	cust.addComponent('<h4>'+button+'</h4>');
+
+
+	var layout = LayoutManager.newLayout() //new ViewLayoutController()
+		.row()
+		.col({},[cust])
+		.row()
+		.col({},[c1])
+		.row()
+		.col({},[c2])
+		.build();
+
+
+
+	
+	return layout;
+}
+function _x2(){
+
+	var cust = new ContainerComponent();
+	return cust;
+	
+}
+function TableComponent__add_row(self){
+	var _columns = self._props_._tableStructure._columnNames;
+	var _form = "";
+	var _form_row_ids = [];
+	for (var i = 0; i < _columns.length; i++) {
+		var ran = Utils.randomGenerator(12,false);
+		_form_row_ids[i] = 'new-row-'+i+'-'+ran;
+		_form += '<label>'+_columns[i]+'</label>';
+		_form += '<input type="text" id="'+_form_row_ids[i]+'" /><br>';
+	}
+
+	//console.log(_form_row_ids);
+
+	var r = "add-row-"+Utils.randomGenerator(7,false);
+	_form += "<button id='"+r+"'>Add Row</button>";
+
+	var c = new ComponentFactory(); //ViewComponentController();
+	var cust = c.container({
+		body: _form,
+		callback: {
+			type: 'run',
+			func: function(){
+				// var columnsData = [];
+
+				// //console.log("NO - WAY _HOSEA");
+				// $("#"+r).click(function(e){
+				// 	var row = _form_row_ids;
+				// 	for (var p = 0; p < row.length; p++) {
+				// 		//console.log(row[p]);
+				// 		var val = $("#"+row[p]).val();
+				// 		//console.log(val);
+				// 		columnsData[p] = {
+				// 			html: val
+				// 		};
+				// 	}
+				
+				// 	//console.log(columnsData);
+				// 	self.row({
+				// 		columnsData: columnsData
+				// 	});
+				// 	self._props_._modalDialog.toggle();
+				// });
+			}
+		}
+	});
+	
+	// self._props_._modalDialog.set({
+	// 	title: "Add A Row",
+	// 	body: cust,
+	// 	styles: "padding:5%;"
+	// });
+	// self._props_._modalDialog.toggle();
+}
+function TableComponent_row(obj,self){
+	/*
+	table.row({
+		id:"",
+		columnsData:[
+			{
+				html: "",
+				callback: {
+					type: '',
+					func: function(data){}
+				}
+			}
+		]
+	});
+	*/
+
+	var isNull = Utils.isNull;
+
+
+	
+	var _row_names = [];
+	var rowCount = self._props_._row_count++;
+	var row_items = [];
+	var row_ids = [];
+	//var self = this;
+	var _tr = document.createElement('tr');
+	_tr.id = "table-"+Utils.randomGenerator(22,false);
+	var col_names = self._props_._tableStructure._columnNames;
+	if(col_names.length!=obj.columnsData.length){
+		if(col_names.length > obj.columnsData.length){
+			var start = col_names.length - obj.columnsData.length;
+			for(var h=start+1; h<col_names.length; h++){
+				if(!isNull(col_names[h])){
+					obj.columnsData.push({html:"\t"});
+				}
+			}
+
+		}
+	}
+
+	self._props_._tableStructure._row_cell_data[_tr.id] = [];
+	
+	//console.log(obj.columnsData);
+	var _rows = {
+		ids:[],
+		id: ""
+	};
+	for(var i=0; i<obj.columnsData.length; i++){
+		_setupRow(obj.columnsData[i],i);
+	}
+	function _setupRow(col,index){
+		var _td = document.createElement('td');
+		_td.innerHTML = col.html;
+		_row_names[index] = col.html;
+		_td.id = "table-row-"+Utils.randomGenerator(22,false);
+		//_td.style = "overflow:hidden;";
+		_td.className = "uieb-table-cell";
+		_rows.ids.push(_td.id);
+		_tr.appendChild(_td);
+		row_items[index] = col.html;
+		row_ids[index] = _td.id;
+
+		self._props_._tableStructure._row_cell_data[_tr.id].push({
+			cellId: _td.id ,
+			cellValue: col.html
+		});
+
+		// setConnectedData: function(cellId,connectId,type,value,available,modified)
+		var j = self.getColumnData(index);
+		if(!isNull(j)){
+			if(j.type=="remote"){
+				self.setConnectedData(_td.id,col.html,"text","",false,false);
+			}
+		}
+		
+	}
+
+	var rc = self._props_._tableStructure._rowCount;
+	self._props_._tableStructure._rowData[rc] = _row_names;
+	self._props_._tableStructure._rowCount++;
+
+	//console.log(self.getColumns());
+	var _rows = [];
+	for(var i=0; i<row_ids.length; i++){
+		_rows[i] = {
+			id: row_ids[i],
+			val: _row_names[i],
+			col: self.getColumns()[i].name,
+			type: self.getColumns()[i].type
+		}
+		if(self.getColumns()[i].type=="remote"){
+			registerRemoteCells(row_ids[i]);
+		}else{
+			registerAllCells(row_ids[i]);
+		}
+		
+	}
+	function registerAllCells(id){
+		//registerListenerCallbackForSelf(self,"click",id,function(data){}
+	}
+	function registerRemoteCells(id){
+		//_Utils_registerListenerCallbackForSelf(self,"click",id,function(data){
+		_Utils_registerListenerCallbackForSelf("click",id,function(data){
+			data.e.stopPropagation();
+			data.e.preventDefault();
+
+
+			// var v = document.getElementById(id).innerHTML;
+			// if(v!=""){
+			// 	// cellRequestForConnectedData
+			// 	var connectIdObj = self.getConnectedData(id);
+			// 	if(!isNull(connectIdObj)){
+			// 		//console.log(connectIdObj)
+			// 		if(!connectIdObj.available){
+			// 			Utils.toggleFullScreenLoader();
+			// 			self._props_._tableStructure._cellRequestForConnectedData(v,function(responseData){
+			// 				//console.log(responseData);
+			// 				Utils.toggleFullScreenLoader();
+			// 				if(responseData=="_NOT_SET_"){
+			// 					var connect_id = Utils.randomGenerator(18,false);
+			// 					attachcomponent("",connect_id);
+			// 				}else{
+
+			// 					//{"id":1,"connected_data":"","type":"text","connected_id":""}
+			// 					responseData = JSON.parse(responseData);
+			// 					attachcomponent(responseData.connected_data,responseData.connected_id);
+			// 				}
+			// 			});
+			// 		}
+			// 	}
+				
+			// }
+
+			// function attachcomponent(responseData,connect_id){
+			// 	var form = '<input type="radio" name="optionss" checked value="text" > Text<br>';
+			// 	form += '<textarea cols="70" rows="12" id="table-stored-text-data-'+id+'">'+responseData+'</textarea><br>';
+			// 	form += '<button id="add-cell-data-'+id+'">Submit</button>';
+
+			// 	var c = compFactory.cust();
+			// 	c.make({ 
+			// 		body: form,
+			// 		callback: {
+			// 			type:'run',
+			// 			func: function(){
+			// 				$("#add-cell-data-"+id).click(function(e){
+			// 					var _type = $("input[name='optionss']:checked").val();
+			// 					if(_type=="text"){
+			// 						//  
+			// 						var val = $("#table-stored-text-data-"+id).val();
+			// 						if(val==""){
+
+			// 						}else{                 // cellId,connectId,type,value
+			// 							self.setConnectedData(id,connect_id,_type,val,true,true);
+			// 							self.updateCell(id,connect_id,true);
+			// 							self._props_._modalDialog.toggle();
+			// 						}
+									
+			// 					}							
+								
+			// 				});
+			// 			}
+			// 		}
+			// 	});
+			// 	self._props_._modalDialog.set({
+			// 		title: "Add Data",
+			// 		body: c,
+			// 		styles: "padding:5%;"
+			// 	});
+			// 	self._props_._modalDialog.toggle();
+			// }
+				
+		},self,true);
+	}
+	
+	self._props_._tableStructure._rows.push({
+		column_line_num: self._props_._tableStructure._rowCount,
+		rowId: _tr.id,
+		rows: _rows,
+	});
+
+
+	function _updateRow(new_row_vals){
+		self._props_._tableStructure._rowData[rc] = new_row_vals;
+		for(var i=0; i<row_ids.length; i++){
+			document.getElementById(row_ids[i]).innerHTML = new_row_vals[i];
+		}
+		
+	}
+
+	//_Utils_registerListenerCallbackForSelf(self,"click",_tr.id,function(data){
+	_Utils_registerListenerCallbackForSelf("click",_tr.id,function(data){
+
+
+		if(!self._props_._updatable) return;
+		var col_names = self._props_._tableStructure._columnNames;
+		var row_items = self._props_._tableStructure._rowData[rc];
+		var form = "";
+		for(var k=0; k<row_items.length; k++){
+			var id = "table-single-row-"+rowCount+"-"+k;
+			form += "<label>"+col_names[k]+"</label>";
+			form += "<input type='text' class='table-single-row"+rowCount+"' id='"+id+"' value='"+row_items[k]+"'><br>";
+		}
+
+		form += "<br><button id='change-table-row-"+rowCount+"'>Update</button>";
+
+		
+
+		var c = new ContainerComponent({ 
+			body: form,
+			callback: {
+				type:'run',
+				func: function(){
+					$("#change-table-row-"+rowCount).click(function(e){
+						var new_row_data = [];
+						for(var b=0; b<row_items.length; b++){
+							dosome(b);
+						}
+
+						console.log(self.getRowCellData()[_tr.id]);
+
+						function dosome(indx){
+							var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
+							new_row_data[indx] = val;
+							//console.log(self.getRowCellData()[indx]);
+							var cellId = self.getRowCellData()[_tr.id][indx].cellId;
+							self.updateCell(cellId,val,true);
+						}
+
+						
+
+						
+
+						//_updateRow(new_row_data);
+
+						//console.log(table.getRows());
+						self._props_._modalDialog.toggle();
+					});
+				}
+			}
+		});
+		// self._props_._modalDialog.set({
+		// 	title: "Update",
+		// 	body: c,
+		// 	styles: "padding:5%;"
+		// });
+		// self._props_._modalDialog.toggle();
+	},self,true);
+
+	_Utils_registerListenerCallback(obj,self,_tr.id,{
+		rowId: rowCount,
+		rowItems: row_items,
+		updateRow: _updateRow
+	});
+
+	if(document.getElementById(self._props_._elements._tbody.id)){
+		document.getElementById(self._props_._elements._tbody.id)
+		.appendChild(_tr);
+	}else{
+		self._props_._elements._tbody.appendChild(_tr);
+	}
+
+	
+	
+	
+	
+
+	
+	/*
+	console.log(self._props_._elements._tbody.id);
+	findComponent(self._props_._elements._tbody.id,_tr,function(elem){
+		console.log(self._props_._elements._tbody.lastChild);
+		//$(self._props_._elements._tbody).children()[0].append(_tr);
+
+		if(document.getElementById(self._props_._elements._tbody.id)){
+			document.getElementById(self._props_._elements._tbody.id)
+			.lastChild.appendChild(_tr);
+		}
+		
+	});
+	*/
+
+
+	/*
+	registerListenerCallbackForSelf(self,"click",start.id,function(data){
+    		data.e.preventDefault();
+    		self.start();
+    	});
+    	*/
+
+}
+
+function TableComponent_getTableAsString(delemeter,self){
+
+	var isNull = Utils.isNull;
+
+	/*
+			self._props_._tableStructure._rows.push({
+				column_line_num: self._props_._tableStructure._rowCount,
+				rowId: _tr.id,
+				rows: _rows, [id,val]..
+			});
+
+
+		*/
+
+
+	if(isNull(delemeter)){
+		delemeter = "\t";
+	}
+
+	var rows = [];
+	var rows1 = self.getRows(true);
+	//console.log(rows1);
+	for(var i=0; i<rows1.length; i++){
+		var r = rows1[i].rows;
+		var setRow = [];
+		for(var n=0; n<r.length; n++){
+			setRow.push(r[n].val);
+		}
+		rows.push(setRow);
+	}
+
+	var colNames = self._props_._tableStructure._columnNames;
+	var columns = colNames.join(delemeter);
+	var str = columns+"\n";
+	for(var i=0; i<rows.length; i++){
+		var row = rows[i].join(delemeter);
+		str = str+""+row+"\n";
+
+	}
+
+	return str;
+
+	
+
+	
+
+
+	/*
+	var builtTableStr = "";
+	for(var p=0; p<rows.length; p++){
+		var rowSplit = rows[p];
+		var rowString = "";
+		var start = 0;
+		for(var h=0; h<rowSplit.length; h++){
+			if(start==0){
+				rowString += rowSplit[h];
+			}else{
+				rowString += delemeter+rowSplit[h];
+			}
+			start++;
+		}
+		rowString += "\n";
+		builtTableStr += rowString;
+	}
+
+	// add column name
+	var colNames = self._props_._tableStructure._columnNames;
+	var start = 0;
+	var names = "";
+	for(var i=0; i<colNames.length; i++){
+		if(start==0){
+			names += colNames[i];
+		}else{
+			names += delemeter+colNames[i];
+		}
+		start++;
+	}
+	builtTableStr = names+"\n"+delemeter+builtTableStr;
+	return builtTableStr
+	*/
+}
+
+
+// 1001
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -3138,6 +5146,43 @@ var Utils = {
 			size: filesize,
 			isOver: fileToBig
 		};
+
+	},
+
+	forLoop: function(length,callback,backwards,id,breakmax){
+		var isNull = Utils.isNull;
+		var breakCount = 0;
+		var breakMax = (!Utils.isNull(breakmax)) ? breakmax : 300;
+		if(length>=breakMax){
+			breakMax = length + breakMax;
+		}
+		if(isNull(backwards) || backwards==false){
+			for(var i=0; i<length; i++){
+				breakCount++;
+				if(breakCount>breakMax){ 
+					console.error("Loop is Broken - " + id);
+					break; 
+				}
+				var b = callback(i);
+				if(!Utils.isNull(b) && b==true){
+					break;
+				}
+			}
+		}else{
+			for(var i=0; i<length; i--){
+				breakCount++;
+				if(breakCount>breakMax){ 
+					console.error("Loop is Broken - " + id);
+					break; 
+				}
+				var b = callback(i);
+				if(!isNull(b) && b==true){
+					break;
+				}
+			}
+		}
+		
+
 
 	}
 
@@ -3741,7 +5786,7 @@ function Pages__get(){
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 /* 0000 - ViewManager */
-function ViewManager_render(id,trigger,self){
+function ViewManager_render(id,body,replace,trigger,self){
 	//var view = self.getView(id);
 	if(Utils.isNull(trigger)){
 		trigger = false;
@@ -3753,9 +5798,17 @@ function ViewManager_render(id,trigger,self){
 	// };
 	// 1111
 	var view = self._props_._component_containers['children'][id];
-	if(view!=null){
+	if(view){
 		self._props_._current_view = view;
 		var container = view.container;
+		if(!Utils.isNull(body)){
+			container = body;
+			if(!Utils.isNull(replace) && replace==true){
+				self._props_._component_containers['children'][id].container = container;
+			}
+		}
+
+		// 4444 - add component to trigger route, instead of jus having the default component
 		if(self._props_._options.routable==true){
 			if(!trigger){
 				self._props_._component_containers.parent.addComponent(container,true);
@@ -3765,6 +5818,8 @@ function ViewManager_render(id,trigger,self){
 		}else{
 			self._props_._component_containers.parent.addComponent(container,true);
 		}
+	}else{
+		console.error("view is undefined for view: "+id)
 	}
 	function getNewRoute(id,self){
 		var hash = window.location.hash;
@@ -3917,6 +5972,8 @@ function FormComponent_constructor(obj,self){
 		submit: "form:submit:"+Utils.randomGenerator(6,false)
 	};
 
+
+	// 4444 - better control how form is submited
 	var hasBeenClicked = false;
 	function run2(){
 		var areAllValuesIn = handleStatus(self);
@@ -3944,7 +6001,13 @@ function FormComponent_constructor(obj,self){
 		document.getElementById(self._props_._submit_button_id).disabled = true;
 		hasBeenClicked = true;
 		var allIn = false;
+		var clearAfterCount = 50;
+		var afterCount = 0;
 		var interval = setInterval(function(){
+			afterCount++;
+			if(afterCount>clearAfterCount){
+				clearFormSubmitInerval();
+			}
 			if(!allIn){
 				allIn = run2();
 			}else{
@@ -3955,11 +6018,15 @@ function FormComponent_constructor(obj,self){
 				clearFormSubmitInerval();
 			}
 			self._props_._runs._count++;
-		},2000);//self._props_._runs._intervals);
+		},100);//self._props_._runs._intervals);
 
 		function clearFormSubmitInerval(){
 			hasBeenClicked = false;
-			document.getElementById(self._props_._submit_button_id).disabled = false;
+
+			var sb = document.getElementById(self._props_._submit_button_id);
+			if(!Utils.isNull(sb)){
+				sb.disabled = false;
+			}
 			clearInterval(interval);
 			self._props_._runs._count = 0;
 		}
@@ -4001,7 +6068,12 @@ function FormComponent_getFormElements(self){
 	var data = self._props_._form_data;
 	var elements = [];
 	for(var i in data){
-		elements.push(data[i].component.getHtml());
+		var layout_default = {row: true,col: {md:12}}
+		if(!Utils.isNull(data[i].layout)){
+			layout_default = data[i].layout;
+		}
+		var layout = layout_default;
+		elements.push({element:data[i].component,layout:layout});
 	}
 	return elements;
 }
@@ -4016,10 +6088,24 @@ function FormComponent_build(pages,self){
 }
 function handleFormNormalBuild(self){
 	var elements = self.getFormElements();
+	var layout = layoutManager.newLayout();
+		layout.row();
 	for( var i=0; i<elements.length; i++ ){
-		self._props_._form.appendChild(elements[i]);
+		var layRow = elements[i].layout.row;
+		var layCol = elements[i].layout.col;
+		var comp = elements[i].element;
+		if(!Utils.isNull(layRow) && layRow==true){
+			layout.row();
+		}
+		layout.col(layCol,[comp]);
 	}
-	self._props_._form.appendChild(self._props_._submit_button.getHtml());
+	layout.row();
+	layout.col({md:12},[self._props_._submit_button]);
+	layout.build();
+	//self._props_._form.appendChild(elements[i].element);
+	self._props_._form.appendChild(layout.getHtml());
+	
+	//self._props_._form.appendChild(self._props_._submit_button.getHtml());
 }
 
 // 4444 - add layout to form pages
@@ -4227,17 +6313,28 @@ function FormComponent_onSubmit(opts,callback,self){
 	self._props_._submit_button_id = self._props_._submit_button.getId();
 }// 1212
 // 4444 - prevent form from being submitted when pressing enter 
+// 4444 - the param all is required otherwise values returned undefined
 function FormComponent_addInput(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var layout_classes = (opts.layout==undefined) ? "" : opts.layout;
 	var statusId = Utils.randomGenerator(12,false);
-	var layoutContainer = Utils.createElement({ className: layout_classes });
+	var layoutContainer = Utils.createElement({ className: 'form-group '+layout_classes });
 	var label = Utils.createElement('label',{ for: formElement.id, innerHTML: formElement.label });
 	var input = FromComponent_addInput_createElement(formElement);
+	
+	var disabled = (!Utils.isNull(opts.disabled)) ? opts.disabled : false;
+	input.disabled = disabled;
+
 	var status = Utils.createElement('span',{ id: statusId });
 	layoutContainer.appendChild(label);
 	layoutContainer.appendChild(input);
 	layoutContainer.appendChild(status);
+	var default_value = (!Utils.isNull(opts.defaultValue)) ? opts.defaultValue : "";
+	if(default_value!=""){
+		self._props_._values[formElement.paramName] = default_value;
+		input.value = default_value;
+	}
+	
 	var compContainer = new ContainerComponent({body:layoutContainer});
 	var tag = formElement.tag;
 	self._props_._form_data[tag] = {
@@ -4245,6 +6342,7 @@ function FormComponent_addInput(opts,self){
 		component: compContainer,
 		paramName: formElement.paramName,
 		type: 'input',
+		layout: opts.layout,
 		formElement: formElement,
 		// o - default
 		// 1 - ready
@@ -4873,6 +6971,7 @@ function FormComponent_addInput(opts,self){
 		}
 	}
 	function validation_set_defaults(validation){
+		validation = (!Utils.isNull(validation)) ? validation : {};
 		if(!Utils.isNull(validation.required)){
 			if(typeof validation.required === 'boolean'){
 				var req = validation.required;
@@ -4938,7 +7037,6 @@ function FormComponent_addSelection(opts,self){
 		className: "form-group"
 	});
 
-	console.log(formElement);
 	var label = createElement({
 		el: 'label',
 		for: Utils.removeSelector(formElement.selector),
@@ -4951,11 +7049,22 @@ function FormComponent_addSelection(opts,self){
 		className: "form-control "+formElement.className
 	});
 
+	var sel = (Utils.isNull(opts.defaultSelection)) ? "" : opts.defaultSelection;
+	self._props_._values[formElement.paramName] = sel;
+
 	for(var i=0; i<opts.list.length; i++){
-		var option = createElement({
-			el: 'option',
-			innerHTML: opts.list[i]
-		});
+		if(sel==opts.list[i]){
+			var option = createElement({
+				el: 'option',
+				selected: true,
+				innerHTML: opts.list[i]
+			});
+		}else{
+			var option = createElement({
+				el: 'option',
+				innerHTML: opts.list[i]
+			});
+		}
 		select.appendChild(option);
 	}
 	topDiv.appendChild(label);
@@ -4966,13 +7075,20 @@ function FormComponent_addSelection(opts,self){
 
 	function getSelectionValue(){
 		$(formElement.selector).on('change',function(e){
-			//if(obj.changeListener){
-				var optionSelected = $("option:selected", this);
-				self._props_._values[formElement.paramName] = this.value;
-
-				console.log(this.value);
-			//}
+			var optionSelected = $("option:selected", this);
+			self._props_._values[formElement.paramName] = this.value;
 		});
+	}
+	function userDefinedChangeListener(){
+		if(opts.changeListener){
+			$(formElement.selector).on('change',function(e){
+				var optionSelected = $("option:selected", this);
+				//self._props_._values[formElement.paramName] = this.value;
+				var doc = document.getElementById(Utils.removeSelector(formElement.selector));
+				var selected = doc.selectedIndex;
+				opts.changeListener(this.value,selected,e,optionSelected,doc);
+			});
+		}
 	}
 
 	var compContainer = new ContainerComponent({body:topDiv});
@@ -4999,6 +7115,7 @@ function FormComponent_addSelection(opts,self){
 
 	_Utils_registerListenerCallbackForSelf('run','',function(){
 		getSelectionValue();
+		userDefinedChangeListener();
 	},self);
 
 	function initializeValidationAndValues(){
@@ -5012,6 +7129,76 @@ function FormComponent_addSelection(opts,self){
 //   <option value="mercedes">Mercedes</option>
 //   <option value="audi">Audi</option>
 // </select>
+}
+
+// 4444 - no validation
+function FormComponent_addTextarea(opts,self){
+	var formElement = new FormComponentDefaults(opts,self);
+	var tag = formElement.tag;
+	var createElement = Utils.createElement;
+	var topDiv = createElement({
+		className: "form-group"
+	});
+	var label = createElement({
+		for: formElement.id,
+		innerHTML: formElement.label
+	});
+
+	var rows = 4;
+	var cols = 50;
+	if(opts.rows){
+
+	}
+	if(opts.cols){
+		
+	}
+	var textarea = createElement({
+		el: "textarea",
+		id: formElement.id,
+		rows: rows,
+		cols: cols,
+		style: formElement.style,
+		className: formElement.className
+	});
+	topDiv.appendChild(label);
+	topDiv.appendChild(textarea);
+	var statusId = Utils.randomGenerator(12,false);
+	var status = Utils.createElement('span',{ id: statusId });
+	topDiv.appendChild(status);
+
+	if(opts.defaultValue){
+		textarea.value = opts.defaultValue;
+	}
+
+	var compContainer = new ContainerComponent({body:topDiv});
+	var form_handler = self._props_._form_handler;
+	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_reset = self._props_._triggers.reset;
+	compContainer.listenTo(form_handler, event_trigger_submit, function(){
+		self._props_._form_data[tag].status = 2;
+		initializeValidationAndValues();
+		self._props_._form_data[tag].status = 1;
+	});
+	compContainer.listenTo(form_handler, event_trigger_reset, function(){
+		self._props_._form_data[tag].status = 0;
+	});
+
+	function initializeValidationAndValues(){
+		var val = document.getElementById(formElement.id).value;
+		self._props_._values[formElement.paramName] = val;
+	}
+
+	self._props_._form_data[tag] = {
+		paramName: formElement.paramName,
+		component: compContainer,
+		type: 'selection',
+		formElement: formElement,
+		status: 0,
+		statusId: statusId,
+		isValid: true
+	};
+
+
 }
 
 function FormComponent_addStateSelection(opts,self){
@@ -5156,7 +7343,20 @@ function FormComponent_addRadioButtonGroup(opts,self){
 	var tag = formElement.tag;
 
 	var createElement = Utils.createElement;
-	var topDiv = createElement();
+	//var topDiv = createElement();
+	var topLabelStr = (!Utils.isNull(opts.label)) ? opts.label : "";
+
+	var topDiv = createElement({
+		el: 'div',
+		className: 'form-group'
+	});
+	var topLabel = createElement({
+		el: 'label',
+		// for: defaults.id,
+		className: 'form-check-label',
+		innerHTML: topLabelStr
+	});
+	topDiv.appendChild(topLabel);
 	if(!Utils.isNull(opts.buttons)){
 		var buttons = opts.buttons;
 		var btnElements = [];
@@ -5850,22 +8050,36 @@ function FormComponent_addFileUpload(opts,self){
 		$('#'+submitDefaults.id).click(function(e){
 			e.preventDefault();
 
-			if(!Utils.isNull(opts.characters)){
-				var doesIncludeSpaces = fileInput.files[0].name.includes(" ");
-				if(doesIncludeSpaces){
-					alert("File name cannot contain spaces");
-					return;
+
+			if(typeof url === "boolean"){
+				if(!Utils.isNull(opts.submit) && !Utils.isNull(opts.submit.func)){
+					var fileInput = document.getElementById(inputId);
+					opts.submit.func(fileInput);
 				}
-			}
+				return;
+			} 
 
 			var request = new XMLHttpRequest();
 			var fileInput = document.getElementById(inputId);
+
+			if(!Utils.isNull(opts.submit) && !Utils.isNull(opts.submit.func)){
+				opts.submit.func(fileInput);
+			}
+
 			if(fileInput.files.length==0){
 				if(self._errorcallback!=null || self._errorcallback!=undefined){
 					var t = { type:1, message:"No File" };
 					self._errorcallback(t);
 				}
 				return false;
+			}
+
+			if(!Utils.isNull(opts.characters)){
+				var doesIncludeSpaces = fileInput.files[0].name.includes(" ");
+				if(doesIncludeSpaces){
+					alert("File name cannot contain spaces");
+					return;
+				}
 			}
 
 			if(!Utils.isNull(opts.limit)){
@@ -6617,6 +8831,7 @@ function Utils_createELement(type,options){
 	}
 	var inputTypes = ["input","checkbox","radio","submit","button","file"];
 	var ownTypes = ["el","selector","_el","_selector"];
+	var oneParam = ["disabled","selected"];
 	if(typeof type !== 'string'){
 		options = type;
 		if(!Utils.isNull(options) && !Utils.isNull(options.el)){
@@ -6711,15 +8926,15 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 	var contains = false;
 
 	if(charExceptions==null || charExceptions==undefined){
-		for(var i=0;i<Support.Utils.specialChars.length;i++){
-			var includes = str.includes(Support.Utils.specialChars[i]);
+		for(var i=0;i<Utils.specialChars.length;i++){
+			var includes = str.includes(Utils.specialChars[i]);
 			if(includes){
 				return true;
 			}
 		}
 	}else{
 		var s = str.split("");
-		for(var i=0;i<Support.Utils.specialChars.length;i++){
+		for(var i=0;i<Utils.specialChars.length;i++){
 			var special_character = Support.Utils.specialChars[i];
 			var includes = str.includes(special_character);
 			if(includes){
@@ -7685,8 +9900,21 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 // 	window.AppPlugin = appPlugin;
 // 	window.AppSessionManager = sessionManager;
 // }
-function setBaseURL(url){
-	this._props_._baseURL = url;
+function setBaseURL(self,url){
+	var config = self._props_._application_configuration;
+	if(!Utils.isNull(config.application)){
+		var base = "";
+		if(!Utils.isNull(config.application.prod) && config.application.prod==true){
+			base = config.application.production_url;
+		}else{
+			base = config.application.development_url;
+		}
+	}
+	if(url!=undefined){
+		self._props_._baseURL = url;
+	}else{
+		self._props_._baseURL = base;
+	}
 }
 
 
@@ -7715,6 +9943,9 @@ function _prod(app,partialUrl){
 	}else{
 		p = app.production_url+"/";
 	}
+	if(partialUrl.startsWith(":")){
+		p = p.slice(0, -1);
+	}
 	return p+""+partialUrl; 
 }
 function _devel(app,partialUrl){
@@ -7723,6 +9954,9 @@ function _devel(app,partialUrl){
 		p = app.development_url;
 	}else{
 		p = app.development_url+"/";
+	}
+	if(partialUrl.startsWith(":")){
+		p = p.slice(0, -1);
 	}
 	return p+""+partialUrl; 
 }
@@ -7753,9 +9987,13 @@ function registerAppFactoryPlugin(plugin){
 * @classdesc The ApplicationContextManager.
 * @class
 * @constructor
+* @param {Object|String} - (required) The application configuration object or if a string then the url of where the configuration file exist to be loaded into the appliction
+* @param {Object} - (optional) The plugins object provided by AppFactoryStarter
+* @param {String} - (optional) Override the app configuration application url
 * @tutorial GettingStarted
 */
-function ApplicationContextManager(){
+function ApplicationContextManager(config,plugins,baseUrl){
+	var configFile = config;
 	pages = new Pages(this);
 	stateManager = new StateManager(this);
 	sessionManager = new SessionManager(this);
@@ -7764,7 +10002,7 @@ function ApplicationContextManager(){
 	componentFactory = new ComponentFactory(this);
 	appPlugin = new ApplicationPlugin(this);
 
-
+	var self = this;
 	this._props_ = {
 		_baseURL: "",
 		_application_configuration: null,
@@ -7779,44 +10017,95 @@ function ApplicationContextManager(){
 		_ViewManager: ViewManager
 	};
 
+	this.Pages = this._props_._Pages;
+	this.Manager = this._props_._ApplicationManager;
+	this.Factory = this._props_._ComponentFactory;
+	this.View = this._props_._ViewManager;
+	this.StateManager = this._props_._StateManager;
+	this.Layout = this._props_._LayoutManager;
+	this.Plugin = this._props_._ApplicationPlugin;
+
+	if(configFile!=undefined){
+		var configFileObject;
+		if(typeof configFile === "string"){
+			configFileObject = a1(configFile);
+		}else{
+			configFileObject = configFile;
+		}
+		this._props_._application_configuration = configFileObject;
+
+		setBaseURL(this,baseUrl);
+	}
+
 	gl_applicationContextManager = this;
 	window.AppDialog = componentFactory.dialog();
+	window.AppFactoryDialog = componentFactory.dialog();
 
-	// this.Pages = pages;
-	// this.StateManager = stateManager;
-	// this.sessionManager = sessionManager;
-	// this.ApplicationManager = applicationManager;
-	// this.ComponentFactory = componentFactory;
-	// this.AppPlugin = appPlugin;
 
-	// this.AppComp = componentFactory;
+	loadCSSFiles();
+
+	function a1(configFile){
+		return new Promise(resolve => {
+			var rawFile = new XMLHttpRequest();
+	    	rawFile.open("GET", configFile, false);
+	    	rawFile.send(null); 
+	    	resolve(rawFile.responseText)
+		});
+	} 
+	function loadCSSFiles(){
+	for(var i=0; i<plugins.length; i++){
+		var p = plugins[i];
+		if(!Utils.isNull(p.css)){
+			var location = p.location;
+			if(!Utils.isNull(p.css.admin)){
+				var css = p.css.admin;
+				for(var n=0; n<css.length; n++){
+				var url = 
+			self.URL("js/plugins/"+location+"/"+css[n]);
+					$('head').append(
+"<link rel='stylesheet' href='"+url+"' />");
+				}
+			}
+			if(!Utils.isNull(p.css.client)){
+				var css = p.css.client;
+				for(var n=0; n<css.length; n++){
+				var url = 
+			self.URL("js/plugins/"+location+"/"+css[n]);
+					$('head').append(
+"<link rel='stylesheet' href='"+url+"' />");
+				}
+			}
+		}
+
+	}
+	}
 }
 ApplicationContextManager.prototype = {
 
 
 	/**
-	* Flags
+	* {@link Flags}
 	*/
 	Flags: Flags,  
 
 	/**
-	* Utils
+	* {@link Utils}
 	*/
 	Utils: Utils,
 
 
-	setBaseURL: setBaseURL,
-
-
 	/**
-	* 
+	* Computes the url needed for request calls ex: app.URL('path/to/file')
 	* @param {String} partialUrl - required
 	* @param {Boolean} isProduction - optional override config file settings to use development url or production url. 
+	* @return {String} url 
 	*/
 	URL: function appfactory_url(partialUrl,isProd){
 		var url = "";
-		var config = this.application_configuration;
+		var config = this._props_._application_configuration;
 		if(config!=null && config['application']!=undefined){
+
+		//if(this._props_._baseURL){
 			var app = config['application'];
 			if(isProd!=null & isProd!=undefined){
 				url =_funcConfigProd(app,partialUrl,isProd);
@@ -7826,7 +10115,6 @@ ApplicationContextManager.prototype = {
 		}else{
 			url = partialUrl;
 		}
-
 		return url;
 	},
 
@@ -7842,59 +10130,59 @@ ApplicationContextManager.prototype = {
 	},
 
 	/**
-	* Pages
+	* {@link Pages}
 	*/
-	Pages: function(){
+	getPages: function(){
 		return this._props_._Pages;
 	},
 
 	/**
-	* PluginManager
+	* {@link PluginManager}
 	*/
-	Plugin: function(){
+	getPlugin: function(){
 		return this._props_._ApplicationPlugin;
 	},
 
 	/**
-	* ApplicationManager
+	* {@link ApplicationManager}
 	*/
-	Manager: function(){
+	getManager: function(){
 		return this._props_._ApplicationManager;
 	},
 
 	/**
 	* StateManager
 	*/
-	State: function(){
+	getState: function(){
 		return this._props_._StateManager;
 	},
 
 	/**
 	* SessionManager
 	*/
-	Session: function(){
+	getSession: function(){
 		return this._props_._SessionManager;
 	},
 
 	/**
-	* LayoutManager
+	* {@link LayoutManager}
 	*/
-	Layout: function(){
+	getLayout: function(){
 		return this._props_._LayoutManager;
 	},
 
 
 	/**
-	* ComponentFactory
+	* {@link ComponentFactory}
 	*/
-	Comp: function(){
+	getComp: function(){
 		return this._props_._ComponentFactory;
 	},
 
 	/**
-	* ViewManager
+	* {@link ViewManager}
 	*/
-	View: function(){
+	getView: function(){
 		return this._props_._ViewManager;
 	}
 

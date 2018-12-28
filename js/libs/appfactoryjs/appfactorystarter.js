@@ -33,7 +33,6 @@ var _AppFactoryStart = {
 		}else{
 			var configFileString = await a(configFile);
 			appfac_config = JSON.parse(configFileString);
-			console.log(appfac_config)
 			addPluginsSupported(function(plugins){
 				run(configFileString,plugins);
 			});
@@ -58,8 +57,7 @@ var _AppFactoryStart = {
 			}else{
 				config = configJSON;
 			}
-
-			console.log(config);
+			
 			if(extra==null || extra==undefined){
 				extra = {};
 				extra.paths = {};

@@ -1,11 +1,11 @@
 {
     "application": {
-        "prod": false,
+        "prod": true,
         "production_url": "",
         "development_url": ""
     },
     "index-config": {
-        "title": "",
+        "title": "2 Woke Gurls",
         "doctype": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">",
         "meta": [
             "<meta charset=\"UTF-8\">",
@@ -19,13 +19,13 @@
         ],
         "body": [],
         "scripts": {
-            "requirejs-script": "<script data-main=\"js/client-main.js\" src=\"js/libs/requirejs/require.js\"></script>",
+            "requirejs-script": "<script data-main=\"js/main.js\" src=\"js/libs/requirejs/require.js\"></script>",
             "appfactorystarter-script": "<script src=\"js/libs/appfactoryjs/appfactorystarter.js\"></script>",
             "build-output-script": ""
         }
     },
     "index-admin-config": {
-        "title": "",
+        "title": "2 Woke Gurls - Administrator Dashboard",
         "doctype": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">",
         "meta": [
             "<meta charset=\"UTF-8\">",
@@ -39,7 +39,7 @@
         ],
         "body": [],
         "scripts": {
-            "requirejs-script": "<script data-main=\"../../js/admin-main.js\" src=\"../../js/libs/requirejs/require.js\"></script>",
+            "requirejs-script": "<script data-main=\"../../js/admin/admin-main.js\" src=\"../../js/libs/requirejs/require.js\"></script>",
             "appfactorystarter-script": "<script src=\"../../js/libs/appfactoryjs/appfactorystarter.js\"></script>",
             "build-output-script": ""
         }
@@ -77,6 +77,7 @@
             "interact": "libs/interact/interact",
             "webrtc": "libs/webrtc/adapter",
             "download": "libs/downloadjs/download",
+            "parse": "libs/parse/parse.min",
             "socket-io-file": "libs/socket-io-file/socket.io-file-client",
             "scrollTo": "libs/plugins/jquery.scrollTo.min"
         }

@@ -2,28 +2,17 @@ AppFactoryStart.main(false,"config.appfac.js",{
 	baseUrl: "./",
 	paths:{},
 	require: ['appfactory']
-},function(){   
+},function(config,plugin){   
 
-	var app = new ApplicationContextManager();
-	var clientPlugin = app.Plugin.loadClientPlugin('appfactoryjs_file_upload_and_manament');
+	var app = new ApplicationContextManager(config);
+
 	var component = app.Comp.container({
-		body: "<h3></h3>"
+		body: "<h3>Hello World</h3>"
 	});
+
 	$('body').append(component.getHtml());
 
 },AppFactoryStart.NoCapture); 
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -4,17 +4,35 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 	require: ['appfactory']
 },function(config_appfac,plugins){
 
-
-	var app = new ApplicationContextManager();
+	var app = new ApplicationContextManager(config_appfac,plugins);
 	app.SetApplicationConfiguration(config_appfac);
 
-	var Utils = app.Utils;
-	var Plugin = app.Plugin();
-	var Manager = app.Manager();
-	var Pages = app.Pages();
-	var View = app.View();
-	var Layout = app.Layout();
-	var Component = app.Comp();
+	var Utils = app.Utils;  
+	var Plugin = app.getPlugin();
+	var Manager = app.getManager();
+	var Pages = app.getPages();
+	var View = app.getView();
+	var Layout = app.getLayout();
+	var Component = app.getComp();
+
+
+
+	
+// {
+// 	"name":"2 Woke Gurls Media",
+// 	"id":"equippedcoding_2woke_gurls",
+// 	"url":"https://plugins.appfactoryjs.com/myplugin",
+// 	"location":"equippedcoding_2woke_gurls",
+// 	"start":"init",
+// 	"services":{
+// 		"dir":"services/equippedcoding_2woke_gurls"
+// 	},
+// 	"css":{
+// 		"admin":["styles/styles.css"],
+// 		"client":[]
+// 	},
+// 	"active": true
+// }
 
 	// AppManager.register('id',function(obj){});
 
