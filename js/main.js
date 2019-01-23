@@ -1,23 +1,18 @@
+/* You do not need to edit this file. 
+ * The prefered way of creating client side views
+ * is through plugin themes. From the command line
+ * with-in the root directory of your project 
+ * issue the command 
+ * appfactory plugin --theme "project_directory" --name "name_of_theme"
+ */
 AppFactoryStart.main(false,"config.appfac.js",{
 	baseUrl: "./",
 	paths:{},
 	require: ['appfactory']
-},function(config,plugin){   
+},function(config,plugins){   
 
-	var app = new ApplicationContextManager(config);
+	var app = new ApplicationContextManager(true,config,plugins);
 
-
-	var component = app.Factory.container({
-		classes: "row",
-		body: "<div class='col-md-12'><h3>Welcome - AppFactoryJS</h3></div>"
-	});
-
-	var container = app.Factory.container({
-		classes: "container",
-		body: component
-	});
-
-	$('body').append(container.getHtml());
 
 },AppFactoryStart.NoCapture); 
 
