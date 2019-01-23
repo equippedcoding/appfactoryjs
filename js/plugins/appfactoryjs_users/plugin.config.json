@@ -1,9 +1,0 @@
-{
-	"name":"Users",
-	"id":"appfactoryjs_users",
-	"url":"https://plugins.appfactoryjs.com/myplugin",
-	"location":"appfactoryjs_users",
-	"start":"init",
-	"css":[],
-	"active": true
-}

@@ -40,9 +40,13 @@ var _AppFactoryStart = {
 		}
 
 		function run(configFileString,plugins){
+
+			console.log(plugins);
 			var configuration = setup(configFileString,plugins);
 			configuration.config.paths = reformPath(configuration.config.paths);
 			requirejs.config(configuration.config);
+
+			console.log(configuration);
 			requirejs(configuration.require, function(a){
 				callback(appfac_config,plugins);
 			});
@@ -155,15 +159,21 @@ var _AppFactoryStart = {
 			   if(rawFile.readyState === 4) {
 				  if(rawFile.status === 200 || rawFile.status == 0){
 					 var allText = rawFile.responseText;
+					 try{
+					 	var main_file = JSON.parse(allText);
 
-					 var main_file = JSON.parse(allText);
-					 var dirs = main_file.directories;
-					 var some = [];
-					 for(var i=0; i<dirs.length; i++){
-					 	setupAdminGet(some, routeForPluginDirs+dirs[i]+"/plugin.config.json");
+						var dirs = main_file.directories;
+						var some = [];
+						for(var i=0; i<dirs.length; i++){
+						 	setupAdminGet(some, routeForPluginDirs+dirs[i]+"/plugin.config.json");
+						}
+
+						cb1(some);
+					 }catch(e){
+					 	console.error("Main plugin JSON config file may be malformed wrong!")
+					 	console.error(e)
 					 }
-
-					 cb1(some);
+					 
 				  }
 			   }
 		    }

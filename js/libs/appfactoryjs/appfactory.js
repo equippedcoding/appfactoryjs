@@ -517,16 +517,42 @@ ApplicationPlugin.prototype = {
 		return client;
 	},
 
-	loadAdminPlugin: function(pluginId){
+	// 151515
+	loadAdminPlugin: function(pluginId,config){
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
 
-		var admin = plugin.admin(gl_applicationContextManager);
-		var client = plugin.client(gl_applicationContextManager);
+		console.log(plugin);
+
+		var admin = plugin.admin(gl_applicationContextManager,config);
+		var client = plugin.client(gl_applicationContextManager,config);
+
+		var pluginThemes = plugin.themes;
+
+		//console.log(plugin);
+		//console.log(pluginThemes);
+		/*
+		if(!Utils.isNull(pluginThemes)){
+
+			var themes = [];
+			for(var i=0; i<pluginThemes.length; i++){
+				themes.push({
+					id: ,
+					component: pluginThemes[i](gl_applicationContextManager,config)
+				});
+
+
+				//console.log(pluginThemes[i](gl_applicationContextManager,config));
+			}
+		
+
+		}*/
+
 
 		return {
 			admin: admin,
-			client: client
+			client: client,
+			themes: themes
 		}
 	}
 
@@ -1577,6 +1603,105 @@ function ModalComponent_setContent(opts,self){
 
 
 
+
+
+
+/*
+
+var mylist = ["one","two","three"];
+
+var list = Component.list({
+
+
+	list: mylist,
+	func: function(index,item){
+
+		this.label = item;
+
+		this.badge = {
+			value:115,
+			id: "badge1"
+		};
+
+		this.style = "";
+	
+		this.id = "";
+
+		this.classes = "";
+
+		this.html = "";
+
+		this.select = function(){
+	
+		}
+
+		return this;
+
+	}
+
+
+
+});
+
+for(var i=0;i<mylist.length;i++){
+	setupListItem(i);
+}
+
+function setupListItem(index){
+	var gh = mylist[index];
+	list.item({
+		label: mylist[index].name,
+		badge: {
+			value:115,
+			id: "badge1"
+		},
+
+		// set meta data to be tied to list item
+		meta: {},
+
+		listener: function(e,self,optional,extra){
+
+			var btn1 = Utils.createElement({
+				el: 'button',
+				innerHTML: 'close'
+			});
+
+			var d = Component.mobileDialog();
+			// d.open('hello you',{
+			// 	btns: [btn1]
+			// });
+			var f = "Install Plugin "+mylist[index].name;
+			function btnclick(index){
+				// console.log(index);
+				AppDialog.toggle();
+			}
+			function onClose(index){
+				// console.log('Dialog has closed')
+				AppDialog.toggle();
+			}
+			d.showBottom({onClose: onClose,btn: [f], btnClick: btnclick});
+
+			// fix z-index, toast is getting covered up
+			// d.toast('Cloasing Application',5);
+
+			// d.loading({hint:"Please Wait While Loading",type:2});
+			// setTimeout(function(){
+			// 	d.closeLoading();
+			// },5000);
+		}
+	});
+}
+
+
+*/
+
+
+
+
+
+
+
+
 // 9999
 /** @exports ListComponent
 * @classdesc Creates a list component
@@ -1603,18 +1728,47 @@ function ListComponent(opts){
 	var self = this;
 	var compDefaults = ComponentDefaults(opts,this);
 	var createElement = Utils.createElement;
-	var list_container = createElement({
-		el: 'ul',
-		className: "list-group "+compDefaults.className,
-		id: compDefaults.id,
-		style: compDefaults.style
-	});
+
+	if(Utils.isNull(opts.type)){
+		self._props_._list_type = "bootstrap";
+	}else{
+		var valid = false;
+		if(opts.type=="ul" || opts.type=="ol"){
+			valid = true;
+		}else if(opts.type=="bootstrap"){
+			valid = true;
+		}
+		if(valid)
+			self._props_._list_type = opts.type;
+		else
+			self._props_._list_type = "bootstrap";
+	}
+
+	var list_container;
+
+	if(self._props_._list_type=="bootstrap"){
+		list_container = createElement({
+			el: 'ul',
+			className: "list-group "+compDefaults.className,
+			id: compDefaults.id,
+			style: compDefaults.style
+		});
+	}else if(opts.type=="ul" || opts.type=="ol"){
+		list_container = createElement({
+			el: opts.type,
+			className: compDefaults.className,
+			id: compDefaults.id,
+			style: compDefaults.style
+		});
+	}
+
+
 	main_container.appendChild(list_container);
 	this._props_._main_container = main_container;
 	this._props_._list_container = list_container;
 	this._props_._active_items = [];
 
-	self._props_._single_selection = false;
+	self._props_._single_selection = true;
 	if(!Utils.isNull(opts.selectionSingle)){
 		self._props_._single_selection = opts.selectionSingle;
 	}
@@ -1625,7 +1779,37 @@ function ListComponent(opts){
 	}
 
 
+	if(!Utils.isNull(opts.item) && !Utils.isNull(opts.list)){
+		for(var i=0; i<opts.list.length; i++){
+			callme(i,opts.list,this);
+		}
+	}else
+	if(!Utils.isNull(opts.items) && !Utils.isNull(opts.list)){
+		for(var i=0; i<opts.list.length; i++){
+			callme(i,opts.list,this);
+		}
+	}
+	function callme(index,listItem,self){
+		var n;// = opts.item( index, listItem[index] );
+
+		//console.log(n);
+		if(!Utils.isNull(opts.item)){
+			n = opts.item( index, listItem[index] );
+		}
+		else if(!Utils.isNull(opts.items)){
+			n = opts.items( listItem[index], index );
+		}
+
+		if(n==undefined){
+			console.error("Please return this in the items function!");
+		}
+
+		self.item( n, listItem[index] );
+	}
+
+
 }
+
 ListComponent.prototype = {
 
 
@@ -1634,7 +1818,9 @@ ListComponent.prototype = {
 	*
 	* @param {Object} - options
 	*/
-	item: function(opts){
+	item: function(opts,indexItem){
+
+		opts = (Utils.isNull(opts)) ? {} : opts;
 
 		var self = this;
 
@@ -1642,31 +1828,45 @@ ListComponent.prototype = {
 		var createElement = Utils.createElement;
 
 		var active = "";
+		///console.log(opts);
+
 		if(!Utils.isNull(opts.active)){
 			if(opts.active){
 				active = "active"
 			}
 		}
 
-		var a = createElement({
-			el: 'li',
-			className: "list-group-item list-group-item d-flex justify-content-between align-items-center list-group-item-action "+active+" "+compDefaults.className,
-			id: compDefaults.id,
-			style: compDefaults.style,
-			href: compDefaults.href,
-			innerHTML: compDefaults.label
-		});
-
-
-		if(!Utils.isNull(opts.badge)){
-
-			var badge = createElement({
-				el: 'span',
-				className: 'badge badge-primary badge-pill',
-				innerHTML: opts.badge.value
+		var a;
+		if(self._props_._list_type=="ul" || self._props_._list_type=="ol"){
+			a = createElement({
+				el: 'li',
+				className: compDefaults.className,
+				id: compDefaults.id,
+				style: compDefaults.style,
+				href: compDefaults.href,
+				innerHTML: compDefaults.label
 			});
-			a.appendChild(badge);
+		}else if(self._props_._list_type=="bootstrap"){
+			a = createElement({
+				el: 'li',
+				className: "list-group-item list-group-item d-flex justify-content-between align-items-center list-group-item-action "+active+" "+compDefaults.className,
+				id: compDefaults.id,
+				style: compDefaults.style,
+				href: compDefaults.href,
+				innerHTML: compDefaults.label
+			});
+
+			if(!Utils.isNull(opts.badge)){
+
+				var badge = createElement({
+					el: 'span',
+					className: 'badge badge-primary badge-pill',
+					innerHTML: opts.badge.value
+				});
+				a.appendChild(badge);
+			}
 		}
+
 
 		self._props_._list_container.appendChild(a);
 
@@ -1679,7 +1879,7 @@ ListComponent.prototype = {
 				e.preventDefault();
 
 				if(!Utils.isNull(opts.listener)){
-					opts.listener();
+					opts.listener(indexItem);
 				}
 
 				if(self._props_._single_selection){
@@ -2268,7 +2468,7 @@ function ContainerComponent(obj){
 	var obj = self._props_._obj;
 	var bodies = [];
 	self._props_._container = document.createElement('div');
-	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";//self.getId();
+	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";
 	if(!Utils.isNull(obj)){
 		if(!Utils.isNull(obj.classes)){
 			self._props_._container.className = obj.classes;
@@ -2447,19 +2647,37 @@ function BrickComponent(obj){
 	applicationManager.register(this);
 	this.ID = "d-"+Utils.randomGenerator(12,false);
 
+
+	this.getHtml = function(){
+		return self._props_._elements._fragment.cloneNode(true);
+	}
+
+	/*
+	var Brick = new BrickComponent();
+	var d = Brick.div();
+
+	var element = Brick
+	.div()
+	.div()
+	._nest()
+	.div()
+	.span()
+	.ul()
+	.li()
+	*/
+
+
+	/*
 	this._props_._own_types = ["el","children","listener","label","attr"];
 	this._props_._blocks = [];
 	this.getOwnTypes = function(){
 		return this._props_["_own_types"];
 	};
 
-	this.getHtml = function(){
-		return self._props_._elements._fragment.cloneNode(true);
-	}
-
-			this._props_._registry_children = {};
-		this._props_._registry_elements = {};
-		this._props_._registry_roots = [];
+	this._props_._registry_children = {};
+	this._props_._registry_elements = {};
+	this._props_._registry_roots = [];
+	*/
 
 }
 BrickComponent.prototype = {
@@ -2773,7 +2991,231 @@ BrickComponent.prototype = {
 		return this._event_manager;
 
 
-	}
+	},
+
+/**
+	* Add
+	* @return {objec} this
+	*/
+	div: function(obj){
+		Utils.createElement('div',obj);
+		return this;
+	},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	span: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	ul: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	li: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	p: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	h1: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	h2: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	h3: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	h4: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	h5: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	h6: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	article: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	section: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	footer: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	nav: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	blockquote: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	ol: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	pre: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	a: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	abbr: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	br: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	area: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	audio: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	video: function(obj){},	/**
+	
+	* Add
+	* @return {objec} this
+	*/
+	table: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	tbody: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	tfoot: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	td: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	th: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	tr: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	button: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	form: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	input: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	label: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	textarea: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	option: function(obj){},
+
+	/**
+	* Add
+	* @return {objec} this
+	*/
+	img: function(obj){}
 
 
 
@@ -7380,6 +7822,10 @@ function FormComponent_addRadioButtonGroup(opts,self){
 				style: defaults.style,
 				value: defaults.value
 			});
+
+			if(button.checked!=undefined && button.checked==true){
+				btn.checked = true;
+			}
 			div.appendChild(btn);
 			div.appendChild(label);
 			topDiv.appendChild(div);
@@ -9992,7 +10438,7 @@ function registerAppFactoryPlugin(plugin){
 * @param {String} - (optional) Override the app configuration application url
 * @tutorial GettingStarted
 */
-function ApplicationContextManager(config,plugins,baseUrl){
+function ApplicationContextManager(client,config,plugins,baseUrl){
 	var configFile = config;
 	pages = new Pages(this);
 	stateManager = new StateManager(this);
@@ -10040,9 +10486,12 @@ function ApplicationContextManager(config,plugins,baseUrl){
 	gl_applicationContextManager = this;
 	window.AppDialog = componentFactory.dialog();
 	window.AppFactoryDialog = componentFactory.dialog();
+	//window.Brick = Brick;
 
+	if(!client) loadAllPluginCSSFiles();
+	
+	loadUpTheme();
 
-	loadCSSFiles();
 
 	function a1(configFile){
 		return new Promise(resolve => {
@@ -10052,7 +10501,76 @@ function ApplicationContextManager(config,plugins,baseUrl){
 	    	resolve(rawFile.responseText)
 		});
 	} 
-	function loadCSSFiles(){
+	function loadUpTheme(){
+/*
+application:
+	development_url: "http://localhost/newapp3/2wokegurls/"
+	prod: true
+	production_url: "https://wait.2wokegurls.com/"
+	theme: "equippedcoding_2woke_gurls|One"
+*/
+	
+//newapp2/newapp1/myapp/js/plugins/_default/plugin.config.json
+		//console.log(config);
+		//console.log(plugins);
+
+		if(Utils.isNull(config.application) || Utils.isNull(config.application.theme)){
+			return;
+		}
+
+
+		var theme_settings = config.application.theme.split("|");
+
+		var dir = theme_settings[0];
+		var theme = theme_settings[1];
+
+		var plugin1;
+		for(var i=0; i<gl_app_plugins.length; i++){
+			var id = gl_app_plugins[i].id;
+			if(id==dir){
+				plugin1 = gl_app_plugins[i];
+				break;
+			}
+		}
+
+		console.log(plugin1);
+
+		var theme1;
+		for(var i=0; i<plugin1.themes.length; i++){
+			//console.log(plugin1.themes[i])
+			var n = plugin1.themes[i].directory;
+			if(n==theme){
+				theme1 = plugin1.themes[i];
+				break;
+			}
+		}
+
+		console.log(theme1);
+
+		if(!Utils.isNull(theme1.styles) && Array.isArray(theme1.styles)){
+			var themeStyles = theme1.styles;
+			var themeDir = theme1.directory;
+			for(var i=0; i<themeStyles.length; i++){
+
+				var loc = plugin1.id +"/themes/"+themeDir+"/"+themeStyles[i];
+				//_load_theme_style(loc);
+			}
+		}
+
+		function _load_theme_style(s){
+			var url = self.URL("js/plugins/"+loc);
+			$('head').append("<link rel='stylesheet' href='"+url+"' />");
+		}
+
+		var component = theme1.component(gl_applicationContextManager,config);
+		console.log(component);
+		$('body').append(component.getHtml());
+
+		// 151515
+
+	}
+	function loadAllPluginCSSFiles(){
+		if(plugins==null || plugins==undefined) return;
 	for(var i=0; i<plugins.length; i++){
 		var p = plugins[i];
 		if(!Utils.isNull(p.css)){
@@ -10116,6 +10634,11 @@ ApplicationContextManager.prototype = {
 			url = partialUrl;
 		}
 		return url;
+	},
+
+
+	LoadClientTheme(){
+
 	},
 
 

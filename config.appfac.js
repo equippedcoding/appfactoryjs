@@ -2,10 +2,11 @@
     "application": {
         "prod": true,
         "production_url": "",
-        "development_url": ""
+        "development_url": "",
+        "theme":"_default|theme"
     },
     "index-config": {
-        "title": "2 Woke Gurls",
+        "title": "",
         "doctype": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">",
         "meta": [
             "<meta charset=\"UTF-8\">",
@@ -25,7 +26,7 @@
         }
     },
     "index-admin-config": {
-        "title": "2 Woke Gurls - Administrator Dashboard",
+        "title": "",
         "doctype": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">",
         "meta": [
             "<meta charset=\"UTF-8\">",

@@ -6,11 +6,18 @@ AppFactoryStart.main(false,"config.appfac.js",{
 
 	var app = new ApplicationContextManager(config);
 
-	var component = app.Comp.container({
-		body: "<h3>Hello World</h3>"
+
+	var component = app.Factory.container({
+		classes: "row",
+		body: "<div class='col-md-12'><h3>Welcome - AppFactoryJS</h3></div>"
 	});
 
-	$('body').append(component.getHtml());
+	var container = app.Factory.container({
+		classes: "container",
+		body: component
+	});
+
+	$('body').append(container.getHtml());
 
 },AppFactoryStart.NoCapture); 
 
