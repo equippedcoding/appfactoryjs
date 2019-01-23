@@ -41,12 +41,10 @@ var _AppFactoryStart = {
 
 		function run(configFileString,plugins){
 
-			console.log(plugins);
 			var configuration = setup(configFileString,plugins);
 			configuration.config.paths = reformPath(configuration.config.paths);
 			requirejs.config(configuration.config);
 
-			console.log(configuration);
 			requirejs(configuration.require, function(a){
 				callback(appfac_config,plugins);
 			});

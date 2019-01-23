@@ -10533,7 +10533,7 @@ application:
 			}
 		}
 
-		console.log(plugin1);
+		//console.log(plugin1);
 
 		var theme1;
 		for(var i=0; i<plugin1.themes.length; i++){
@@ -10545,7 +10545,7 @@ application:
 			}
 		}
 
-		console.log(theme1);
+		//console.log(theme1);
 
 		if(!Utils.isNull(theme1.styles) && Array.isArray(theme1.styles)){
 			var themeStyles = theme1.styles;
@@ -10563,7 +10563,7 @@ application:
 		}
 
 		var component = theme1.component(gl_applicationContextManager,config);
-		console.log(component);
+		//console.log(component);
 		$('body').append(component.getHtml());
 
 		// 151515
