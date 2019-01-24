@@ -10450,6 +10450,14 @@ function ApplicationContextManager(client,config,plugins,baseUrl){
 
 	var self = this;
 	this._props_ = {
+
+		_client: client,
+		_config: config,
+		_plugins: plugins,
+		_baseURL: baseUrl,
+
+		_vars: {},
+
 		_baseURL: "",
 		_application_configuration: null,
 
@@ -10484,119 +10492,7 @@ function ApplicationContextManager(client,config,plugins,baseUrl){
 	}
 
 	gl_applicationContextManager = this;
-	window.AppDialog = componentFactory.dialog();
-	window.AppFactoryDialog = componentFactory.dialog();
-	//window.Brick = Brick;
 
-	if(!client) loadAllPluginCSSFiles();
-	
-	loadUpTheme();
-
-
-	function a1(configFile){
-		return new Promise(resolve => {
-			var rawFile = new XMLHttpRequest();
-	    	rawFile.open("GET", configFile, false);
-	    	rawFile.send(null); 
-	    	resolve(rawFile.responseText)
-		});
-	} 
-	function loadUpTheme(){
-/*
-application:
-	development_url: "http://localhost/newapp3/2wokegurls/"
-	prod: true
-	production_url: "https://wait.2wokegurls.com/"
-	theme: "equippedcoding_2woke_gurls|One"
-*/
-	
-//newapp2/newapp1/myapp/js/plugins/_default/plugin.config.json
-		//console.log(config);
-		//console.log(plugins);
-
-		if(Utils.isNull(config.application) || Utils.isNull(config.application.theme)){
-			return;
-		}
-
-
-		var theme_settings = config.application.theme.split("|");
-
-		var dir = theme_settings[0];
-		var theme = theme_settings[1];
-
-		var plugin1;
-		for(var i=0; i<gl_app_plugins.length; i++){
-			var id = gl_app_plugins[i].id;
-			if(id==dir){
-				plugin1 = gl_app_plugins[i];
-				break;
-			}
-		}
-
-		//console.log(plugin1);
-
-		var theme1;
-		for(var i=0; i<plugin1.themes.length; i++){
-			//console.log(plugin1.themes[i])
-			var n = plugin1.themes[i].directory;
-			if(n==theme){
-				theme1 = plugin1.themes[i];
-				break;
-			}
-		}
-
-		//console.log(theme1);
-
-		if(!Utils.isNull(theme1.styles) && Array.isArray(theme1.styles)){
-			var themeStyles = theme1.styles;
-			var themeDir = theme1.directory;
-			for(var i=0; i<themeStyles.length; i++){
-
-				var loc = plugin1.id +"/themes/"+themeDir+"/"+themeStyles[i];
-				//_load_theme_style(loc);
-			}
-		}
-
-		function _load_theme_style(s){
-			var url = self.URL("js/plugins/"+loc);
-			$('head').append("<link rel='stylesheet' href='"+url+"' />");
-		}
-
-		var component = theme1.component(gl_applicationContextManager,config);
-		//console.log(component);
-		$('body').append(component.getHtml());
-
-		// 151515
-
-	}
-	function loadAllPluginCSSFiles(){
-		if(plugins==null || plugins==undefined) return;
-	for(var i=0; i<plugins.length; i++){
-		var p = plugins[i];
-		if(!Utils.isNull(p.css)){
-			var location = p.location;
-			if(!Utils.isNull(p.css.admin)){
-				var css = p.css.admin;
-				for(var n=0; n<css.length; n++){
-				var url = 
-			self.URL("js/plugins/"+location+"/"+css[n]);
-					$('head').append(
-"<link rel='stylesheet' href='"+url+"' />");
-				}
-			}
-			if(!Utils.isNull(p.css.client)){
-				var css = p.css.client;
-				for(var n=0; n<css.length; n++){
-				var url = 
-			self.URL("js/plugins/"+location+"/"+css[n]);
-					$('head').append(
-"<link rel='stylesheet' href='"+url+"' />");
-				}
-			}
-		}
-
-	}
-	}
 }
 ApplicationContextManager.prototype = {
 
@@ -10613,12 +10509,48 @@ ApplicationContextManager.prototype = {
 
 
 	/**
+	* Start and initialize Appfactory application.
+	*
+	*/
+	initializeApplication: function(){
+		initializeApplication(this);
+	},
+
+	/**
+	* Set application variable to be referenced later
+	* even in configuation files. with the ${variable}
+	*/
+	setVar: function(param,value){
+		this._props_._vars[param] = value;
+	},
+
+	/**
+	* 
+	* @return {Object}
+	*/
+	getVar: function(param){
+		return this._props_._vars[param];
+	},
+
+	/**
+	* 
+	* @return {Object}
+	*/
+	getVars: function(param){
+		return this._props_._vars;
+	},
+
+
+	/**
 	* Computes the url needed for request calls ex: app.URL('path/to/file')
 	* @param {String} partialUrl - required
 	* @param {Boolean} isProduction - optional override config file settings to use development url or production url. 
 	* @return {String} url 
 	*/
 	URL: function appfactory_url(partialUrl,isProd){
+		if(partialUrl==undefined){
+			partialUrl = "";
+		}
 		var url = "";
 		var config = this._props_._application_configuration;
 		if(config!=null && config['application']!=undefined){
@@ -10710,6 +10642,195 @@ ApplicationContextManager.prototype = {
 	}
 
 };
+
+function initializeApplication(self){
+
+	var client = self._props_._client;
+	var config = self._props_._config;
+	var plugins = self._props_._plugins;
+	var baseUrl = self._props_._baseUrl;
+
+
+	window.AppDialog = componentFactory.dialog();
+	window.AppFactoryDialog = componentFactory.dialog();
+	//window.Brick = Brick;
+
+	if(!client) loadAllPluginCSSFiles();
+	
+	loadUpTheme();
+
+
+	function a1(configFile){
+		return new Promise(resolve => {
+			var rawFile = new XMLHttpRequest();
+	    	rawFile.open("GET", configFile, false);
+	    	rawFile.send(null); 
+	    	resolve(rawFile.responseText)
+		});
+	} 
+	function loadUpTheme(){
+/*
+application:
+	development_url: "http://localhost/newapp3/2wokegurls/"
+	prod: true
+	production_url: "https://wait.2wokegurls.com/"
+	theme: "equippedcoding_2woke_gurls|One"
+*/
+	
+//newapp2/newapp1/myapp/js/plugins/_default/plugin.config.json
+		//console.log(config);
+		//console.log(plugins);
+
+		if(Utils.isNull(config.application) || Utils.isNull(config.application.theme)){
+			return;
+		}
+
+
+		var theme_settings = config.application.theme.split("|");
+
+		var dir = theme_settings[0];
+		var theme = theme_settings[1];
+
+		var plugin1;
+		for(var i=0; i<gl_app_plugins.length; i++){
+			var id = gl_app_plugins[i].id;
+			if(id==dir){
+				plugin1 = gl_app_plugins[i];
+				break;
+			}
+		}
+
+
+		//console.log(self.URL());
+
+		self.setVar('url',self.URL());
+		//console.log(gl_app_plugins);
+		//console.log(plugin1);
+
+		var theme1;
+		for(var i=0; i<plugin1.themes.length; i++){
+			//console.log(plugin1.themes[i])
+			var n = plugin1.themes[i].directory;
+			if(n==theme){
+				theme1 = plugin1.themes[i];
+				break;
+			}
+		}
+
+		//console.log(theme1);
+// http://localhost/newapp2/myapp1/myapp/js/plugins/zibra4/plugin.config.json 
+		// load head and styles
+		//var url = self.URL("js/plugins/"+plugin1["id"]+"/plugin.config.json");
+		a1("js/plugins/"+plugin1["id"]+"/plugin.config.json")
+		.then(function(con){
+			con = JSON.parse(con);
+			//console.log(con);
+
+			var currentThemeConfig;
+			var cur = con.themes;
+
+			for(var i=0; i<cur.length; i++){
+				if(cur[i]['directory']==theme1['directory']){
+					currentThemeConfig = cur[i];
+					break;
+				}
+			}
+
+			var headArray = [];
+			if(currentThemeConfig.head){
+				var head = currentThemeConfig.head;
+				for(var i=0; i<head.length; i++){
+
+					var h = head[i];
+
+					var m = h.match(/\${[^)]*\}/);
+
+
+					var h2 = head[i];
+					if(m!=null && m.length>0){
+						var t = m[0].replace("${","");
+						t = t.replace("}","");
+						t = t.trim();
+
+						//console.log(t);
+
+						var varUrl = self.getVar(t);
+						if(!Utils.isNull(varUrl)){
+							h2 = head[i].replace(/\${[^)]*\}/,varUrl);
+						}else{
+							h2 = head[i].replace(/\${[^)]*\}/,"");
+						}
+					}
+					headArray[i] = h2;
+				}
+			}
+
+			for(var i=0; i<headArray.length; i++){
+
+				$('head').append(headArray[i]);
+
+			}
+
+
+			if(!Utils.isNull(theme1.styles) && Array.isArray(theme1.styles)){
+
+				var themeStyles = theme1.styles;
+				var themeDir = theme1.directory;
+
+
+				for(var i=0; i<themeStyles.length; i++){
+
+					var loc = plugin1.id +"/themes/"+themeDir+"/"+themeStyles[i];
+					//_load_theme_style(loc);
+				}
+			}
+
+			function _load_theme_style(s){
+				var url = self.URL("js/plugins/"+loc);
+				$('head').append("<link rel='stylesheet' href='"+url+"' />");
+			}
+
+			var component = theme1.component(gl_applicationContextManager,config);
+			//console.log(component);
+			$('body').append(component.getHtml());
+
+			// 151515
+
+
+		});
+
+		
+
+	}
+	function loadAllPluginCSSFiles(){
+		if(plugins==null || plugins==undefined) return;
+	for(var i=0; i<plugins.length; i++){
+		var p = plugins[i];
+		if(!Utils.isNull(p.css)){
+			var location = p.location;
+			if(!Utils.isNull(p.css.admin)){
+				var css = p.css.admin;
+				for(var n=0; n<css.length; n++){
+				var url = 
+			self.URL("js/plugins/"+location+"/"+css[n]);
+					$('head').append(
+"<link rel='stylesheet' href='"+url+"' />");
+				}
+			}
+			if(!Utils.isNull(p.css.client)){
+				var css = p.css.client;
+				for(var n=0; n<css.length; n++){
+				var url = 
+			self.URL("js/plugins/"+location+"/"+css[n]);
+					$('head').append(
+"<link rel='stylesheet' href='"+url+"' />");
+				}
+			}
+		}
+
+	}
+	}
+}
 
 
 
