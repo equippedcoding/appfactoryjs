@@ -1,11 +1,15 @@
 AppFactoryStart.main(true,"../../config.appfac.js",{
 	baseUrl: "./",
-	paths:{},
-	require: ['appfactory']
-},function(config_appfac,plugins){
+	paths:{'initScript':'./dashboard/classes/initialization'},
+	require: ['appfactory','initScript']
+},function(config_appfac,plugins,requireArgs){ 
 
-	var app = new ApplicationContextManager(config_appfac,plugins);
-	app.SetApplicationConfiguration(config_appfac);
+
+	var app = new ApplicationContextManager();
+	app.setApplicationConfiguration(config_appfac);
+	app.setApplicationPlugins(plugins);
+	app.initializeApplication();
+	requireArgs[1](false,app,config_appfac,plugins);
 
 	var Utils = app.Utils;  
 	var Plugin = app.getPlugin();
@@ -16,23 +20,9 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 	var Component = app.getComp();
 
 
-
-	
-// {
-// 	"name":"2 Woke Gurls Media",
-// 	"id":"equippedcoding_2woke_gurls",
-// 	"url":"https://plugins.appfactoryjs.com/myplugin",
-// 	"location":"equippedcoding_2woke_gurls",
-// 	"start":"init",
-// 	"services":{
-// 		"dir":"services/equippedcoding_2woke_gurls"
-// 	},
-// 	"css":{
-// 		"admin":["styles/styles.css"],
-// 		"client":[]
-// 	},
-// 	"active": true
-// }
+	function Console(data){
+		console.log(data);
+	}
 
 	// AppManager.register('id',function(obj){});
 
@@ -207,6 +197,44 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 			});
 		}
 
+
+		var themesHeader = Component.container({
+			style:"margin-top:10%;margin-bottom:5%;",
+			body:"<h4>Themes</h4>"
+		});
+		var themesContainer = Component.container();
+
+		for (var i = 0; i < plugins.length; i++) {
+			
+			if(plugins[i].themes && Array.isArray(plugins[i].themes)){
+				
+				var themes = plugins[i].themes;
+
+				var listOfThemes = Component.list({
+
+					list: themes,
+
+					item: function(index,item){
+
+						this.label = item.name;
+
+
+						return this;
+
+
+					}
+
+
+				});
+
+
+				themesContainer.addComponent(listOfThemes);
+
+			}
+
+		}
+
+
 		var layout = Layout.newLayout()
 			.row()
 			.col({md:12},[header])
@@ -216,6 +244,10 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 			.col({md:6},[listOfPluginHeader])
 			.row()
 			.col({md:6},[list])
+			.row()
+			.col({md:6},[themesHeader])
+			.row()
+			.col({md:6},[themesContainer])
 			.build();
 
 
@@ -237,6 +269,15 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 		return view;
 	});
 
+	function loadupFile(configFile){
+		return new Promise(resolve => {
+			var rawFile = new XMLHttpRequest();
+	    	rawFile.open("GET", configFile, false);
+	    	rawFile.send(null); 
+	    	resolve(rawFile.responseText)
+		});
+	} 
+
 	Manager.register('main:menu',function(obj){
 
 		nav = Component.navigation({
@@ -253,41 +294,109 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 		});
 
 
-		for(var i=0; i<plugins.length; i++){
-			// console.log(plugins[i])
-			var plugin = plugins[i];
-			if(plugin.active){
-				var admincomp = Plugin.loadAdminPlugin(plugin.id);
-				if(admincomp==undefined || admincomp==null) continue;
-				var con = buildPluginLayout(admincomp);
-				nav.newSubView({
-					init: false,
-					id: plugin.id,
-					label: plugin.name,
-					body: con
-				});
+		
+
+
+		/*
+
+		if(plugin.active){
+			var conf = {};
+			//var s = loadupFile("../../js/plugins/"+plugin.location+"/plugin.config.json");
+			//s.then(function(content){
+				//console.log(content);
+			//	try{
+			//		conf = JSON.parse(content);
+					//console.log(conf);
+
+					//var admincomp = Plugin.loadAdminPlugin(plugin.id,conf);
+
+
+			//var admin_active_themes = config_appfac['application']['admin-active-themes'];
+
+			//var client_active_themes = config_appfac['application']['client-active-theme'];
+			
+
+			//console.log(Plugin.getRegisteredPlugins());
+
+			//var p1 = Plugin.getRegisteredPlugins();
+
+			//for(var n=0; n<p1.length; i++)
+
+			//admin_active_themes[]
+			//console.log(plugin);
+			//console.log(conf);
+
+			var a = admin_active_themes[plugin.id];
+			var p = null;
+			for(var n=0; i<plugin.admin.length; n++){
+				var a1 = plugin.admin[n].directory;
+				if(a1==a){
+					p = plugin.admin[n];
+					break;
+				}
 			}
+			if(p!=null){
+
+			}else{
+				if(plugin.admin.length > 0){
+					p = plugin.admin[0];
+				}
+			}
+
+			Console(p);
+			
+
+			//console.log(admin_active_themes[plugin.id]);
+			//console.log(client_active_themes);
+					
+
+
+				
+					//console.log(admincomp);
+					if(admincomp!=undefined && admincomp!=null){
+						var con = buildPluginLayout(admincomp);
+						nav.newSubView({
+							init: false,
+							id: plugin.id,
+							label: plugin.name,
+							body: con
+						});
+					}
+					
+
+			//	}catch(e){
+			//		console.log("Error in plugin json config file: "+plugin.location);
+			//		console.log(e);
+			//	}
+			//});
+
 		}
+		*/
+		
 
 		function buildPluginLayout(admincomp){
 			var client_id = Utils.randomGenerator(8,false);
 			var admin_id = Utils.randomGenerator(8,false);
 			var v = new View();
+
+
+			//console.log(admincomp)
+
 			v.newSubView({
 				init: true,
 				id: client_id,
 				body: admincomp.admin
 			});
-			v.newSubView({
-				init: false,
-				id: admin_id,
-				body: admincomp.client
-			});
+			// v.newSubView({
+			// 	init: false,
+			// 	id: admin_id,
+			// 	body: admincomp.client
+			// });
 
 			var clientBtn = Component.button({
 				style: "width: 100%",
 				classes: "btn btn-dark",
-				label: "Client View",
+				label: "Client Themes",
 				listener: function(){
 					v.render(admin_id);
 				}
@@ -304,7 +413,7 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 			var layout = Layout.newLayout()
 				.row()
 				.col({md:6},[adminBtn])
-				.col({md:6},[clientBtn])
+				//.col({md:6},[clientBtn])
 				.row()
 				.col({md:12},[v])
 				.build();

@@ -1,8 +1,7 @@
 {
 	"directories":[
-		"_default"
-	],
-	"plugins":[] 
+		"default"
+	]
 }
 
 

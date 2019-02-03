@@ -3,7 +3,8 @@
         "prod": true,
         "production_url": "",
         "development_url": "",
-        "theme":"_default|theme"
+        "client-active-theme":"default|default",
+        "admin-active-themes": {"default":"default"}
     },
     "index-config": {
         "title": "",

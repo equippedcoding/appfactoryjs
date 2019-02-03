@@ -161,7 +161,7 @@ AppFactoryManager.prototype = {};
 * @constructor
 * @tutorial GettingStarted
 */
-function ApplicationManager(stateManager,sessionManager){
+function ApplicationManager(applicationContextManager,stateManager,sessionManager){
 	_.extend(this, new AppFactoryManager('ApplicationManager'));
 	var rootElement = document.createElement('div');
 	rootElement.id = "root-element";
@@ -179,6 +179,7 @@ function ApplicationManager(stateManager,sessionManager){
 		_basePath: "",
 		_file_contents: {}
 	}
+
 }
 ApplicationManager.prototype = {
 
@@ -197,6 +198,8 @@ ApplicationManager.prototype = {
 			ApplicationManager_start(param,self);
 			pages.init();
 			pages.render();
+		}else if(Utils.isNull(callback)){
+			ApplicationManager_start(function(){},self);
 		}
 	},  
 
@@ -491,12 +494,18 @@ function ApplicationPlugin(){
 }
 ApplicationPlugin.prototype = {
 
+	getRegisteredPlugins: function(){
+		return gl_app_plugins;
+	},
+
 	registerPlugin: function(plugin){
 		this.plugins.push(plugin);
 	},
 
 	loadPlugin: function(pluginId){
 		var plugin = null
+
+		console.log(gl_app_plugins);
 		for(var i=0; i<gl_app_plugins.length; i++){
 			var p = gl_app_plugins[i].id;
 			if(p==pluginId){
@@ -518,7 +527,12 @@ ApplicationPlugin.prototype = {
 	},
 
 	// 151515
-	loadAdminPlugin: function(pluginId,config){
+	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
+
+		//console.log(pluginId);
+		//console.log(pluginConfig);
+		//console.log(mainConfig);
+
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
 
@@ -527,7 +541,33 @@ ApplicationPlugin.prototype = {
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
 
+
+		var adminThemes = plugin.admin;
 		var pluginThemes = plugin.themes;
+
+
+		var adminTheme = null;
+		if(config.adminTheme!=null && config.adminTheme!=undefined){
+			var activeTheme = config.adminTheme;
+			for(var i=0; i<config.admin.length; i++){
+				var theme = config.admin[i];
+				if(theme==activeTheme){
+					adminTheme = theme;
+					break;
+				}
+			}
+		}else{
+			if(adminThemes.length > 0){
+				adminTheme = adminThemes[0];
+			}
+		}
+		if(adminTheme==null){
+			var comp = new ContainerComponent({
+				body: "<h4>No Plugin could be loaded</h4>"
+			});
+
+			adminTheme = comp;
+		}
 
 		//console.log(plugin);
 		//console.log(pluginThemes);
@@ -550,7 +590,7 @@ ApplicationPlugin.prototype = {
 
 
 		return {
-			admin: admin,
+			admin: adminTheme,
 			client: client,
 			themes: themes
 		}
@@ -2631,13 +2671,336 @@ EventManager.prototype = {
 };
 
 
+
+// 151515
+/**
+* Brick 
+*
+*/
+var Brick = {
+
+	/**
+	* @param {String|Object} (optional) if not specified then div is returned
+	* @param {Object} (optional) element properties id|classes|style|innerHTML...
+	* @return {HTMLElement} - 
+	*/
+	createElement: function(type,opts){
+		return Utils.createElement(type,opts);
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} this
+	*/
+	div: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('div',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	span: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('span',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	ul: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	li: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	p: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('p',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	h1: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('h1',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	h2: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('h2',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	h3: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('h3',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	h4: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('h4',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	h5: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('h5',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	h6: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('h6',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	article: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	section: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	footer: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	nav: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	blockquote: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	ol: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	pre: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	a: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	abbr: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	br: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	area: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	audio: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	video: function(obj){},	
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	table: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	tbody: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	tfoot: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	td: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	th: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	tr: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	button: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	form: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	input: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('textarea',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	label: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		var e = Utils.createElement('label',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	textarea: function(obj){
+		var e = Utils.createElement('textarea',obj);
+		return e;
+	},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	option: function(obj){},
+
+	/**
+	* Add
+	* @return {HTMLElement} 
+	*/
+	img: function(obj){
+		var e = Utils.createElement('img',obj);
+		return e;
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	stack: function(){
+		return new BrickComponent();
+	}
+
+};
+
+
 // 9999
 /** @exports BrickComponent
 * @classdesc A top-level component that.
 * @class
 * @constructor
 */
-function BrickComponent(obj){
+function BrickComponent(){
+
 	var self = this;
 	_.extend(this, 
 		new AppFactoryManager('BrickComponent'), 
@@ -2649,578 +3012,173 @@ function BrickComponent(obj){
 
 
 	this.getHtml = function(){
-		return self._props_._elements._fragment.cloneNode(true);
+		if(Utils.isNull(self._props_._fragment)){
+			console.error("Please call build() on BrickComponent");
+			return null;
+		}else{
+			return self._props_._fragment.cloneNode(true);
+		}
 	}
 
-	/*
-	var Brick = new BrickComponent();
-	var d = Brick.div();
+	this._props_._elements = [];
+	this._props_._fragment = null;
 
-	var element = Brick
-	.div()
-	.div()
-	._nest()
-	.div()
-	.span()
-	.ul()
-	.li()
-	*/
-
-
-	/*
-	this._props_._own_types = ["el","children","listener","label","attr"];
-	this._props_._blocks = [];
-	this.getOwnTypes = function(){
-		return this._props_["_own_types"];
-	};
-
-	this._props_._registry_children = {};
-	this._props_._registry_elements = {};
-	this._props_._registry_roots = [];
-	*/
 
 }
 BrickComponent.prototype = {
 
-		// 	var brick = cm.brick();
-		// //console.log("1");
-		// var sharedLinkAttr = brick.createAttributes({"el":"a","href":"#"});
-		// //console.log("2");
-		// var sharedAttr = brick.createAttributes({});
-		// //console.log("3");
-		// brick.newElement('id1',{ label: "Home", attrs: sharedLinkAttr});
-		// //console.log("4");
-		// brick.newElement('id2',{ label: "Email", attrs: sharedLinkAttr, listener: func });
-		// //console.log("5");
-		// brick.newElement('id3',{
-		// 	el: 'div',
-		// 	children: ["id1","id2"]
-		// });
-		// //console.log("6");
-		// brick.newElement('id4',{});
-		// //console.log("7");
-		// brick.newElement('id5',{
-		// 	children: ["id3","id5"]
-		// });
-		// //console.log("9");
-		// //brick.build();
-		// //console.log("10");
-		// //console.log(brick);
-		// //console.log(brick.getHtml());
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	make: function(element,opts){
+		return BrickComponent_make(element,opts,this);
+	},
 
+	// 151515
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	div: function(opts){
+		return BrickComponent_make("div",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	h1: function(opts){
+		return BrickComponent_make("h1",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	h2: function(opts){
+		return BrickComponent_make("h2",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	h3: function(opts){
+		return BrickComponent_make("h3",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	h4: function(opts){
+		return BrickComponent_make("h4",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	h5: function(opts){
+		return BrickComponent_make("h5",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	h6: function(opts){
+		return BrickComponent_make("h6",opts,this);
+	},
+
+	/*
+	input: function(opts){
+		return BrickComponent_make("input",opts,this);
+	},
+	*/
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	span: function(opts){
+		return BrickComponent_make("span",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	textarea: function(opts){
+		return BrickComponent_make("textarea",opts,this);
+	},
+
+	/** 
+	* Build this BrickComponent.
+	* 
+	* @return {Component}
+	*/
 	build: function(){
-		var self = this;
-		var fragment = document.createDocumentFragment();
-		var blocks = self._props_._blocks;
 
-
-
-
-		var children = self._props_._registry_children;
-		for (var p in children) {
-			for (var i = 0; i < children[p].length; i++) {
-				var parent = children[p][i];
-
-				//console.log(self._props_._registry_elements[parent].el);
-				//console.log(self._props_._registry_elements[p].el);
-				self._props_._registry_elements[parent].el
-				.appendChild(self._props_._registry_elements[p].el);
-			}
-		}
-
-		var fragment = document.createDocumentFragment();
-		for(var p in self._props_._registry_elements){
-			if(Utils.isNull(self._props_._registry_children[p])){
-				fragment.appendChild(self._props_._registry_elements[p]);
-			}	
-		}
-
-
-
-
-
-		// self._props_._blocks.push({
-		// 	id: obj1,
-		// 	el: element,
-		// 	children: obj.elementTypes.children
-		// });
-
-		// function getParentELements(id){
-		// 	var parents = [];
-		// 	for(var i=0; i<blocks.length; i++){
-		// 		var myBlock = blocks[i];
-		// 		var children = myBlock.children;
-		// 		for(var n=0; n<children.length; n++){
-		// 			if(children[n]==id){
-		// 				parents.push(myBlock);
-		// 			}
-		// 		}
-		// 	}
-		// 	return parents;
-		// }
-
-
-		// for(var i=0; i<blocks.length; i++){
-		// 	var block = blocks[i];
-		// 	_setup1(block);
-
-		// }
-		// function _setup1(block){
-		// 	var thisElement = block.el;
-		// 	var id = block.id;
-		// 	var parents = getParentELements(id);
-		// 	// console.log("***********************************************************");
-		// 	// console.log(id);
-		// 	// console.log(parents);
-		// 	if(parents.length > 0){
-		// 		for(var x=0; x<parents.length; x++){
-		// 		     console.log(parents[x]);
-		// 			console.log(thisElement);
-		// 			parents[x].el.appendChild(thisElement);
-		// 		}
-		// 	}
-		// }
-		// for(var i=0; i<blocks.length; i++){
-		// 	var block = blocks[i];
-		// 	var thisElement = block.el;
-		// 	var id = block.id;
-		// 	var parents = getParentELements(id);
-		// 	if(parents.length == 0){
-		// 		fragment.appendChild(thisElement);
-		// 	}
-		// 	//console.log(fragment);
-		// }
-		// // 1111
-		// self._props_._elements._fragment = fragment;
-
-		// console.log(fragment);
-
-		// function appendRootElements(){
-		// 	for(var i=0; i<blocks.length; i++){  
-		// 		var id = blocks[i].id;
-		// 		var element = blocks[i].el;
-		// 		var isRootElement = isChildOfAnotherElement(id);
-		// 		if(isRootElement){
-		// 			fragment.appendChild(element);
-		// 		}
-		// 	}
-		// }
-		
-
-		// function isChildOfAnotherElement(id){
-
-		// 	for(var i=0; i<blocks.length; i++){
-		// 		var myId = blocks[i].id;
-		// 		if(myId!=id){
-		// 			var children = blocks[i].children;
-		// 			for(var n=0; n<children.length; n++){
-					
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-	},
-
-	addEventListener: function(listener){
-
-	},
-
-	createAttributes: function(obj){
-		return new ElementAttributes(obj);
-	},
-
-	stack: function(obj1,obj2){
-
-		// this._props_._registry_children = {};
-		// this._props_._registry_elements = {};
-		// this._props_._registry_roots = [];
-
-
-		// var self = this;
-		// var attrs = (Utils.isNull(obj2.attrs)) ? new ElementAttributes({}) : obj2.attrs;
-		// attrs = attrs.getAttributes();
-
-		// // register in all elements;
-		// self._props_._registry_elements[obj1] = obj2;
-
-		// // register its children
-		// registerChildren();
-
-
-		// var children = self._props_._registry_children;
-		// for (var p in children) {
-		// 	for (var i = 0; i < children[p].length; i++) {
-		// 		var parent = children[p][i];
-		// 		self._props_._registry_elements[parent].el
-		// 		.appendChild(self._props_._registry_elements[p].el);
-		// 	}
-		// }
-
-
-
-
-
-
-
-		// this._props_._container = document.createElement('div');
-
-		// function registerChildren(){
-		// 	if(!Utils.isNull(obj2.children)){
-		// 		var children = obj2.children;
-		// 		_register_children(children)
-		// 	}else if(!Utils.isNull(attrs.children)){
-		// 		var children = attrs.children;
-		// 		_register_children(children);
-		// 	}
-		// 	function _register_children(children){
-		// 		for (var i = 0; i < children.length; i++) {
-		// 			var child = children[i];
-		// 			if(!Utils.isNull(self._props_._registry_children[child])){
-		// 				self._props_._registry_children[child].push(obj1);
-		// 			}else{
-		// 				self._props_._registry_children[child] = [obj1];
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-
-
-	},
-
-	newElement: function(obj1,obj2){
 		var self = this;
 
-		var element_attr = {};
-		var element_opts = {};
+		var elements = self._props_._elements;
 
-		registerChildren();
-
-		var highAttrs2 = removeOwnTypes(obj2);
-		var highAttrsET = highAttrs2.elementTypes;
-		var highAttrsOT = highAttrs2.ownTypes;
-		if(!Utils.isNull(obj2.attr)){
-			var attr = obj2.attr.getAttributes();
-			var lowAttrs2 = removeOwnTypes(attr);
-			var lowAttrsET = lowAttrs2.elementTypes;
-			var lowAttrsOT = lowAttrs2.ownTypes;
-			for(var p in lowAttrsET){
-				if(Utils.isNull(highAttrsET[p])){
-					if(p!="attr")
-						highAttrsET[p] = lowAttrsET[p];
-				}
-			}
-			element_attr = highAttrsET;
-			for(var p in lowAttrsOT){
-				if(Utils.isNull(highAttrsOT[p])){
-					if(p!="attr")
-						highAttrsOT[p] = lowAttrsOT[p];
-				}
-			}
-			element_opts = highAttrsOT;
-		}else{
-			element_attr = highAttrsET;
-			element_opts = highAttrsOT;
-		}
-		var type = (Utils.isNull(element_opts.el)) ? "div" : element_opts.el;
-		element = Utils.createELement(type,element_attr);
-		element.innerHTML = (Utils.isNull(element_opts.label)) ? "" : element_opts.label;
-
-		if(Utils.isNull(element_opts.children)){
-			element_opts.children = [];
+		var fragment = document.createDocumentFragment();
+		for (var i = 0; i < elements.length; i++) {
+			fragment.appendChild(elements[i])
 		}
 
-		// self._props_._blocks.push({
-		// 	id: obj1,
-		// 	el: element,
-		// 	children: element_opts.children
-		// });
+		self._props_._fragment = fragment;
 
-		console.log(element);
-
-		self._props_._registry_elements[obj1] = { el: element };
-		function removeOwnTypes(obj){
-			var tmp1 = {};
-			var tmp2 = {};
-			var ownTypes = self._props_._own_types;
-			for(var p in obj){
-				var isOwnType = false;
-				for(var i=0; i<ownTypes.length; i++){
-					if(p==ownTypes[i]){
-						tmp2[p] = obj[p];
-						isOwnType = true;
-						break;
-					}
-				}
-				if(!isOwnType){
-					tmp1[p] = obj[p];
-				}
-			}
-			return {
-				ownTypes: tmp2,
-				elementTypes: tmp1
-			};
-		}
-
-
-		function registerChildren(){
-			var attrs = (Utils.isNull(obj2.attrs)) ? new ElementAttributes({}) : obj2.attrs;
-			attrs = attrs.getAttributes();
-			if(!Utils.isNull(obj2.children)){
-				var children = obj2.children;
-				_register_children(children)
-			}else if(!Utils.isNull(attrs.children)){
-				var children = attrs.children;
-				_register_children(children);
-			}
-			function _register_children(children){
-				for (var i = 0; i < children.length; i++) {
-					var child = children[i];
-					if(!Utils.isNull(self._props_._registry_children[child])){
-						self._props_._registry_children[child].push(obj1);
-					}else{
-						self._props_._registry_children[child] = [obj1];
-					}
-				}
-			}
-		}
-
-
-
-		return this._event_manager;
-
-
-	},
-
-/**
-	* Add
-	* @return {objec} this
-	*/
-	div: function(obj){
-		Utils.createElement('div',obj);
 		return this;
-	},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	span: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	ul: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	li: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	p: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	h1: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	h2: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	h3: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	h4: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	h5: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	h6: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	article: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	section: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	footer: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	nav: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	blockquote: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	ol: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	pre: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	a: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	abbr: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	br: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	area: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	audio: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	video: function(obj){},	/**
-	
-	* Add
-	* @return {objec} this
-	*/
-	table: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	tbody: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	tfoot: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	td: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	th: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	tr: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	button: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	form: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	input: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	label: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	textarea: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	option: function(obj){},
-
-	/**
-	* Add
-	* @return {objec} this
-	*/
-	img: function(obj){}
-
-
-
+	}
 
 };
+function BrickComponent_make(element,opts,self){
+
+	if(opts==undefined){
+		opts = {};
+	}
+
+	var el;
+	if(!Utils.isNull(opts.nest)){
+
+		var nestedElement = opts.nest;
+		delete opts.nest;
+
+		if(typeof opts === "string"){
+			opts = {innerHTML: opts};
+		}
+
+		el = Utils.createElement(element,opts);
+
+		if(nestedElement.TYPE){
+			el.appendChild(nestedElement.getHtml());
+		}else if(typeof nestedElement === "object"){
+			el.appendChild(nestedElement);
+		}else if(typeof nestedElement === "string"){
+			el.appendChild(Utils.convertStringToHTMLNode(nestedElement));
+		}
+
+	}else{
+
+		if(typeof opts === "string"){
+			opts = {innerHTML: opts};
+		}
+
+		el = Utils.createElement(element,opts);
+	}
+	self._props_._elements.push(el);
+
+
+	return self;
+}
+
+
+
+
 
 
 // 9999
@@ -5721,11 +5679,11 @@ function ApplicationManager_start_createDiv(self){
 }
 var CONNECTED_COMPONENTS = [];
 function ApplicationManager_start_runInterval(self){  
+
 	var interval = setInterval(function(){ 
 		//var GL_COMPONENTS = self.getComponents();
 		var components = self.getComponents();
 		for(var i=0;i<components.length;i++){
-			//console.log(components);
 			if(document.getElementById(components[i].id)){
 
 				//ApplicationManager_start_handleAttachEvents(comp);
@@ -9272,6 +9230,7 @@ function ModalDialogComponent_mobile(){
 /////////////////////////////////////////////////////////
 /* 0000 - Utils */
 function Utils_createELement(type,options){
+	// 151515
 	if(Utils.isNull(type)){
 		return document.createElement('div');
 	}
@@ -10438,7 +10397,7 @@ function registerAppFactoryPlugin(plugin){
 * @param {String} - (optional) Override the app configuration application url
 * @tutorial GettingStarted
 */
-function ApplicationContextManager(client,config,plugins,baseUrl){
+function ApplicationContextManager(config,plugins,baseUrl){
 	var configFile = config;
 	pages = new Pages(this);
 	stateManager = new StateManager(this);
@@ -10451,7 +10410,6 @@ function ApplicationContextManager(client,config,plugins,baseUrl){
 	var self = this;
 	this._props_ = {
 
-		_client: client,
 		_config: config,
 		_plugins: plugins,
 		_baseURL: baseUrl,
@@ -10495,6 +10453,11 @@ function ApplicationContextManager(client,config,plugins,baseUrl){
 
 }
 ApplicationContextManager.prototype = {
+
+
+	setSegments: function(segments){
+		this._props_._segmented_plugins = segments;
+	},
 
 
 	/**
@@ -10573,14 +10536,16 @@ ApplicationContextManager.prototype = {
 
 	},
 
-
+	setApplicationPlugins: function(plugins){
+		this._props_._application_plugins = plugins;
+	},
 
 	/**
 	* Sets the global configuration file config.appfac.js. The configuration file
 	* is returned from AppfactoryStarter with project setup.
 	* 
 	*/
-	SetApplicationConfiguration: function(config){
+	setApplicationConfiguration: function(config){
 		this._props_._application_configuration = config;
 	},
 
@@ -10645,7 +10610,6 @@ ApplicationContextManager.prototype = {
 
 function initializeApplication(self){
 
-	var client = self._props_._client;
 	var config = self._props_._config;
 	var plugins = self._props_._plugins;
 	var baseUrl = self._props_._baseUrl;
@@ -10653,11 +10617,11 @@ function initializeApplication(self){
 
 	window.AppDialog = componentFactory.dialog();
 	window.AppFactoryDialog = componentFactory.dialog();
-	//window.Brick = Brick;
+	window.Brick = Brick;
 
-	if(!client) loadAllPluginCSSFiles();
-	
-	loadUpTheme();
+	//if(!client) loadAllPluginCSSFiles();
+		
+	//loadUpTheme();
 
 
 	function a1(configFile){
@@ -10792,7 +10756,10 @@ application:
 
 			var component = theme1.component(gl_applicationContextManager,config);
 			//console.log(component);
-			$('body').append(component.getHtml());
+			if(!Utils.isNull(component)){
+				$('body').append(component.getHtml());
+			}
+			
 
 			// 151515
 

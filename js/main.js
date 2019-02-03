@@ -1,19 +1,14 @@
-/* You do not need to edit this file, Except to add
- * application variable and configuration options.
- * The prefered way of creating client side views
- * is through plugin themes. From the command line
- * with-in the root directory of your project 
- * issue the command 
- * appfactory plugin --theme "project_directory" --name "name_of_theme"
- */
 AppFactoryStart.main(false,"config.appfac.js",{
 	baseUrl: "./",
-	paths:{},
-	require: ['appfactory']
-},function(config,plugins){   
+	paths:{'initScript':'./dashboard/classes/initialization'},
+	require: ['appfactory','initScript']
+},function(config_appfac,plugins,requireArgs){   
 
-	var app = new ApplicationContextManager(true,config,plugins);
+	var app = new ApplicationContextManager(config_appfac,plugins);
+	app.setApplicationConfiguration(config_appfac);
+	app.setApplicationPlugins(plugins);
 	app.initializeApplication();
+	requireArgs[1](true,app,config_appfac,plugins);
 
 
 },AppFactoryStart.NoCapture); 

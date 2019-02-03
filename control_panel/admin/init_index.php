@@ -18,7 +18,6 @@ require_once "includes/core/init.php";
 
   	<link rel="stylesheet" type="text/css" href="../../styles/libs/bootstrap4/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="../../js/libs/appfactoryjs/appfactory.css">
-	<link rel="stylesheet" type="text/css" href="../../styles/admin/styles.css">
 
 	<title></title>
 </head>
@@ -28,7 +27,7 @@ require_once "includes/core/init.php";
 
 	
 
-		<script data-main="../../js/admin-main.js" src="../../js/libs/requirejs/require.js"></script>
+		<script data-main="../../js/dashboard/admin-main.js" src="../../js/libs/requirejs/require.js"></script>
         <script src="../../js/libs/appfactoryjs/appfactorystarter.js"></script>
             
 </body>

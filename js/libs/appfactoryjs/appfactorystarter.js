@@ -6,7 +6,7 @@ function a(configFile){
     	rawFile.open("GET", configFile, false);
     	rawFile.send(null); 
     	resolve(rawFile.responseText)
-	});
+	}); 
 } 
 
 function mergeToFrom(obj, src) {
@@ -46,7 +46,8 @@ var _AppFactoryStart = {
 			requirejs.config(configuration.config);
 
 			requirejs(configuration.require, function(a){
-				callback(appfac_config,plugins);
+				var requireArgs = arguments;
+				callback(appfac_config,plugins,requireArgs);
 			});
 
 		}
@@ -83,9 +84,9 @@ var _AppFactoryStart = {
 				for(var i=0; i<plugins.length; i++){
 					var f;
 					if(isAdmin){
-						f = "../../js/plugins/"+plugins[i].location+"/"+plugins[i].start;
+						f = "../../js/plugins/"+plugins[i].directory+"/"+plugins[i].start;
 					}else{
-						f = "js/plugins/"+plugins[i].location+"/"+plugins[i].start+".js";
+						f = "js/plugins/"+plugins[i].directory+"/"+plugins[i].start+".js";
 					}
 					//console.log(f);
 					extra.require.push(f);

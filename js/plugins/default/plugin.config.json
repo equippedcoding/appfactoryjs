@@ -1,0 +1,22 @@
+{
+    "name": "Default",
+    "id": "_default",
+    "url": "-",
+    "directory": "default",
+    "start":"init",
+    "services": {
+        "dir": "-"
+    },
+    "admin": [
+        {
+            "directory": "default",
+            "start": "theme_interface"
+        }
+    ],
+    "client": [
+        {
+            "directory": "default",
+            "start": "theme_interface"
+        }
+    ]
+}
