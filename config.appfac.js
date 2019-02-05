@@ -41,7 +41,7 @@
         ],
         "body": [],
         "scripts": {
-            "requirejs-script": "<script data-main=\"../../js/admin/admin-main.js\" src=\"../../js/libs/requirejs/require.js\"></script>",
+            "requirejs-script": "<script data-main=\"../../js/dashboard/admin-main.js\" src=\"../../js/libs/requirejs/require.js\"></script>",
             "appfactorystarter-script": "<script src=\"../../js/libs/appfactoryjs/appfactorystarter.js\"></script>",
             "build-output-script": ""
         }

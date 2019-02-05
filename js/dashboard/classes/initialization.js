@@ -1,52 +1,225 @@
 define(['jquery'],function($){
 
 
-	function init(client,app,config_appfac,plugins){
-
-		console.log(plugins);
+	function init(client,app,config_appfac,jsonPluginConfigs,admin_dashboard_callback){
 
 
+		console.log(config_appfac);
+		console.log(jsonPluginConfigs);
+		
 		var Utils = app.Utils;  
 		var Plugin = app.getPlugin();
 		var Manager = app.getManager();
 		var Pages = app.getPages();
 		var View = app.getView();
 		var Layout = app.getLayout();
-		var Component = app.getComp();
+		var Factory = app.getComp();
 
 		var segmented_plugins = {};
 		var module_plugins = {};
+
 		var admin_active_themes = config_appfac['application']['admin-active-themes'];
-		var client_active_theme = config_appfac['application']['client-active-theme'];
 
-		var activeClientPlugin = {};
+		var client_plugin_config = config_appfac['application']['client-active-theme'];
+		var client_active_plugin = client_plugin_config.split("|")[0];
+		var client_active_theme = client_plugin_config.split("|")[1];
 
+		var PLUGIN_CLIENT = {};
+		var PLUGIN_ADMIN = [];
+		var PLUGIN_SEGEMENTS = {};
+
+		var generatedPluginConfigs = Plugin.getRegisteredPlugins();
+		var plugins = compilePlugin(jsonPluginConfigs,generatedPluginConfigs);
+
+
+		// handle segment plugins
 		for(var i=0; i<plugins.length; i++){
-			//console.log(plugins[i])
 			var plugin = plugins[i];
-			dostuff(plugin);
+			if(plugin.segment!=undefined && plugin.segment!=null && plugin.segment==true){
+				PLUGIN_SEGEMENTS[plugin.directory] = plugin;
+			}
+		}
+
+		if(client){
+			LoadActiveClient(PLUGIN_SEGEMENTS);
+		}else{
+
+			var adminPulgins = [];
+
+			var c1 = 0;
+			var c2 = 0;
+			for(var i=0; i<plugins.length; i++){
+				var plugin = plugins[i];
+
+				if(plugin.admin==undefined || plugin.admin==null) continue;
+				var nonSelected = true;
+				for(var n=0; n<plugin.admin.length; n++){
+					var adminDir = plugin.admin[n];
+					var active_theme = admin_active_themes[adminDir.directory];
+					if(active_theme==adminDir){
+						adminPulgins.push({
+							name: plugin.name,
+							directory: plugin.directory,
+							theme:plugin.admin[n]
+						});
+						nonSelected = false;
+						break;
+					}
+				}
+				// if theres no active admin theme just select the first one
+				if(nonSelected){
+					if(plugin.admin.length > 0){
+						adminPulgins.push({
+							name: plugin.name,
+							directory: plugin.directory,
+							theme:plugin.admin[0]
+						});							
+					}
+				}
+			}
+
+			if(admin_dashboard_callback)
+				admin_dashboard_callback(adminPulgins);
 		}
 
 
-		if(client){
-			for(var r=0; r<activeClientPlugin.theme.head.length; r++){
-				var head = activeClientPlugin.theme.head[r];
-				$('head').append(head);
+		function LoadActiveClient(segmented_plugins){
+			for(var i=0; i<plugins.length; i++){
+				var plugin = plugins[i];
+
+				console.log(plugin.directory);
+				console.log(client_active_plugin);
+				if(plugin.directory == client_active_plugin){
+					PLUGIN_CLIENT = {
+						config: plugin,
+						theme: handleClientPlugin(plugin)
+					}
+					break;
+				}
 			}
 
-			var c = activeClientPlugin.theme.component(app,config_appfac,segmented_plugins);
+			console.log(PLUGIN_CLIENT);
+			if(PLUGIN_CLIENT.theme.head!=null && PLUGIN_CLIENT.theme.head!=undefined){
+				var activeClientPlugin = PLUGIN_CLIENT.theme;
+				if(activeClientPlugin.head && Array.isArray(activeClientPlugin.head )){
+					for(var r=0; r<activeClientPlugin.head.length; r++){
+						var head = activeClientPlugin.head[r];
+						$('head').append(head);
+					}					
+				}
+			}
+
+			var c = PLUGIN_CLIENT.theme.component(app,config_appfac,segmented_plugins);
 			if(c!=undefined && c!=null){
 				if(c.TYPE!=undefined){
 					$('body').append(c.getHtml());
 				}
 			}
-		}else{
+		}
+
+
+		function handleClientPlugin(plugin){
+			// Get client param
+			var clientThemes = plugin.client;
+			var _activeClientTheme = null;
+
+			// loop through themes and get active theme
+			for(var i=0; i<clientThemes.length; i++){
+				var themeDir = clientThemes[i].directory;
+				if(themeDir == client_active_theme){
+					_activeClientTheme = clientThemes[i];
+					break;
+				}
+			}
+			return _activeClientTheme;
+		}
+
+		function compilePlugin(_jsonPluginConfigs,_generatedPluginConfigs){
+			var mergerdPlugins = [];
+
+			for(var i=0; i<_jsonPluginConfigs.length; i++){
+				
+				// if the json config has more configs just stop merging to prevent throwing errors
+				if((i+1) > _generatedPluginConfigs.length){
+					break;
+				}
+				var dir1 = _jsonPluginConfigs[i];
+				var dir2 = _generatedPluginConfigs[i];
+
+				if(dir1.directory == dir2.directory){
+					// merge client config
+					var clientDir1 = dir1.client;
+					var clientDir2 = dir2.client;
+					for(var n=0; n<clientDir1.length; n++){
+						if((n+1) > clientDir2.length){break;}	
+						clientDir1[n].component = clientDir2[n].component
+					}
+					dir1.client = clientDir1;
+
+					//merge admin config
+					var adminDir1 = dir1.admin;
+					var adminDir2 = dir2.admin;
+					for(var n=0; n<adminDir1.length; n++){
+						if((n+1) > adminDir2.length){break;}
+						adminDir1[n].component = adminDir2[n].component
+					}
+					dir1.admin = adminDir2;					
+
+
+					mergerdPlugins[i] = dir1;
+				}
+
+
+			}
+
+
+
+			return mergerdPlugins;
 
 		}
 
 
-		function dostuff(plugin){
-			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		function returnClient(){
+
+		}
+		function returnAdmin(){
+
 			var nonCompiledPlugin = plugin;
 			var compiledPlugins = Plugin.getRegisteredPlugins();
 			var activeAdminThemeDirectory = admin_active_themes[nonCompiledPlugin.id];
@@ -56,7 +229,7 @@ define(['jquery'],function($){
 			if(activeAdminThemeDirectory!=undefined){
 				for (var i = 0; i < compiledPlugins.length; i++) {
 					var _compiledPlugin = compiledPlugins[i];
-					var compiledPluginDirectory = compiledPlugins[i].directory;
+					var compiledPluginDirectory = _compiledPlugin.directory;
 					if(compiledPluginDirectory==nonCompiledPlugin.directory){
 						compiledPlugin = _compiledPlugin;
 						var admin = _compiledPlugin.admin;
@@ -82,13 +255,11 @@ define(['jquery'],function($){
 				}
 			}
 
-			//console.log(compiledPlugin);
-			//console.log(active_admin_theme);
-
 			// merge the compiled config with the standered config
 			for(var p in plugin){
 				if(p=="client" || p=="admin"){
 					for(var r=0; r<plugin[p].length; r++){
+						
 						var dir1 = compiledPlugin[p][r].directory;
 						var dir2 = plugin[p][r].directory;
 						if(dir1 == dir2){
@@ -120,7 +291,6 @@ define(['jquery'],function($){
 
 			var activeClientPluginDirectory = client_active_theme.split('|')[1];
 
-			//console.log(activeClientPluginDirectory);
 			if(activeClientPluginDirectory==plugin.directory){
 				activeClientPlugin['config'] = plugin;
 				var activeClientThemeDirectory = client_active_theme.split('|')[0];
@@ -131,7 +301,10 @@ define(['jquery'],function($){
 					}
 				}
 			}
+
 		}
+
+
 
 	}
 

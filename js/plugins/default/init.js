@@ -13,8 +13,8 @@ define(["appfactory",
 	        "start": "theme_interface",
 			"component":adminInterface,
 		}
-		]
-		themes: [
+		],
+		client: [
     {
         "directory": "default",
         "start": "theme_interface",
