@@ -3,10 +3,6 @@ define(['jquery'],function($){
 
 	function init(client,app,config_appfac,jsonPluginConfigs,admin_dashboard_callback){
 
-
-		console.log(config_appfac);
-		console.log(jsonPluginConfigs);
-		
 		var Utils = app.Utils;  
 		var Plugin = app.getPlugin();
 		var Manager = app.getManager();
@@ -29,8 +25,8 @@ define(['jquery'],function($){
 		var PLUGIN_SEGEMENTS = {};
 
 		var generatedPluginConfigs = Plugin.getRegisteredPlugins();
-		var plugins = compilePlugin(jsonPluginConfigs,generatedPluginConfigs);
 
+		var plugins = compilePlugin(jsonPluginConfigs,generatedPluginConfigs);
 
 		// handle segment plugins
 		for(var i=0; i<plugins.length; i++){
@@ -84,11 +80,13 @@ define(['jquery'],function($){
 
 
 		function LoadActiveClient(segmented_plugins){
+
+			if(plugins==null || plugins==undefined || plugins.length==0){
+				plugins = compilePlugin(jsonPluginConfigs,generatedPluginConfigs);
+			}
+			
 			for(var i=0; i<plugins.length; i++){
 				var plugin = plugins[i];
-
-				console.log(plugin.directory);
-				console.log(client_active_plugin);
 				if(plugin.directory == client_active_plugin){
 					PLUGIN_CLIENT = {
 						config: plugin,
@@ -98,7 +96,6 @@ define(['jquery'],function($){
 				}
 			}
 
-			console.log(PLUGIN_CLIENT);
 			if(PLUGIN_CLIENT.theme.head!=null && PLUGIN_CLIENT.theme.head!=undefined){
 				var activeClientPlugin = PLUGIN_CLIENT.theme;
 				if(activeClientPlugin.head && Array.isArray(activeClientPlugin.head )){
@@ -140,36 +137,42 @@ define(['jquery'],function($){
 			for(var i=0; i<_jsonPluginConfigs.length; i++){
 				
 				// if the json config has more configs just stop merging to prevent throwing errors
-				if((i+1) > _generatedPluginConfigs.length){
-					break;
-				}
+				//if((i+1) > _generatedPluginConfigs.length){
+					//break;
+				//}
+
 				var dir1 = _jsonPluginConfigs[i];
-				var dir2 = _generatedPluginConfigs[i];
 
-				if(dir1.directory == dir2.directory){
-					// merge client config
-					var clientDir1 = dir1.client;
-					var clientDir2 = dir2.client;
-					for(var n=0; n<clientDir1.length; n++){
-						if((n+1) > clientDir2.length){break;}	
-						clientDir1[n].component = clientDir2[n].component
+				for (var n = 0; n < _generatedPluginConfigs.length; n++) {
+					
+					var mConfig = _generatedPluginConfigs[n];
+
+					var dir2 = mConfig;
+
+					//var dir2 = _generatedPluginConfigs[i];
+
+					if(dir1.directory == dir2.directory){
+						// merge client config
+						var clientDir1 = dir1.client;
+						var clientDir2 = dir2.client;
+						for(var n=0; n<clientDir1.length; n++){
+							if((n+1) > clientDir2.length){break;}	
+							clientDir1[n].component = clientDir2[n].component
+						}
+						dir1.client = clientDir1;
+
+						//merge admin config
+						var adminDir1 = dir1.admin;
+						var adminDir2 = dir2.admin;
+						for(var n=0; n<adminDir1.length; n++){
+							if((n+1) > adminDir2.length){break;}
+							adminDir1[n].component = adminDir2[n].component
+						}
+						dir1.admin = adminDir2;					
+
+						mergerdPlugins[i] = dir1;
 					}
-					dir1.client = clientDir1;
-
-					//merge admin config
-					var adminDir1 = dir1.admin;
-					var adminDir2 = dir2.admin;
-					for(var n=0; n<adminDir1.length; n++){
-						if((n+1) > adminDir2.length){break;}
-						adminDir1[n].component = adminDir2[n].component
-					}
-					dir1.admin = adminDir2;					
-
-
-					mergerdPlugins[i] = dir1;
 				}
-
-
 			}
 
 
