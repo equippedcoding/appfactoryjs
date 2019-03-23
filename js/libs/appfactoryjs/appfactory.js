@@ -27,54 +27,54 @@
 (function (root, factory) {             
 	/*global define*/
 	if (typeof define === 'function' && define.amd) {
-		define(['jquery','backbone','bootstrap'], factory); // AMD
+		define(['jquery','backbone','bootstrap'], factory); 
 	} else if (typeof module === 'object' && module.exports) { 
-		module.exports = factory(); // Node
+		module.exports = factory(); 
 	} else {
-		root.appfactory = factory(); // Browser
+		root.appfactory = factory(); 
 	}
 }(this, function ($,Backbone,bootstrap) {    
 
 
-// cd C:\ws\template\js\libs\appfactoryjs
-// jsdoc -c jsdoc.json -u tutorial appfactory.js
-// http://appfactoryjs.equippedcoding.net/js/libs/appfactoryjs/out/
-// or
-// http://localhost/template/js/libs/appfactoryjs/out/
-
-// macos
-// cd /Applications/XAMPP/xamppfiles/htdocs/template/js/libs/appfactoryjs/
-// npx jsdoc -c jsdoc.json -u tutorial appfactory.js
-
-// 9999 - components
-// 0000 - implemention
-// 4444 - incomplete
-// 2222 - Utils
-// 9898 - ContainerComponent
 
 
 
-// First default the incoming object
-//obj = (Utils.isNull(obj)) ? {} : obj;
 
-// extend any necassary classes
-//_.extend(this,
-//	new AppFactoryManager('FormComponent'), 
-//	new ComponentManager(Flags.Type.component,this), 
-//	new EventManager(this)
-//);
 
-// register this component
-//applicationManager.register(this);
 
-// give component unique id
-//this._props_._id = "d-"+Utils.randomGenerator(12,false);
 
-// add this.getId() to component element id
-//var topComponentElement = Utils.createElement({ id:this.getId() });
 
-// add this at end of constructor
-//applicationManager.setComponent(this);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,7 +156,7 @@ function AppFactoryManager(type){
 AppFactoryManager.prototype = {};
 
 
-// 9999
+
 /** @exports ApplicationManager
 * @classdesc The ApplicationManager runs the application life cycle.
 * @class
@@ -167,7 +167,7 @@ function ApplicationManager(applicationContextManager,stateManager,sessionManage
 	_.extend(this, new AppFactoryManager('ApplicationManager'));
 	var rootElement = document.createElement('div');
 	rootElement.id = "root-element";
-	//rootElement.className = "container";
+	
 	this._stateManager = stateManager;
 	this._sessionManager = sessionManager;
 	this._application_manager = {
@@ -276,7 +276,7 @@ ApplicationManager.prototype = {
 		return this._application_manager._components;
 	},
 
-	// 5555
+	
 	getMethod: function(id,params){
 		var method = this._application_manager._methods[id];
 		if(Utils.isNull(method)){
@@ -360,7 +360,7 @@ ApplicationManager.prototype = {
 
 
 
-// 9999
+
 /** @exports SessionManager
 * @classdesc The SessionManager handles user session.
 * @class
@@ -374,7 +374,7 @@ SessionManager.prototype = {};
 
 
 
-// 9999
+
 /** @exports StateManager
 * @classdesc The SessionManager handles the state of the application.
 * @class
@@ -382,7 +382,7 @@ SessionManager.prototype = {};
 */
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
-	//this._props_ = {
+	
 	this._state_manager = {
 		_routes: {},
 		_basePath: {},
@@ -395,25 +395,25 @@ function StateManager(){
 	};
 
 }
-// 5051
+
 StateManager.prototype = {
 	mapRoute: function(route,layout){
 
-		// layout mapper component,mapper component... 
-		// @layout #mapper @component,#mapper @component...
-		//stateManager.mapRoute(layout);
+		
+		
+		
 		if(route=="") route = "_NOT_SET_";
 		this._state_manager._map_layout[route] = layout;
 
 	},
-	// layout mapper component,mapper component, mapper component
+	
 	getMapRoute: function(route,mapper){
 		if(route=="") route = "_NOT_SET_";
 		var layout = this._state_manager._map_layout[route];
 
 		if(Utils.isNull(layout)) return null;
 		layout = layout.split(' ');
-		// remove layout param
+		
 		layout.shift();
 		layout = layout.join(" ");
 		layout = layout.split(",");
@@ -450,7 +450,7 @@ StateManager.prototype = {
 	* 
 	*/
 	go: function(path,trigger,body){
-		// 4444 - add dynamic body
+		
 		if(Utils.isNull(trigger)){
 			trigger = true;
 		}
@@ -485,7 +485,7 @@ StateManager.prototype = {
 
 
 
-// 9999
+
 /** @exports ApplicationSegments
 * @classdesc A segment is a plugin thats can be tied to another plugin
 * but cannot be active by its self. In the plugin.config.json specify
@@ -534,7 +534,7 @@ ApplicationSegments.prototype = {
 
 
 
-// 9999
+
 /** @exports PluginManager
 * @classdesc The PluginManager creates plugins for the AppfactoryJS application.
 * @class
@@ -577,12 +577,12 @@ ApplicationPlugin.prototype = {
 		return client;
 	},
 
-	// 151515
+	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
-		//console.log(pluginId);
-		//console.log(pluginConfig);
-		//console.log(mainConfig);
+		
+		
+		
 
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
@@ -620,22 +620,22 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
-		//console.log(plugin);
-		//console.log(pluginThemes);
 		
-		//if(!Utils.isNull(pluginThemes)){
-
-		//	var themes = [];
-		//	for(var i=0; i<pluginThemes.length; i++){
-		//		themes.push({
-		//			id: ,
-		//			component: pluginThemes[i](gl_applicationContextManager,config)
-		//		});
-				//console.log(pluginThemes[i](gl_applicationContextManager,config));
-		//	}
+		
+		
 		
 
-		//}
+		
+		
+		
+		
+		
+		
+				
+		
+		
+
+		
 
 
 		return {
@@ -649,12 +649,12 @@ ApplicationPlugin.prototype = {
 
 
 /* Components */
-// 9999
+
 /** @exports ComponentManager
 * @classdesc The ComponentManager is the top component that every other component inherits from.
 * @class
 * @constructor
-*/ // 1111
+*/ 
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
 	context.TYPE = type;
@@ -670,9 +670,9 @@ function ComponentManager(type,context){
 		_isEventsActive: false,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
 
-		// data object thats passed through to an event
-		// the object can be anything that the component
-		// wants, the user just has to know what to expect
+		
+		
+		
 		_args: null,
 		_object_config: null,
 		_routes: null,
@@ -789,7 +789,7 @@ ComponentManager.prototype = {};
 
 
 
-// 9999
+
 /** @exports Pages
 * @classdesc handles the routing and mapping between component and routes 
 * @class
@@ -806,8 +806,8 @@ function Pages(){
 	containerDiv.id = this._props_._container_id;
 	document.body.appendChild(containerDiv);
 
-	// var collection = new ViewCollectionController("#app-factory-container");
-	// this._props_._collection = collection;
+	
+	
 
 }
 
@@ -874,21 +874,21 @@ Pages.prototype = {
 
 var ViewsHolder = [];
 
-// 9999
+
 /** @exports ViewManager
 * @classdesc A component that handles multiple components with in one view.
 * @class
 * @constructor
 */
 function ViewManager(opt){
-	//ComponentManager.call(this,arguments);
+	
 
-	// 4444 - classifing this component as Flags.Type.view instead of
-	// Flags.Type.component causes problems in the layoutmanager
+	
+	
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
 		new ComponentManager(Flags.Type.component,this),
-		//new ComponentManager(Flags.Type.view,this),
+		
 		new EventManager()
 	);
 	applicationManager.register(this);
@@ -902,8 +902,8 @@ function ViewManager(opt){
 	if(Utils.isNull(opt.routable)){
 		opt.routable = false;
 	}
-	// 4444
-	// routable by view component
+	
+	
 	opt.routable = false;
 	self._props_._is_routable = opt.routable;
 	self._props_._containers = new ContainerComponent();
@@ -915,11 +915,11 @@ function ViewManager(opt){
 
 	
 
-	// 5555
+	
 	self.getHtml = function(){
 
-		//var parent = self._props_._component_containers.parent;
-		// 5050
+		
+		
 		var objs = self._props_._views_objects;
 		var obj = null;
 		for (var i = 0; i < objs.length; i++) {
@@ -943,7 +943,7 @@ function ViewManager(opt){
 
 		return self._props_._containers.getHtml();
 
-		//return this._props_._component_containers.parent.getHtml();
+		
 	};
 }
 ViewManager.prototype = {
@@ -995,8 +995,8 @@ ViewManager.prototype = {
 	},
 
 
-		// 5050
-		// 5051
+		
+		
 	/**
 	* Add new view to this ViewManager
 	*/
@@ -1048,14 +1048,14 @@ ViewManager.prototype = {
 
 
 
-// 9999
+
 /** @exports LayoutManager
 * @classdesc A compoment that handles the layout of components.
 * @class
 * @constructor
 */
 function LayoutManager(){
-	//ComponentManager.call(this,arguments);
+	
 	_.extend(this, new AppFactoryManager('LayoutManager'));
 
 }
@@ -1073,7 +1073,7 @@ LayoutManager.prototype = {
 
 
 
-// 9999
+
 /** @exports AppLayout
 * @classdesc The layout component that is returned by the LayoutManager.newLayout().
 * @class
@@ -1089,12 +1089,12 @@ function AppLayout(obj){
 	applicationManager.register(this);
 
 
-	//applicationManager.register(this);
+	
 	obj = (Utils.isNull(obj)) ? {} : obj;
-	//this.TYPE = GL_TYPES.layout;
+	
 	this.ID = "d-"+Utils.randomGenerator(12,false);
 	
-	//ALL_COMPONENTS[ALL_COMPONENTS.length] = {id:this.ID,component:this};
+	
 	this._html = "";
 	this._custHtml = [];
 	this._fragment = null;
@@ -1161,7 +1161,7 @@ function AppLayout(obj){
 
 	this._reset = 0;
 
-	// applicationManager.register(this);
+	
 
 	this.getHtml = function(){
 		return AppComponent_getHtml_layout_fragment(self);
@@ -1207,15 +1207,15 @@ AppLayout.prototype = {
 };
 
 
-// 9999
-// 9898
+
+
 /** @exports ComponentFactory
 * @classdesc A top-level component that handles all other components except ViewManager component and AppLayout component.
 * @class
 * @constructor
 */
 function ComponentFactory(){
-	// _.extend(this, new AppFactoryManager('ComponentFactory'));
+	
 	
 
 }
@@ -1327,10 +1327,10 @@ function ImageComponent(opts){
 	var isNull = Utils.isNull;
 	var self = this;
 	applicationManager.register(this);
-	//var main_container = new ContainerComponent({ id:this.getId() });//createElement({ id:this.getId() });
+	
 	applicationManager.setComponent(this);
 
-	// <img src="smiley.gif" alt="Smiley face" height="42" width="42">
+	
 
 	var frag = document.createDocumentFragment();
 	var img = document.createElement('img');
@@ -1355,7 +1355,7 @@ ImageComponent.prototype = {
 };
 
 
-// 9999
+
 /** @exports NavComponent
 * @classdesc Creates a Nav component
 * @class
@@ -1373,13 +1373,13 @@ function NavComponent(opts){
 	var isNull = Utils.isNull;
 	var self = this;
 	applicationManager.register(this);
-	//var main_container = new ContainerComponent({ id:this.getId() });//createElement({ id:this.getId() });
+	
 	applicationManager.setComponent(this);
 
-	// top [default]
-	// top-center
-	// top-left
-	// side
+	
+	
+	
+	
 
 
 	var view = new ViewManager();
@@ -1390,21 +1390,21 @@ function NavComponent(opts){
 	self._props_._elements = {
 		_view: view,
 		_ul: null,
-		_navbar_container: new ContainerComponent(), //createElement(),
-		_content_container: new ContainerComponent(), //createElement(),
-		_container: new ContainerComponent({ id:self.getId() }), //createElement(),
+		_navbar_container: new ContainerComponent(), 
+		_content_container: new ContainerComponent(), 
+		_container: new ContainerComponent({ id:self.getId() }), 
 		_fragment: frag,
 		_layout: null
 	};
 
-	// {
-	// 	//top[default], top-center, top-left, right, left
-	// 	position: "",
-	// 	layout: {
-	// 		navbar: {},
-	// 		content: {}
-	// 	}
-	// }
+	
+	
+	
+	
+	
+	
+	
+	
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -1542,7 +1542,7 @@ NavComponent.prototype = {
 		if(init==true){
 			self._props_._active_item = id;
 		}
-		// nnnnn
+		
 		var li = createElement({el:'li',className:'nav-item'});
 		var a = createElement({el:'a',id:id,className:'nav-link',href:'#',innerHTML:label});
 		li.appendChild(a);
@@ -1556,9 +1556,9 @@ NavComponent.prototype = {
 					e.preventDefault();
 					var current = self._props_._active_item;
 
-					// console.log("=========================================")
-					// console.log(current);
-					// console.log(id)
+					
+					
+					
 
 					if(current == id) return;
 					if(current!=""){
@@ -1583,19 +1583,19 @@ NavComponent.prototype = {
 	*/
 	build: function(){
 		var self = this;
-		// self._props_._elements = {
-		// 	_view: view,
-		// 	_ul: ul,
-		// 	_navbar_container: createElement(),
-		// 	_content_container: createElement(),
-		// 	_container: createElement(),
-		// 	_fragment: frag
-		// };
+		
+		
+		
+		
+		
+		
+		
+		
 
-		// add navbar to its container
+		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
-		// add content to its container
+		
 		self._props_._elements._content_container
 			.addComponent(self._props_._elements._view,true);
 
@@ -1611,7 +1611,7 @@ NavComponent.prototype = {
 
 
 
-// 9999
+
 /** @exports DialogComponent
 * @classdesc Creates a dialog component
 * @class
@@ -1673,7 +1673,7 @@ ModalComponent.prototype = {
 
 
 
-// 4444 - dynamically change content of dialog
+
 function ModalComponent_setContent(opts,self){
 	if(Utils.isNull(opts.type)){
 		opts.type = 'normal';
@@ -1719,12 +1719,12 @@ function ModalComponent_setContent(opts,self){
 			innerHTML: opts.title
 		});		
 
-		// var exitBtn = createElement({
-		// 	el: 'button',
-		// 	className: 'close',
-		// 	'data-dismiss': 'modal',
-		// 	innerHTML: '<span aria-hidden="true">&times;</span>'
-		// });
+		
+		
+		
+		
+		
+		
 
 		var exitBtn = Utils.convertStringToHTMLNode(`
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -1747,7 +1747,7 @@ function ModalComponent_setContent(opts,self){
 			modalContent.appendChild(modalBody);
 		}
 
-		// 1212
+		
 
 		topDiv.appendChild(modalDiv);
 		self._props_._dialog = topDiv;
@@ -1781,89 +1781,31 @@ function ModalComponent_setContent(opts,self){
 
 
 
-// var mylist = ["one","two","three"];
-
-// var list = Component.list({
 
 
-// 	list: mylist,
-// 	func: function(index,item){
 
-// 		this.label = item;
 
-// 		this.badge = {
-// 			value:115,
-// 			id: "badge1"
-// 		};
 
-// 		this.style = "";
+
+
+
+
+
+
+
+
+
+
+
 	
-// 		this.id = "";
 
-// 		this.classes = "";
 
-// 		this.html = "";
 
-// 		this.select = function(){
+
+
+
+
 	
-// 		}
-
-// 		return this;
-
-// 	}
-
-
-
-// });
-
-// for(var i=0;i<mylist.length;i++){
-// 	setupListItem(i);
-// }
-
-// function setupListItem(index){
-// 	var gh = mylist[index];
-// 	list.item({
-// 		label: mylist[index].name,
-// 		badge: {
-// 			value:115,
-// 			id: "badge1"
-// 		},
-
-// 		// set meta data to be tied to list item
-// 		meta: {},
-
-// 		listener: function(e,self,optional,extra){
-
-// 			var btn1 = Utils.createElement({
-// 				el: 'button',
-// 				innerHTML: 'close'
-// 			});
-
-// 			var d = Component.mobileDialog();
-// 			// d.open('hello you',{
-// 			// 	btns: [btn1]
-// 			// });
-// 			var f = "Install Plugin "+mylist[index].name;
-// 			function btnclick(index){
-// 				// console.log(index);
-// 				AppDialog.toggle();
-// 			}
-// 			function onClose(index){
-// 				// console.log('Dialog has closed')
-// 				AppDialog.toggle();
-// 			}
-// 			d.showBottom({onClose: onClose,btn: [f], btnClick: btnclick});
-
-// 			// fix z-index, toast is getting covered up
-// 			// d.toast('Cloasing Application',5);
-
-// 			// d.loading({hint:"Please Wait While Loading",type:2});
-// 			// setTimeout(function(){
-// 			// 	d.closeLoading();
-// 			// },5000);
-// 		}
-// 	});
-// }
 
 
 
@@ -1871,7 +1813,65 @@ function ModalComponent_setContent(opts,self){
 
 
 
-// 9999
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /** @exports ListComponent
 * @classdesc Creates a list component
 * @class
@@ -1880,10 +1880,10 @@ function ModalComponent_setContent(opts,self){
 */
 function ListComponent(opts){
 
-	// First default the incoming object
+	
 	opts = (Utils.isNull(opts)) ? {} : opts;
 
-	// extend any necassary classes
+	
 	_.extend(this,
 		new AppFactoryManager('ListComponent'), 
 		new ComponentManager(Flags.Type.component,this), 
@@ -1959,9 +1959,9 @@ function ListComponent(opts){
 		}
 	}
 	function callme(index,listItem,self){
-		var n;// = opts.item( index, listItem[index] );
+		var n;
 
-		//console.log(n);
+		
 		if(!Utils.isNull(opts.item)){
 			n = opts.item( index, listItem[index] );
 		}
@@ -1997,7 +1997,7 @@ ListComponent.prototype = {
 		var createElement = Utils.createElement;
 
 		var active = "";
-		///console.log(opts);
+		
 
 		if(!Utils.isNull(opts.active)){
 			if(opts.active){
@@ -2039,9 +2039,9 @@ ListComponent.prototype = {
 
 		self._props_._list_container.appendChild(a);
 
-		//<span class="badge badge-primary badge-pill">14</span>
+		
 
-		//_Utils_registerListenerCallback(opts,self);
+		
 
 		var def = false;
 		if(!Utils.isNull(opts.preventDefault)){
@@ -2087,15 +2087,15 @@ ListComponent.prototype = {
 
 
 
-// <div class="list-group">
-//   <a href="#" class="list-group-item list-group-item-action active">
-//     Cras justo odio
-//   </a>
-//   <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-//   <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-//   <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-//   <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
-// </div>
+
+
+
+
+
+
+
+
+
 
 
 	}
@@ -2104,7 +2104,7 @@ ListComponent.prototype = {
 
 
 
-// 9999
+
 function FormEventsHandler(obj,formElement,self){
 	FormEventsHandler_constructor(obj,formElement,self,this);
 }
@@ -2115,7 +2115,7 @@ function ComponentDefaults(obj,self){
 	return new FormComponentDefaults(obj,self);
 }
 
-// 9999
+
 function FormComponentDefaults(obj,self){
 	if(Utils.isNull(obj)){
 		obj = {};
@@ -2269,7 +2269,7 @@ FormValidationDefaults.prototype = {
 };
 
 
-// 9999
+
 /** @exports FormComponent
 * @classdesc Creates a form component
 * @class
@@ -2279,23 +2279,23 @@ FormValidationDefaults.prototype = {
 function FormComponent(obj){
 	
 	
-	// if(Utils.isNull(obj)){
-	// 	//console.error("Tag is required for form component!");
-	// 	//return;
+	
+	
+	
 
-	// }
-	// var tag = "";
-	// if(typeof obj === 'string'){
-	// 	tag = obj;
-	// 	obj = {};
-	// }else{
-	// 	if(Utils.isNull(obj.tag)){
-	// 		console.error("Tag is required for form component!");
-	// 		return;
-	// 	}else{
-	// 		tag = obj.tag;
-	// 	}
-	// }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	obj = (Utils.isNull(obj)) ? {} : obj;
 	_.extend(this,
@@ -2342,7 +2342,7 @@ function FormComponent(obj){
 
 FormComponent.prototype = {
 
-	// 4444 - remove and show form elements
+	
 	showElement: function(){},
 	hideElement: function(){},
 
@@ -2472,7 +2472,7 @@ FormComponent.prototype = {
 };
 
 
-// 9999
+
 /** @exports FileUploader
 * @classdesc Creates a file upload component
 * @class
@@ -2517,7 +2517,7 @@ FileUploaderComponent.prototype = {
 };
 
 
-// 9999
+
 /** @exports ButtonComponent
 * @classdesc .
 * @class
@@ -2537,7 +2537,7 @@ function ButtonComponent(opts){
 
 	var self = this;
 
-	var id = self.getId();//(opts.id==undefined) ? Utils.randomGenerator(12,false) : opts.id;
+	var id = self.getId();
 	var selector = (opts.selector==undefined) ? "#"+id : opts.selector;
 	var label = (opts.label==undefined) ? "" : opts.label;
 	var style = (opts.style==undefined) ? "" : opts.style;
@@ -2546,13 +2546,13 @@ function ButtonComponent(opts){
 		className = (opts.classes==undefined) ? "" : opts.classes;
 	}
 
-	// var button = Utils.createElement({
-	// 	el: 'button',
-	// 	innerHTML: label,
-	// 	id: id,
-	// 	style: style,
-	// 	className: className
-	// });
+	
+	
+	
+	
+	
+	
+	
 
 	var button = document.createElement('button');
 	button.id = id;
@@ -2560,23 +2560,23 @@ function ButtonComponent(opts){
 	button.className = className;
 	button.innerHTML = label;
 
-	// if(!Utils.isNull(opts.listener) && typeof opts.listener==="function"){
-	// 	var func = opts.listener;
-	// 	opts.listener = {
-	// 		type: 'click',
-	// 		selector: selector,
-	// 		func: func
-	// 	};
-	// }else if(!Utils.isNull(opts.callback)  && typeof opts.callback==="function" ){
-	// 	var func = opts.callback;
-	// 	opts.callback = {
-	// 		type: 'click',
-	// 		selector: selector,
-	// 		func: func
-	// 	};
-	// }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-	//_Utils_registerListenerCallbackForSelf(opts,self);
+	
 	if(!Utils.isNull(opts.listener)){
 		_Utils_registerListenerCallbackForSelf("click",selector,opts.listener,self);
 	}
@@ -2585,7 +2585,7 @@ function ButtonComponent(opts){
 	}
 
 	this.getHtml = function(){
-		return button;//defaultBody.getHtml();
+		return button;
 	};
 
 }
@@ -2594,7 +2594,7 @@ ButtonComponent.prototype = {
 };
 
 
-// 9999
+
 /** @exports ContainerComponent
 * @classdesc A top-level component that.
 * @class
@@ -2609,9 +2609,9 @@ function ContainerComponent(obj){
 	applicationManager.register(this);
 	var self = this;
 	obj = (obj) ? obj :{};
-	//this.TYPE = GL_TYPES.component;
+	
 	self._props_._componentName = "ContainerComponent";
-	//self._props_._id = (obj.id) ? obj.id : "ContainerComponent-"+Utils.randomGenerator(12,false);
+	
 	if(Utils.isNull(obj.body)){
 		obj.body = "<div></div>";
 	}
@@ -2635,7 +2635,7 @@ function ContainerComponent(obj){
 	self._props_._loader_spinner_class = "appfactory-container-loader-spinner";
 
 
-	//AppComponent_getHtml_component_fragment(self,route)
+	
 	var createElement = Utils.createElement;
 	var obj = self._props_._obj;
 	var bodies = [];
@@ -2679,7 +2679,7 @@ function ContainerComponent(obj){
 	fragment.appendChild(self._props_._container);
 	self._props_._elements._fragment = fragment;
 
-	// 1111
+	
 	this.getHtml = function(route){
 		return self._props_._elements._fragment.cloneNode(true);
 	}
@@ -2701,7 +2701,7 @@ ContainerComponent.prototype = {
 	* the DOM and re-added then the added component will not be attached.
 	*/ 
 	addComponent: function(component,empty,attachOnce){
-		//return ContainerComponent_addComponent(component,empty,this);
+		
 		var self = this;
 		var isEmpty = (!Utils.isNull(empty)) ? empty : true;
 		attachOnce = (!Utils.isNull(attachOnce)) ? attachOnce : false;
@@ -2715,7 +2715,7 @@ ContainerComponent.prototype = {
 			}
 
 			setComponent = gl_applicationContextManager.Manager().getMethod(component[0])(params);
-			//console.log(setComponent);
+			
 			if(Utils.isNull(setComponent)){
 				console.error("Component does Not exist: "+component[0])
 			}
@@ -2725,24 +2725,24 @@ ContainerComponent.prototype = {
 
 		if( document.getElementById(self.getId()) ){
 			addToDOM(setComponent);
-		}//else{
+		}
 			if(attachOnce){
 				self.onAttachOnceListener(function(){
 					addToDOM(setComponent);
 				});
-			}else{ // nnnnn
+			}else{ 
 				self.onAttachListener(function(){
 					addToDOM(setComponent);
 				});
 			}
-		//}
+		
 		function addToDOM(setComponent1){
 
 			
-			//var id = self.getId();
+			
 
-			//console.log(self.getId());
-			//console.log(setComponent);
+			
+			
 
 			if(Utils.isNull(setComponent1)) return;
 
@@ -2755,7 +2755,7 @@ ContainerComponent.prototype = {
 			}
 			
 
-			//console.log(setComponent1);
+			
 			if(setComponent1.TYPE){
 				$("#"+id).append(setComponent1.getHtml());
 				setComponent1.initializeListeners();
@@ -2796,7 +2796,7 @@ ContainerComponent.prototype = {
 
 
 
-// 9999
+
 function ElementAttributes(attrs){
 	_.extend(this, new AppFactoryManager('ElementAttributes'));
 	this._elementAttributes = {
@@ -2811,7 +2811,7 @@ ElementAttributes.prototype = {
 	}
 };
 
-// 9999
+
 function EventManager(self){
 	_.extend(this, Backbone.Events);
 
@@ -2822,7 +2822,7 @@ EventManager.prototype = {
 
 
 
-// 151515
+
 /**
 * Brick 
 *
@@ -3252,7 +3252,7 @@ var Brick = {
 };
 
 
-// 9999
+
 /** @exports BrickComponent
 * @classdesc A top-level component that.
 * @class
@@ -3294,7 +3294,7 @@ BrickComponent.prototype = {
 		return BrickComponent_make(element,opts,this);
 	},
 
-	// 151515
+	
 	/**
 	*
 	* @return {BrickComponent}
@@ -3487,7 +3487,7 @@ function BrickComponent_make(element,opts,self){
 
 
 
-// 9999
+
 /** @exports NavigationComponent
 * @classdesc A top-level component that.
 * @class
@@ -3500,11 +3500,11 @@ function NavigationComponent(obj){
 		new EventManager()
 	);
 	applicationManager.register(this);
-	//this._props_._id = "NavigationComponent-"+Utils.randomGenerator(16,false);
+	
 
 	var self = this;
 	obj = (obj) ? obj :{};
-	//self.TYPE = Flags.Type.component;
+	
 	if(Utils.isNull(obj.type)){
 		obj.type = Flags.Navigation.nav;
 	}
@@ -3521,7 +3521,7 @@ function NavigationComponent(obj){
 	self._props_._container_id = "NavigationComponent-"+Utils.randomGenerator(16,false);
 	self._props_._viewManager = null;
  	self._props_.view_id = "NavigationComponent-"+Utils.randomGenerator(16,false);
- 	// options
+ 	
  	self._props_._nav_type = (obj.type==undefined) ? 1 : obj.type;
  	self._props_._container_class = "mycontainer";
  	self._props_._closable = (obj.closable==undefined) ? false : obj.closable;
@@ -3529,7 +3529,7 @@ function NavigationComponent(obj){
  	self._props_._container_main_class = (obj.container==undefined) ? "container" : obj.container;
 
  	self._props_._is_built = false;
- 	//this.build = function(){};
+ 	
 
 	this.getHtml = function(){
 		return this._props_._html;
@@ -3582,7 +3582,7 @@ NavigationComponent.prototype = {
 		var id = obj.id;
 		var defaultBody = new ContainerComponent({ body: "<div></div>" });
 
-		// set defualts
+		
 		if(Utils.isNull(obj.init)){
 			obj.init = false;
 		}
@@ -3611,27 +3611,27 @@ NavigationComponent.prototype = {
 
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
-				//console.log(page)
+				
 					
-				// if(!Utils.isNull(page.init) && page.init==true){
-				// 	defaultBody.onAttachOnceListener(function(){
-				// 		$("#"+page.id).addClass('appfactory-sidenav-active');
-				// 	});
-				// }
-				//_Utils.registerListenerCallbackForSelf("click","#"+obj.id,function(){
+				
+				
+				
+				
+				
+				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
 					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
 					$("#"+obj.id).addClass('appfactory-sidenav-active');
 					});
-				//},self,true);
+				
 
 
 			}
 		}
 
-		//console.log(obj);
-		//_Utils.registerListenerCallback(obj,this);
+		
+		
 
 	},
 
@@ -3671,41 +3671,41 @@ NavigationComponent.prototype = {
 function _navigation1(self,view){
 
 	
-	// <div id="mySidenav" class="sidenav">
-	//   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-	//   <a href="#">About</a>
-	//   <a href="#">Services</a>
-	//   <a href="#">Clients</a>
-	//   <a href="#">Contact</a>
-	// </div>
+	
+	
+	
+	
+	
+	
+	
 
-	// <div id="main">
- //  	...
-	// </div>
+	
+ 
+	
 	
 
 	var defaultBody;
 
 	var container = Utils.createElement({});
 
-	//var container_main = Utils.createElement({id: self._props_._container_id});
-	// container_main.id = self._props_.view_id;
-	self._props_._container.className = self._props_._container_class;//"container";
+	
+	
+	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
 
 	self._props_._container_main = Utils.createElement({className: self._props_._container_main_class });
 	self._props_._container_main.appendChild(view.getHtml());
 	self._props_._container.appendChild(self._props_._container_main);
 
-	// document.getElementById("mySidenav").style.width = "250px";
- //     document.getElementById("main").style.marginLeft = "250px";
 	
-	//self._props_._container.appendChild(view.getHtml());
+ 
+	
+	
 
 	var container_nav = Utils.createElement({ id:"mySidenav", className: "appfactory-sidenav" });
 
-	//<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-	//console.log(self._props_._opts.closable);
+	
+	
 	if(self._props_._opts.closable){
 		var a2 = Utils.createElement('a',{ href:'#', className:'appfactory-close', innerHTML: "&times;" });
 		var close = defaultBody = new ContainerComponent({ body: a2 });
@@ -3730,7 +3730,7 @@ function _navigation1(self,view){
 	function _setup(page){
 		var a1 = Utils.createElement('a',{ id: page.id, href:'#', className:"appfactory-sidenav-item", innerHTML: page.label });
 		container_nav.appendChild(a1);
-		//console.log(page)
+		
 			
 		if(!Utils.isNull(page.init) && page.init==true){
 			defaultBody.onAttachOnceListener(function(){
@@ -3788,7 +3788,7 @@ function _side_navigation(self){
 	self._props_._elements._fragment.appendChild(ap);
 
 	self._props_._elements._body.className = (isNull(obj.bodyClasses)) ? "" : obj.bodyClasses;
-	//this._props_._body._id = (isNull(obj.bodyId)) ? Support.Utils.randomGenerator(9,false) : obj.bodyId;
+	
 	
 	self._props_._elements._body2 = document.createElement('div');
 	self._props_._elements._body2.style = "margin-left:110px;width:80%;";
@@ -3827,11 +3827,11 @@ function _side_navigation(self){
 	self._props_._nav_id = self._props_._elements._container.id;
 	
 
-	// Nav want hide
+	
 	if(sticky){
 		containerClasses = "sidenav-nohide "+(isNull(obj.classes)) ? "" : obj.classes;
 		self._props_._elements._body.id = "appfactory-main-container-content-nohide";
-		//console.log("containerClasses1: "+containerClasses);
+		
 	}else{
 		self._props_._elements._body.id = "appfactory-sidenav-content-container";
 		containerClasses = " appfactory-sidenav";
@@ -3847,7 +3847,7 @@ function _side_navigation(self){
 			a.style = (isNull(obj.exitColor)) ? "" : "color:"+obj.exitColor;
 			a.id = Support.Utils.randomGenerator(9,false);
 			a.innerHTML = "&times;";
-			//a.onclick = function(){ self.close(); }
+			
 
 			
 
@@ -3859,15 +3859,15 @@ function _side_navigation(self){
 		}
 		
 
-		//console.log("containerClasses2: "+containerClasses);
+		
 	}
 
 	self._props_._body_id = self._props_._elements._body.id;
 
-	//console.log("containerClasses: "+containerClasses);
+	
 
 	self._props_._elements._container.className = "side_nav "+containerClasses;
-	//this._props_._elements._container.style = "background-color:white;";
+	
 
 
 	self._props_._collection = new ViewCollectionController("#"
@@ -3882,7 +3882,7 @@ function _side_navigation(self){
 
 
 
-// 1001
+
 /** @exports TableComponent
 * @classdesc Instatiated by the  {@link ViewLayoutController} class
 * @class
@@ -3914,7 +3914,7 @@ function TableComponent (obj){
 	this.ID = "d-"+Utils.randomGenerator(13,false);
 	var randomId = Utils.randomGenerator(10,false);
 	this._tableBodyId = Utils.randomGenerator(10,false);
-	var id = this.ID;//(obj.id == null || obj.id==undefined) ? randomId : obj.id;
+	var id = this.ID;
 	var classes = (obj.classes == null || obj.classes==undefined) ? "" : obj.classes;
 
 	applicationManager.setComponent(this);
@@ -3935,16 +3935,16 @@ function TableComponent (obj){
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
 
 	
-	// self._props_._tableStructure._rows.push({
-	// 	column_line_num: self._props_._tableStructure._rowCount,
-	// 	rowId: _tr.id,
-	// 	rows: _rows, [id,val]..
-	// });
+	
+	
+	
+	
+	
 	
 
 
 
-	// Head elements
+	
 	var _columnNames = [];
 	var _columnNameHeader = document.createElement('tr');
 	var _column_ = [];
@@ -3954,12 +3954,12 @@ function TableComponent (obj){
 		_th.innerHTML = obj.columns[i].name;
 		_th.id = "column-"+Utils.randomGenerator(22,false);
 		var lastChar = obj.columns[i].name.substr(obj.columns[i].name.length - 1);
-		var _type = "normal";// normal|remote
+		var _type = "normal";
 		if(lastChar=="&"){
 			_type = "remote";
 		}
 
-		//console.log(obj.columns[i].name);
+		
 		_column_[i] = { 
 			id: _th.id,
 			name: obj.columns[i].name,
@@ -3971,7 +3971,7 @@ function TableComponent (obj){
 	}
 	_thead.appendChild(_columnNameHeader);
 
-	//console.log(obj.columns);
+	
 
 	this._props_ = {
 		_elements: {
@@ -4032,7 +4032,7 @@ function TableComponent (obj){
 
 		this._props_._delemeter = (isNull(obj.delemeter)) ? "\t" : obj.delemeter;
 
-		//_Utils_registerListenerCallbackForSelf(this,"run","",function(data){
+		
 		_Utils_registerListenerCallbackForSelf("run","",function(data){
 			$("#"+_thead.id).click(function(e){
 				TableComponent__column_adjustment(self,obj,e);
@@ -4070,18 +4070,18 @@ function TableComponent (obj){
 	ap.id = this.ID;
 	this._props_._elements._fragment.appendChild(ap);
 
-	// this._props_._modalDialog = compFactory.modalDialog({
-	// 	content: {
-	// 		id: "",
-	// 		title: "",
-	// 		styles: "",
-	// 		classes: "",
-	// 		fade: true
-	// 	}
-	// });
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	this._props_._extensionObject.push(this._props_._modalDialog);
-	//this._props_._elements._fragment.appendChild(Utils.convertStringToHTMLNode( this._props_._modalDialog.getHtml() ));
+	
 
 	this.getHtml = function(){
 		return this._props_._elements._fragment.cloneNode(true);
@@ -4103,13 +4103,13 @@ TableComponent.prototype = {
 
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
-		// setConnectedData: function(cellId,connectId,type,value,available,modified)
 		
-		// _column_[i] = { 
-		// 	id: _th.id,
-		// 	name: obj.columns[i].name,
-		// 	type: _type //remote|normal
-		// };
+		
+		
+		
+		
+		
+		
 		
 		if(isNull(columnIndex)){
 			return this._props_._tableStructure._column;
@@ -4190,7 +4190,7 @@ TableComponent.prototype = {
 		return d;
 	},
 
-	// setConnectedData(id,connect_id,_type,val)
+	
 
 	/**
 	*  cellId:String - The DOM id of the cell
@@ -4253,19 +4253,19 @@ TableComponent.prototype = {
 	},
 
 	updateCell : function(cellId,newValue,updateOnDOM){
-		//console.log(cellId);
-		//console.log(newValue);
+		
+		
 		this.updateRow(cellId,newValue,updateOnDOM);
 	},
 
 	updateRow: function(cellId,newValue,updateOnDOM){
 		var isNull = Utils.isNull;
 		
-			// self._props_._tableStructure._rows.push({
-			// 	column_line_num: self._props_._tableStructure._rowCount,
-			// 	rowId: _tr.id,
-			// 	rows: _rows,
-			// });
+			
+			
+			
+			
+			
 
 
 		
@@ -4321,27 +4321,27 @@ TableComponent.prototype = {
 		var isNull = Utils.isNull;
 
 		
-			// table({
-			// 	updatable: true,
+			
+			
 				
-			// 	// add this if you only want columns
-			// 	// this is overridden by content
-			// 	columns: columns,
-			// 	content: content,
-			// 	delemeter: delemeter,
-			// 	no_conents_error_message: no_conents_error_message,
-			// 	filename: filename
-			// });
+			
+			
+			
+			
+			
+			
+			
+			
 		
 
 		console.log(obj);
 
-		// get the file contents then spilt by newline
+		
 
-		///console.log(obj);
+		
 		var file_rows = obj.content.split("\n");
-		//var file_rows = d.trim().split("\n");
-		//var t = table(file_rows,"polling_locations.cvs");
+		
+		
 
 		if(file_rows.length==0){
 			var cust = new ContainerComponent({
@@ -4364,7 +4364,7 @@ TableComponent.prototype = {
 
 		var editable = (isNull(obj.editable)) ? false : obj.editable;
 
-		// mode = mormal|edit|present
+		
 		var mode = (isNull(obj.mode)) ? "normal" : obj.mode;
 		var tm = new ComponentFactory();
 		var table = tm.table({
@@ -4376,15 +4376,15 @@ TableComponent.prototype = {
 			cellRequestForConnectedData: obj.cellRequestForConnectedData
 		});
 
-		//console.log(file_rows);
+		
 	
 		var columnsData = [];
-		//console.log(file_rows);
+		
 		for(var i=1; i<file_rows.length; i++){
 			var row = file_rows[i].split("\t");
-			//console.log(row);
-			//row.shift();
-			//console.log(row);
+			
+			
+			
 
 
 
@@ -4398,7 +4398,7 @@ TableComponent.prototype = {
 				columnsData: columnsData
 			});
 
-			//console.log(columnsData);
+			
 		}
 		
 		
@@ -4420,29 +4420,29 @@ TableComponent.prototype = {
 
 
 
-// 	 Returns an object with the table object and the holder object.
-// 	 The holder object is a uieb CUstomizerComponent
-// 	
-// 	 If contents is nothing then this method will return a
-// 	 uieb element with the no_conents_error_message displayed.
-// 	 
-// 	 
-// 	 @param {String } delemeter
-	
-// 	createTable: function(obj){
 
 
-// table({
-// 	updatable: true,
+
+
+
+
+
+
 	
-// 	// add this if you only want columns
-// 	// this is overridden by content
-// 	columns: columns,
-// 	content: content,
-// 	delemeter: delemeter,
-// 	no_conents_error_message: no_conents_error_message,
-// 	filename: filename
-// });
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
 
 function TableComponent__add_col(obj,self,containerId){
 	var isNull = Utils.isNull;
@@ -4481,29 +4481,29 @@ function TableComponent__add_col(obj,self,containerId){
 					r1.push(r);
 					for(var i=1; i<ot.length; i++){
 						var g1 = ot[i].split(delemeter);
-						//console.log(defaultValue);
+						
 						g1.push(defaultValue);
 						var g3 = g1.join(delemeter);
 						r1.push(g3);
 					}
-					//console.log(r1);
+					
 					r1.pop();
-					//console.log(r1);
+					
 					var newOldTable = r1.join("\n");
 
-					//console.log(obj.columns);
+					
 
 					console.log(newOldTable);
 
 					
 
-					//var v = new ViewComponentController();
+					
 					var v = new ComponentFactory();
 					var table = v.table().createTable(false,{
 						updatable: obj.updatable,
 						
-						// add this if you only want columns
-						// this is overridden by content
+						
+						
 						columns: obj.columns,
 						content: newOldTable,
 						delemeter: obj.delemeter,
@@ -4511,7 +4511,7 @@ function TableComponent__add_col(obj,self,containerId){
 						filename: obj.filename,
 						save: obj.save
 					});
-					// 5555
+					
 
 					if(document.getElementById(containerId)){
 						$("#"+containerId).empty();
@@ -4524,33 +4524,33 @@ function TableComponent__add_col(obj,self,containerId){
 
 
 					
-					// var new_row_data = [];
-					// for(var b=0; b<row_items.length; b++){
-					// 	dosome(b);
-					// }
-
-					// function dosome(indx){
-					// 	var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
-					// 	new_row_data[indx] = val;
-					// }
-					// _updateRow(new_row_data);
-
-					//console.log(table.getRows());
+					
+					
+					
 					
 
-					// self._props_._modalDialog.toggle();
+					
+					
+					
+					
+					
+
+					
+					
+
+					
 				});
 
 				
 			}
 		}
 	});
-	// self._props_._modalDialog.set({
-	// 	title: "Update",
-	// 	body: c,
-	// 	styles: "padding:5%;"
-	// });
-	// self._props_._modalDialog.toggle(); 
+	
+	
+	
+	
+	
+	
 
 
 	
@@ -4559,19 +4559,19 @@ function TableComponent__add_col(obj,self,containerId){
 function TableComponent__column_adjustment(self,obj,e){
 	var isNull = Utils.isNull;
 
-	// self._props_._tableStructure._columnNames;
-	// self._props_._tableStructure._rows;
-	// var comp = new ViewComponentController();
+	
+	
+	
 
-	// var tableEditMenu = comp.cust();
-	// tableEditMenu.make({});
+	
+	
 
 	var tableEditMenu = new ContainerComponent();
 
 
 
 	var id = "table-columns-dialog-"+Utils.randomGenerator(22,false);
-	//var cont = new ViewCollectionController("#"+id);
+	
 	var cont = new ViewManager();
 	cont.newSubView({
 		id: "edit-select",
@@ -4591,16 +4591,16 @@ function TableComponent__column_adjustment(self,obj,e){
 	});
 
 
-	// self._props_._modalDialog.set({
-	// 	title: "Edit Table",
-	// 	body: cust,
-	// 	styles: "padding:5%;"
-	// });
-	// self._props_._modalDialog.toggle();
+	
+	
+	
+	
+	
+	
 
 }
 function _x1(self,cont,tableEditMenu){
-	var comp = new ComponentFactory();// ViewComponentController();
+	var comp = new ComponentFactory();
 
 	var rows = self._props_._tableStructure._rows;
 	var columns = self._props_._tableStructure._columnNames;
@@ -4621,16 +4621,16 @@ function _x1(self,cont,tableEditMenu){
 		});
 	}
 
-	// var cust = comp.cust();
-	// cust.make({
-	// 	body: buttons
-	// });
+	
+	
+	
+	
 
 	var cust = comp.container({
 		body: buttons
 	});
 
-	// nnnnn
+	
 	var layout = LayoutManager.newLayout()
 		.row()
 		.col({md:12},[cust])
@@ -4640,9 +4640,9 @@ function _x1(self,cont,tableEditMenu){
 }
 function _editTableByGroup(button,self){
 	var isNull = Utils.isNull;
-	var comp = new ComponentFactory();// ViewComponentController();
+	var comp = new ComponentFactory();
 	var cust = comp.container();
-	// get the button position
+	
 	var matchColumnIndex = -1;
 	var colNames = self.getColumnNames();
 	for(var i=0; i<colNames.length; i++){
@@ -4664,7 +4664,7 @@ function _editTableByGroup(button,self){
 	    return self.indexOf(value) === index;
 	}
 	var a = ['a', 1, 'a', 2, '1'];
-	var unique = select.filter( onlyUnique ); // returns ['a', 1, 2, '1']
+	var unique = select.filter( onlyUnique ); 
 
 	var selectElement = "<select id='select-something'><option></option>";
 	for(var i=0; i<unique.length; i++){
@@ -4681,96 +4681,96 @@ function _editTableByGroup(button,self){
 		callback: {
 			type: 'run',
 			func: function(){
-				// var sel = document.getElementById('select-something');
-				// sel.addEventListener('change',function(e){
-				// 	var sel_item = sel.options[sel.selectedIndex].text;
-				// 	//console.log(strUser);
-				//     	//console.log('changed');
+				
+				
+				
+				
+				
 
-				// 	var collectedRows = [];
-				// 	var count = 0;
-
-					
-
-				//     	var b1 = [];
-
-				//     	for(var i=0; i<rows.length; i++){
-				// 		var row = rows[i];
-				// 		var val = row[matchColumnIndex];
-				// 		if(val==sel_item){
-				// 			b1.push(row);
-				// 			collectedRows[count] = _rows[i];
-				// 			count++;
-				// 		}
-				// 	}
-
-				// 	//console.log(collectedRows);
-
-
-				// 	var compuForm = '<br><br><div style="width:550px;max-height:400px;"><div style="overflow:scroll;display:Block;white-space: nowrap;    height: 260px;">';
-				// 	for(var i=0; i<colNames.length; i++){
-				// 		compuForm += '<div style="width:20%;display:inline-block"><strong> #'+colNames[i]+'</strong></div>';
-				// 	}
-
-				// 	compuForm += '<br><br>';
-
-				// 	var formElementIds = [];
-
-
-					
-				// 	for(var i=0; i<collectedRows.length; i++){
-				// 		var b2 = collectedRows[i].rows;
-				// 		var form = '<div>';
-				// 		for(var g=0; g<b2.length; g++){
-				// 			var id = b2[g].id+'---cell'
-				// 			formElementIds.push(id);
-				// 			form += ''
-				// 			+'<div style="width:20%;display:inline-block" class="">'
-				// 			//+'	<label for="exampleInputName2">Name</label>'
-				// 			+'	<input style="width:115px;" type="text" value="'+b2[g].val+'" class="" id="'+id+'" >'
-				// 			+'</div>';
-				// 		}
-				// 		form += '</div><br>';
-				// 		compuForm = compuForm+""+form;
-				// 	}
-				// 	compuForm = compuForm+"</div></div></div><br><button id='update-as-group-btn' style='width:35%;'>Update</button>";
+				
+				
 
 					
 
+				
 
-				// 	var cust5 = comp.cust();
-				// 	cust5.make({
-				// 		body: compuForm,
-				// 		callback: {
-				// 			type: 'run',
-				// 			func: function(){
+				
+				
+				
+				
+				
+				
+				
+				
+				
 
-				// 				//console.log(collectedRows);
-				// 				$("#update-as-group-btn").click(function(e){
-				// 					e.preventDefault();
-				// 					for(var i=0; i<formElementIds.length; i++){
-				// 						var newVal = $("#"+formElementIds[i]).val();
-				// 						var _cell_id = formElementIds[i].split('---')[0];
-				// 						var el = document.getElementById(_cell_id);
-				// 						el.innerHTML = newVal;
-				// 						self.updateRow(_cell_id,newVal);
+				
+
+
+				
+				
+				
+				
+
+				
+
+				
+
+
+					
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
+					
+
+
+				
+				
+				
+				
+				
+				
+
+				
+				
+				
+				
+				
+				
+				
+				
+				
 										
-				// 					}
-				// 					self._props_._modalDialog.toggle();
+				
+				
 
-				// 					//console.log(self.getTableAsString());
+				
 
-				// 				});
+				
 								
 
 
-				// 			}
-				// 		}
-				// 	});
+				
+				
+				
 
-				// 	c2.addComponent(cust5,true);
+				
 
-				//});
+				
 
 			}
 		}
@@ -4780,9 +4780,9 @@ function _editTableByGroup(button,self){
 
 
 
-	// grab all values in that position
+	
 
-	// sort out same values
+	
 
 
 
@@ -4790,7 +4790,7 @@ function _editTableByGroup(button,self){
 	cust.addComponent('<h4>'+button+'</h4>');
 
 
-	var layout = LayoutManager.newLayout() //new ViewLayoutController()
+	var layout = LayoutManager.newLayout() 
 		.row()
 		.col({},[cust])
 		.row()
@@ -4821,62 +4821,62 @@ function TableComponent__add_row(self){
 		_form += '<input type="text" id="'+_form_row_ids[i]+'" /><br>';
 	}
 
-	//console.log(_form_row_ids);
+	
 
 	var r = "add-row-"+Utils.randomGenerator(7,false);
 	_form += "<button id='"+r+"'>Add Row</button>";
 
-	var c = new ComponentFactory(); //ViewComponentController();
+	var c = new ComponentFactory(); 
 	var cust = c.container({
 		body: _form,
 		callback: {
 			type: 'run',
 			func: function(){
-				// var columnsData = [];
-
-				// //console.log("NO - WAY _HOSEA");
-				// $("#"+r).click(function(e){
-				// 	var row = _form_row_ids;
-				// 	for (var p = 0; p < row.length; p++) {
-				// 		//console.log(row[p]);
-				// 		var val = $("#"+row[p]).val();
-				// 		//console.log(val);
-				// 		columnsData[p] = {
-				// 			html: val
-				// 		};
-				// 	}
 				
-				// 	//console.log(columnsData);
-				// 	self.row({
-				// 		columnsData: columnsData
-				// 	});
-				// 	self._props_._modalDialog.toggle();
-				// });
+
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 			}
 		}
 	});
 	
-	// self._props_._modalDialog.set({
-	// 	title: "Add A Row",
-	// 	body: cust,
-	// 	styles: "padding:5%;"
-	// });
-	// self._props_._modalDialog.toggle();
+	
+	
+	
+	
+	
+	
 }
 function TableComponent_row(obj,self){
 	
-	// table.row({
-	// 	id:"",
-	// 	columnsData:[
-	// 		{
-	// 			html: "",
-	// 			callback: {
-	// 				type: '',
-	// 				func: function(data){}
-	// 			}
-	// 		}
-	// 	]
-	// });
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 	var isNull = Utils.isNull;
@@ -4887,7 +4887,7 @@ function TableComponent_row(obj,self){
 	var rowCount = self._props_._row_count++;
 	var row_items = [];
 	var row_ids = [];
-	//var self = this;
+	
 	var _tr = document.createElement('tr');
 	_tr.id = "table-"+Utils.randomGenerator(22,false);
 	var col_names = self._props_._tableStructure._columnNames;
@@ -4905,7 +4905,7 @@ function TableComponent_row(obj,self){
 
 	self._props_._tableStructure._row_cell_data[_tr.id] = [];
 	
-	//console.log(obj.columnsData);
+	
 	var _rows = {
 		ids:[],
 		id: ""
@@ -4918,7 +4918,7 @@ function TableComponent_row(obj,self){
 		_td.innerHTML = col.html;
 		_row_names[index] = col.html;
 		_td.id = "table-row-"+Utils.randomGenerator(22,false);
-		//_td.style = "overflow:hidden;";
+		
 		_td.className = "uieb-table-cell";
 		_rows.ids.push(_td.id);
 		_tr.appendChild(_td);
@@ -4930,7 +4930,7 @@ function TableComponent_row(obj,self){
 			cellValue: col.html
 		});
 
-		// setConnectedData: function(cellId,connectId,type,value,available,modified)
+		
 		var j = self.getColumnData(index);
 		if(!isNull(j)){
 			if(j.type=="remote"){
@@ -4944,7 +4944,7 @@ function TableComponent_row(obj,self){
 	self._props_._tableStructure._rowData[rc] = _row_names;
 	self._props_._tableStructure._rowCount++;
 
-	//console.log(self.getColumns());
+	
 	var _rows = [];
 	for(var i=0; i<row_ids.length; i++){
 		_rows[i] = {
@@ -4961,78 +4961,78 @@ function TableComponent_row(obj,self){
 		
 	}
 	function registerAllCells(id){
-		//registerListenerCallbackForSelf(self,"click",id,function(data){}
+		
 	}
 	function registerRemoteCells(id){
-		//_Utils_registerListenerCallbackForSelf(self,"click",id,function(data){
+		
 		_Utils_registerListenerCallbackForSelf("click",id,function(data){
 			data.e.stopPropagation();
 			data.e.preventDefault();
 
 
-			// var v = document.getElementById(id).innerHTML;
-			// if(v!=""){
-			// 	// cellRequestForConnectedData
-			// 	var connectIdObj = self.getConnectedData(id);
-			// 	if(!isNull(connectIdObj)){
-			// 		//console.log(connectIdObj)
-			// 		if(!connectIdObj.available){
-			// 			Utils.toggleFullScreenLoader();
-			// 			self._props_._tableStructure._cellRequestForConnectedData(v,function(responseData){
-			// 				//console.log(responseData);
-			// 				Utils.toggleFullScreenLoader();
-			// 				if(responseData=="_NOT_SET_"){
-			// 					var connect_id = Utils.randomGenerator(18,false);
-			// 					attachcomponent("",connect_id);
-			// 				}else{
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 
-			// 					//{"id":1,"connected_data":"","type":"text","connected_id":""}
-			// 					responseData = JSON.parse(responseData);
-			// 					attachcomponent(responseData.connected_data,responseData.connected_id);
-			// 				}
-			// 			});
-			// 		}
-			// 	}
+			
+			
+			
+			
+			
+			
+			
 				
-			// }
+			
 
-			// function attachcomponent(responseData,connect_id){
-			// 	var form = '<input type="radio" name="optionss" checked value="text" > Text<br>';
-			// 	form += '<textarea cols="70" rows="12" id="table-stored-text-data-'+id+'">'+responseData+'</textarea><br>';
-			// 	form += '<button id="add-cell-data-'+id+'">Submit</button>';
+			
+			
+			
+			
 
-			// 	var c = compFactory.cust();
-			// 	c.make({ 
-			// 		body: form,
-			// 		callback: {
-			// 			type:'run',
-			// 			func: function(){
-			// 				$("#add-cell-data-"+id).click(function(e){
-			// 					var _type = $("input[name='optionss']:checked").val();
-			// 					if(_type=="text"){
-			// 						//  
-			// 						var val = $("#table-stored-text-data-"+id).val();
-			// 						if(val==""){
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 
-			// 						}else{                 // cellId,connectId,type,value
-			// 							self.setConnectedData(id,connect_id,_type,val,true,true);
-			// 							self.updateCell(id,connect_id,true);
-			// 							self._props_._modalDialog.toggle();
-			// 						}
+			
+			
+			
+			
+			
 									
-			// 					}							
+			
 								
-			// 				});
-			// 			}
-			// 		}
-			// 	});
-			// 	self._props_._modalDialog.set({
-			// 		title: "Add Data",
-			// 		body: c,
-			// 		styles: "padding:5%;"
-			// 	});
-			// 	self._props_._modalDialog.toggle();
-			// }
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 				
 		},self,true);
 	}
@@ -5052,7 +5052,7 @@ function TableComponent_row(obj,self){
 		
 	}
 
-	//_Utils_registerListenerCallbackForSelf(self,"click",_tr.id,function(data){
+	
 	_Utils_registerListenerCallbackForSelf("click",_tr.id,function(data){
 
 
@@ -5086,7 +5086,7 @@ function TableComponent_row(obj,self){
 						function dosome(indx){
 							var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
 							new_row_data[indx] = val;
-							//console.log(self.getRowCellData()[indx]);
+							
 							var cellId = self.getRowCellData()[_tr.id][indx].cellId;
 							self.updateCell(cellId,val,true);
 						}
@@ -5095,20 +5095,20 @@ function TableComponent_row(obj,self){
 
 						
 
-						//_updateRow(new_row_data);
+						
 
-						//console.log(table.getRows());
+						
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
-		// self._props_._modalDialog.set({
-		// 	title: "Update",
-		// 	body: c,
-		// 	styles: "padding:5%;"
-		// });
-		// self._props_._modalDialog.toggle();
+		
+		
+		
+		
+		
+		
 	},self,true);
 
 	_Utils_registerListenerCallback(obj,self,_tr.id,{
@@ -5131,25 +5131,25 @@ function TableComponent_row(obj,self){
 
 	
 	
-	// console.log(self._props_._elements._tbody.id);
-	// findComponent(self._props_._elements._tbody.id,_tr,function(elem){
-	// 	console.log(self._props_._elements._tbody.lastChild);
-	// 	//$(self._props_._elements._tbody).children()[0].append(_tr);
+	
+	
+	
+	
 
-	// 	if(document.getElementById(self._props_._elements._tbody.id)){
-	// 		document.getElementById(self._props_._elements._tbody.id)
-	// 		.lastChild.appendChild(_tr);
-	// 	}
+	
+	
+	
+	
 		
-	// });
+	
 	
 
 
 	
-	// registerListenerCallbackForSelf(self,"click",start.id,function(data){
- //    		data.e.preventDefault();
- //    		self.start();
- //    	});
+	
+ 
+ 
+ 
     	
 
 }
@@ -5159,11 +5159,11 @@ function TableComponent_getTableAsString(delemeter,self){
 	var isNull = Utils.isNull;
 
 	
-			// self._props_._tableStructure._rows.push({
-			// 	column_line_num: self._props_._tableStructure._rowCount,
-			// 	rowId: _tr.id,
-			// 	rows: _rows, [id,val]..
-			// });
+			
+			
+			
+			
+			
 
 
 		
@@ -5175,7 +5175,7 @@ function TableComponent_getTableAsString(delemeter,self){
 
 	var rows = [];
 	var rows1 = self.getRows(true);
-	//console.log(rows1);
+	
 	for(var i=0; i<rows1.length; i++){
 		var r = rows1[i].rows;
 		var setRow = [];
@@ -5202,52 +5202,41 @@ function TableComponent_getTableAsString(delemeter,self){
 
 
 	
-	// var builtTableStr = "";
-	// for(var p=0; p<rows.length; p++){
-	// 	var rowSplit = rows[p];
-	// 	var rowString = "";
-	// 	var start = 0;
-	// 	for(var h=0; h<rowSplit.length; h++){
-	// 		if(start==0){
-	// 			rowString += rowSplit[h];
-	// 		}else{
-	// 			rowString += delemeter+rowSplit[h];
-	// 		}
-	// 		start++;
-	// 	}
-	// 	rowString += "\n";
-	// 	builtTableStr += rowString;
-	// }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-	// // add column name
-	// var colNames = self._props_._tableStructure._columnNames;
-	// var start = 0;
-	// var names = "";
-	// for(var i=0; i<colNames.length; i++){
-	// 	if(start==0){
-	// 		names += colNames[i];
-	// 	}else{
-	// 		names += delemeter+colNames[i];
-	// 	}
-	// 	start++;
-	// }
-	// builtTableStr = names+"\n"+delemeter+builtTableStr;
-	// return builtTableStr
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
 
 
-// 1001
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
 
 
 
@@ -5256,22 +5245,33 @@ function TableComponent_getTableAsString(delemeter,self){
 
 
 
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
 
 
 
 
 
-// 9999
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /** @exports CMSUsers
 * @classdesc A component that handles multiple components with in one view.
 * @class
@@ -5299,7 +5299,7 @@ CMSUsers.prototype = {
 
 }
 
-// 9999
+
 /** @exports CMSManager
 * @classdesc A component that handles multiple components with in one view.
 * @class
@@ -5315,7 +5315,7 @@ CMSUsers.prototype = {
 
 
 
-// 2222
+
 /* Utils */
 
 /** 
@@ -5449,7 +5449,7 @@ var Utils = {
 		var _URL = window.URL || window.webkitURL;
 		var img;
 		var obj = {};
-		//if ((file = this.files[0])) {
+		
 	          img = new Image();
 	          img.onload = function () {
 	             console.log(this.width + " " + this.height);
@@ -5458,7 +5458,7 @@ var Utils = {
 	             callback(obj);
 	          };
 	         	img.src = _URL.createObjectURL(file1);
-		//}
+		
 
 		return obj;
 	},
@@ -5481,9 +5481,9 @@ var Utils = {
 	* @param {Date} - birthday
 	* @return {Number} - age
 	*/ 
-	calculateAge: function(birthday) { // birthday is a date object
+	calculateAge: function(birthday) { 
 	    var ageDifMs = Date.now() - birthday.getTime();
-	    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+	    var ageDate = new Date(ageDifMs); 
 	    return Math.abs(ageDate.getUTCFullYear() - 1970);
 	},
 
@@ -5511,7 +5511,7 @@ var Utils = {
 	* @return {String} 
 	*/
 	removeNewLines: function(d,endAlso){
-		var content = d.replace(/(\r?\n|\r)+/, '');//.trim(); (\r?\n|\r)+$/
+		var content = d.replace(/(\r?\n|\r)+/, '');
 		if(Utils.isNull(endAlso) || endAlso==true){
 			content = content.replace(/(\r?\n|\r)+$/, '');
 		}
@@ -5562,7 +5562,7 @@ var Utils = {
 	*/
 	formatBytes: function(bytes,decimals) {
 	   if(bytes == 0) return '0 Byte';
-	   var k = 1000; // or 1024 for binary
+	   var k = 1000; 
 	   var dm = decimals + 1 || 3;
 	   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 	   var i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -5574,8 +5574,8 @@ var Utils = {
 	*
 	*/
 	getFileSize: function(file){
-		//file = input.files[0];
-	    //bodyAppend("p", "File " + file.name + " is " + file.size + " bytes in size");
+		
+	    
 	    console.log("File " + file.name + " is " + file.size + " bytes in size");
 
 	    var isToBig = formatBytes(file.size);
@@ -5605,7 +5605,7 @@ var Utils = {
 	* @return {Object} - size:String|isOver:boolean
 	*/
 	validatefilesize: function(file, maxSize){
-		//file = input.files[0];
+		
 		var sizeAmount = maxSize.split(" ")[0];
 		var sizeType = maxSize.split(" ")[1];
 	     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -5710,27 +5710,27 @@ var _Utils = {
 
 
 
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
 
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
 	ApplicationManager_start_createDiv(self);
@@ -5743,8 +5743,8 @@ function ApplicationManager_start(runApplicationFunction,self){
 	runApplicationFunction();
 }
 function loadUpFiles(base,files){
-	// var files = applicationManager._props_._files;
-	// var base = applicationManager._props_._basePath;
+	
+	
 	for(var i in files){
 		_load(i,files[i]);
 	}
@@ -5780,23 +5780,23 @@ var CONNECTED_COMPONENTS = [];
 function ApplicationManager_start_runInterval(self){  
 
 	var interval = setInterval(function(){ 
-		//var GL_COMPONENTS = self.getComponents();
+		
 		var components = self.getComponents();
 		for(var i=0;i<components.length;i++){
 			if(document.getElementById(components[i].id)){
 
-				//ApplicationManager_start_handleAttachEvents(comp);
+				
 
-				// only run if component is not already apart of the 
-				// ALL_COMPONENTS object
+				
+				
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === false){
-					//console.log(components[i].component);
-					// 5555
+					
+					
 					components[i].component.initializeListeners();
-					// Add to 
+					
 					CONNECTED_COMPONENTS.push(components[i].id);
 					var comp = components[i].component._props_._dom_events;
-					// activate attach events
+					
 					ApplicationManager_start_handleAttachEvents(comp,components[i].component);
 				}
 			}else{
@@ -5825,7 +5825,7 @@ function ApplicationManager_start_handleAttachEvents(comp,component){
 		if(comp._addToDOMEvent){
 			if( Array.isArray( comp._addToDOMEvent )){
 				for(var k=0;k<comp._addToDOMEvent.length; k++){
-					//console.log(component)
+					
 					comp._addToDOMEvent[k]();
 				}
 			}else{
@@ -5852,7 +5852,7 @@ function ApplicationManager_start_handleDeAttachEvents(comp){
 }
 function ApplicationManager_templateParser(htmlString,replacements,self){
 	
-	// ["$more or less$", "more or less"]
+	
 	var res = htmlString;
 	var regex = /\$(.*?)\$/g;
 	var matched = regex.exec(htmlString);
@@ -5869,7 +5869,7 @@ function ApplicationManager_templateParser(htmlString,replacements,self){
 
 
 
-// 5050
+
 function StateManager_buidRoutes(self){
 	var routes = {};
 	var router = {}
@@ -5888,18 +5888,18 @@ function StateManager_buidRoutes(self){
 	
 	for(var r in self._state_manager._routes){
 		var funcName = "func"+Utils.randomGenerator(7,false);
-		// give route function name
+		
 		routes[r] = funcName;
 		var lastChar = r.charAt(r.length-1);
 		if(lastChar!="/"){ 
 			var r2 = r+"/";
-			//console.log(r2);
+			
 			routes[r2] = funcName;
 		}
 		
-		// get method
+		
 		var meth = self._state_manager._routes[r];
-		// add method to routes
+		
 		router[funcName] = meth;
 	}
 
@@ -5918,19 +5918,19 @@ function StateManager_buidRoutes(self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ComponentManager */
 function AppComponent_getHtml(self,route){
 
 	return document.createElement('div');
-	// if(self.TYPE == Flags.Type.view){
-	// 	return AppComponent_getHtml_view_fragment(self,route);
-	// }else if(self.TYPE == Flags.Type.layout){
-	// 	return AppComponent_getHtml_layout_fragment(self,route);
-	// }else if(self.TYPE == Flags.Type.component){
-	// 	return AppComponent_getHtml_component_fragment(self,route);
-	// }
+	
+	
+	
+	
+	
+	
+	
 }
 
 function AppComponent_getHtml_view_fragment(self,route){
@@ -5939,12 +5939,12 @@ function AppComponent_getHtml_view_fragment(self,route){
 function AppComponent_getHtml_layout_fragment(self,route){
 	return self._props_._elements._fragment.cloneNode(true);
 }
-// 8888
+
 function AppComponent_getHtml_component_fragment(self,route){
 	var obj = self._props_._obj;
 	var bodies = [];
 	self._props_._container = document.createElement('div');
-	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";//self.getId();
+	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";
 	if(!Utils.isNull(obj)){
 		if(!Utils.isNull(obj.classes)){
 			self._props_._container.className = obj.classes;
@@ -5973,12 +5973,12 @@ function AppComponent_getHtml_component_fragment(self,route){
 	self._props_._elements._fragment = fragment;
 	return self._props_._elements._fragment.cloneNode(true);
 }
-// 5050
+
 function _create_body(object){
 	var body = object.body;
 	var template = (Utils.isNull(object.template)) ? "" : object.template;
 	var obj = (Utils.isNull(object.obj)) ? {} : object.obj;
-	//var original = (Utils.isNull(obj.original)) ? false : obj.original;
+	
 
 	var mBody;
 	if(typeof body === "string"){
@@ -5990,7 +5990,7 @@ function _create_body(object){
 			}else{
 				return view.getHtml();
 			}
-			//return _create_body({ body: view, original: original });
+			
 		}else if(body.charAt(0) === "&"){
 			var p = body.substr(1);
 			var t = applicationManager.getLoadedFileContents(p);
@@ -6051,20 +6051,20 @@ function _getView(body,obj){
 		}
 	}
 
-	// 5555
+	
 	var method = body.slice(1);
 	var v = applicationManager.getMethod(method)(paramValues);
 	return v;
 }
 function AppComponent_initializeListeners(self,myComponent){
 
-	// self._props_._events.push({
-	// 	selector: selector,
-	// 	type: type,
-	// 	func: func,
-	// 	preventDefault: preventDefault,
-	// 	stopPropagation: stopPropagation
-	// });
+	
+	
+	
+	
+	
+	
+	
 	if(self._props_._isEventsActive == true) return;
 	self._props_._isEventsActive = true;
 	for(var i=0;i<self._props_._events.length;i++){
@@ -6081,7 +6081,7 @@ function AppComponent_initializeListeners(self,myComponent){
 				args: self._props_._args
 			});
 		}else{
-			//$("#"+eventObj.id).off();
+			
 			$(eventObj.selector).on(eventObj.type,function(e){
 				if(!Utils.isNull(eventObj.preventDefault) && eventObj.preventDefault==true){
 					e.preventDefault();
@@ -6129,12 +6129,12 @@ function ContainerComponent_setActive(active,stillSet,self){
 	}
 	function m(){
 		if(!active){
-			//if($("#"+containerId).hasClass(loader_class)){}
+			
 			$("#"+containerId).addClass(containerClass);
 			$("#"+spinnerId).addClass(spinnerClass);
 			var offset = "-"+$("#"+containerId).offset().top+"px";
 			document.getElementById(containerId).style.top = offset
-			// console.log(offset);
+			
 		}else{
 			$("#"+containerId).removeClass(containerClass);
 			$("#"+spinnerId).removeClass(spinnerClass);
@@ -6146,8 +6146,8 @@ function ContainerComponent_setActive(active,stillSet,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - Pages */
 function Pages_init(self){
 	var obj = self._props_._initial_view
@@ -6162,11 +6162,11 @@ function Pages_init(self){
 }
 function Pages_newPageView(obj,self){
 
-	// id: 'home',
-	// route: 'home',
-	// body: '@homeLayout',
-	// init: true,
-	// listener: function(){}|{ type:'',func:function(){} }
+	
+	
+	
+	
+	
 	
 
 	var baseRoute = "";
@@ -6191,8 +6191,8 @@ function Pages_newPageView(obj,self){
 			if(i != "") route = baseRoute+"/"+i;
 			var layout = obj.routes[i];
 			if(typeof layout === "string"){
-				// layout mapper component,mapper component... 
-				// @layout #mapper @component,#mapper @component...
+				
+				
 				_setRouteWithMethod(route,layout);
 
 			}else if(typeof layout === "object"){
@@ -6245,7 +6245,7 @@ function Pages_newPageView(obj,self){
 
 
 
-			// 5050
+			
 
 			var layoutComponent = applicationManager.retrieve(_registeredLayout,Flags.Method)(obj);
 			$(applicationManager.getRootElement()).empty();
@@ -6275,7 +6275,7 @@ function Pages_newPageView(obj,self){
 }
 function Pages__get(){
 
-	//Pages_render(self,arguments);
+	
 	if(Array.isArray(obj.body)){
 		for(var i=0; i<obj.body.length; i++){
 			_setup(obj.body[i]);
@@ -6307,16 +6307,16 @@ function Pages__get(){
 }
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ViewManager */
 function ViewManager_render(id,opts,self){
 	var trigger = false;
 	var replace = true;
 	var addComponentBody = null;
 	if(Utils.isNull(opts)){}
-	// 5050
-	// 5051
+	
+	
 
 	var mOpts = null;
 	for (var i = 0; i < self._props_._views_objects.length; i++) {
@@ -6350,7 +6350,7 @@ function getNewRoute(id,self){
 }
 function MultiView_getCurrentViewInRoute(self){
 	var routes = window.location.hash.split("/");
-	// console.log(routes);
+	
 	var views = self._props_._views_objects;
 	var current_route = null;
 	var breakMe = false;
@@ -6391,8 +6391,8 @@ function MultiView_getView(id,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ContainerComponent */
 
 /**
@@ -6406,7 +6406,7 @@ function ContainerComponent_constructor(obj,self){
 
 
 }
-// 5555
+
 function ContainerComponent_addComponent(component,isEmpty,self){
 	if( document.getElementById(self.getId()) ){
 		addToDOM();
@@ -6427,26 +6427,26 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - FormComponent */
 function FormComponent_constructor(obj,self){
-// Handle this with each form element
-	//var formElement = new FormComponentDefaults(opts,self);
-	//var compContainer = new ContainerComponent({body:layoutContainer});
-	//self._props_._form_data[tag] = {
-	// 	element: layoutContainer,
-	// 	paramName: formElement.paramName,
-	//	component: compContainer,
-	// 	type: 'input|text',
-	// 	formElement: formElement,
-	// 	status: 0,
-	// 	statusId: statusId,
-	// 	isValid: true
-	//};
-	//self._props_._values = val
-	//compContainer.listenTo(form_handler, event_trigger_submit, func) 
-	//compContainer.listenTo(form_handler, event_trigger_reset, func)
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	var formhandler = new ContainerComponent();
 	var formId = self.getId();
@@ -6464,13 +6464,13 @@ function FormComponent_constructor(obj,self){
 	self._props_._elements._container = container;
 	self._props_._form_handler = formhandler;
 
-	// var self = this;
+	
 
 	self._props_._form_data = {};
 	self._props_._values = {};
 
-	// intervals
-	// timeout
+	
+	
 
 	self._props_._defaultValue = (obj.defaultValue==undefined) ? "none" : obj.defaultValue;
 
@@ -6495,7 +6495,7 @@ function FormComponent_constructor(obj,self){
 	self._props_._prevent_remember = false;
 
 
-	// 4444 - better control how form is submited
+	
 	var hasBeenClicked = false;
 	function run2(){
 		var areAllValuesIn = handleStatus(self);
@@ -6540,7 +6540,7 @@ function FormComponent_constructor(obj,self){
 				clearFormSubmitInerval();
 			}
 			self._props_._runs._count++;
-		},100);//self._props_._runs._intervals);
+		},100);
 
 		function clearFormSubmitInerval(){
 			hasBeenClicked = false;
@@ -6565,10 +6565,10 @@ function FormComponent_constructor(obj,self){
 
 		for(var i in self._props_._form_data){
 			var status = triggers[i].status;
-			// o - default
-			// 1 - ready
-			// 2 - processing
-			// 3 - fail
+			
+			
+			
+			
 			if(status!=1){
 				areAllValuesIn = false;
 				break;
@@ -6624,14 +6624,14 @@ function handleFormNormalBuild(self){
 	layout.row();
 	layout.col({md:12},[self._props_._submit_button]);
 	layout.build();
-	//self._props_._form.appendChild(elements[i].element);
+	
 	self._props_._form.appendChild(layout.getHtml());
 	
-	//self._props_._form.appendChild(self._props_._submit_button.getHtml());
+	
 }
 
-// 4444 - add layout to form pages
-// 		- handle remember through page turns
+
+
 function handleFormPageBuild(pages,self){
 	var view = new ViewManager({routable:false});
 	for(var i=0; i<pages.length; i++){
@@ -6646,7 +6646,7 @@ function handleFormPageBuild(pages,self){
 		add_submit(i,pages,elements);
 		add_view(i,viewId,container,page);
 
-	}// end of loop
+	}
 
 
 	function add_label_to_elements(index,page,elements){
@@ -6692,8 +6692,8 @@ function handleFormPageBuild(pages,self){
 	}
 
 	function add_pages(index,elements,view,page){
-		//var prevBtn = new ButtonComponent({label:'Back'});
-		//var nextBtn = new ButtonComponent({label:'Next'});
+		
+		
 
 		var row = Utils.createElement({
 			el: 'div',
@@ -6748,7 +6748,7 @@ function handleFormPageBuild(pages,self){
 			
 		}
 
-		// next button
+		
 		function _addNextButton(){
 			var nextLabel = "Next";
 			var nextBtnStyle = "";
@@ -6786,7 +6786,7 @@ function handleFormPageBuild(pages,self){
 		view.newSubView({  
 			id: viewId,
 			init: init,
-			// route: 'yes',
+			
 			body: container
 		});
 	}
@@ -6830,9 +6830,9 @@ function FormComponent_onSubmit(opts,callback,self){
 	});
 
 	self._props_._submit_button_id = self._props_._submit_button.getId();
-}// 1212
-// 4444 - prevent form from being submitted when pressing enter 
-// 4444 - the param all is required otherwise values returned undefined
+}
+
+
 function FormComponent_addInput(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var layout_classes = (opts.layout==undefined) ? "" : opts.layout;
@@ -6863,10 +6863,10 @@ function FormComponent_addInput(opts,self){
 		type: 'input',
 		layout: opts.layout,
 		formElement: formElement,
-		// o - default
-		// 1 - ready
-		// 2 - processing
-		// 3 - fail
+		
+		
+		
+		
 		status: 0,
 		statusId: statusId,
 		isValid: true,
@@ -6889,7 +6889,7 @@ function FormComponent_addInput(opts,self){
 	},self,true);
 
 	_Utils_registerListenerCallbackForSelf("run","",function(b){
-		// 5555
+		
 		if(formElement.remember){
 			var value = self._props_._getRemeber(tag);
 			if(!Utils.isNull(value)){
@@ -6938,9 +6938,9 @@ function FormComponent_addInput(opts,self){
 			if(!_isvalid) return;
 		}
 
-		// 4444
-		// let user run own ajax call
-		// remove white space
+		
+		
+		
 		function matchValidation(val,validation){
 			if(!Utils.isNull(validation.match)){
 				var isAMatch = false;
@@ -6958,7 +6958,7 @@ function FormComponent_addInput(opts,self){
 				function matchGiven(){
 					var matches = validation.match.matches;
 
-					// determine if value is a match
+					
 					for(var i=0; i<matches.length; i++){
 						if(val==matches[i]){
 							doesMatch = true;
@@ -6966,7 +6966,7 @@ function FormComponent_addInput(opts,self){
 						}
 					}
 
-					// if a match, should trigger error or success
+					
 					if(!Utils.isNull(validation.match.doesMatch)){
 						doesMatch = validation.match.doesMatch;
 					}
@@ -6980,7 +6980,7 @@ function FormComponent_addInput(opts,self){
 					}else{
 						type = ajax.type;
 					}
-					// set defaults
+					
 					if(Utils.isNull(ajax.cache_count)){
 						ajax.cache_count = 5;
 					}
@@ -6993,7 +6993,7 @@ function FormComponent_addInput(opts,self){
 						console.error("Please provide data to send to server");
 						return;
 					}
-					//if(self._props_._form_data[tag]._match_cache==null){
+					
 					if(!Utils.isNull(ajax.cache) && ajax.cache==true){
 						var result = self._props_._form_data[tag]._match_cache;
 						if(ajax.cache_count < 0){
@@ -7116,11 +7116,11 @@ function FormComponent_addInput(opts,self){
 		        		runMatch();
 		        	}
 				}
-			}// end of match validation
+			}
 		}
 	}
 
-	// 4444
+	
 	function charactersValidation(val,validation){
 		var  letters = [
 		 "a","b","c","d","e","f","g","h","i","j","c","l","m","n","o"
@@ -7311,22 +7311,22 @@ function FormComponent_addInput(opts,self){
 		}
 
 
-	// characters: {
-	// 	except: [],
-	// 	beginWithSpecialChar: true,
-	// 	endWithSpecialChar: true,
-	//	numbers: true,
-	// 	beginWithNumber: true,
-	// 	endWithNumber: true,
-	//  beginWithSpace: false,
-	//  trim: false,
-	//	lowercase: true,
-	//	uppercase: true,
-	//	changeToLowerCase: true,
-	//	changeToUpperrCase: false,
-	// 	error: "",
-	// 	success: ""
-	// },
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 		function runSetupDefualts(){
 
@@ -7536,7 +7536,7 @@ function FormComponent_addInput(opts,self){
 		}
 		return validation;
 	}
-}// end of addInput
+}
 function FromComponent_addInput_createElement(formElement){
 	var input = Utils.createElement('input',{ 
 		type: formElement.type,
@@ -7602,7 +7602,7 @@ function FormComponent_addSelection(opts,self){
 		if(opts.changeListener){
 			$(formElement.selector).on('change',function(e){
 				var optionSelected = $("option:selected", this);
-				//self._props_._values[formElement.paramName] = this.value;
+				
 				var doc = document.getElementById(Utils.removeSelector(formElement.selector));
 				var selected = doc.selectedIndex;
 				opts.changeListener(this.value,selected,e,optionSelected,doc);
@@ -7642,15 +7642,15 @@ function FormComponent_addSelection(opts,self){
 	}
 
 
-// <select>
-//   <option value="volvo">Volvo</option>
-//   <option value="saab">Saab</option>
-//   <option value="mercedes">Mercedes</option>
-//   <option value="audi">Audi</option>
-// </select>
+
+
+
+
+
+
 }
 
-// 4444 - no validation
+
 function FormComponent_addTextarea(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var tag = formElement.tag;
@@ -7856,13 +7856,13 @@ function _us_states(opts,formElement,self){
 	return p;
 }
 
-// 1212
+
 function FormComponent_addRadioButtonGroup(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var tag = formElement.tag;
 
 	var createElement = Utils.createElement;
-	//var topDiv = createElement();
+	
 	var topLabelStr = (!Utils.isNull(opts.label)) ? opts.label : "";
 
 	var topDiv = createElement({
@@ -7871,7 +7871,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 	});
 	var topLabel = createElement({
 		el: 'label',
-		// for: defaults.id,
+		
 		className: 'form-check-label',
 		innerHTML: topLabelStr
 	});
@@ -7906,7 +7906,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 			div.appendChild(btn);
 			div.appendChild(label);
 			topDiv.appendChild(div);
-		}// end of loop
+		}
 
 
 		_Utils_registerListenerCallback(opts,self);
@@ -7950,24 +7950,24 @@ function FormComponent_addRadioButtonGroup(opts,self){
 	}
 
 
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-//   <label class="form-check-label" for="exampleRadios1">
-//     Default radio
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-//   <label class="form-check-label" for="exampleRadios2">
-//     Second default radio
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
-//   <label class="form-check-label" for="exampleRadios3">
-//     Disabled radio
-//   </label>
-// </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
@@ -8031,9 +8031,9 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
 		self._props_._form_data[tag].status = 0;
 	});
-	// _Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
-	// 	initializeValidationAndValues();
-	// },self,true);
+	
+	
+	
 
 	function initializeValidationAndValues(){
 		var validation = new FormValidationDefaults(opts.validation);
@@ -8042,7 +8042,7 @@ function FormComponent_addCheckBoxGroup(opts,self){
 			var formEl = storedCheckboxes[i].formElement;
 			var paramName = formEl.name;
 			var selector = formEl.selector;
-			//console.log(paramName);
+			
 			if ($(selector).is(":checked")){
 				self._props_._values[paramName] = checkbox.value;
 			}else{
@@ -8052,50 +8052,50 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	}
 
 
-	// inline: true,
+	
 
-	// Surround rows with div's to contain them
-	// and create columns with css grid layout.
-	// !This DOES NOT actual create rows, this
-	// must be done through own css styles. This
-	// overrides the inline option.
-	// rows: 4,
+	
+	
+	
+	
+	
+	
 
-	// label: "Select what you want?",
+	
 
-	// // Group these checkbox values into an object with the given name
-	// intoObject: "name_of_object",
+	
+	
 
-	// //required: "<p style='color:red;'>This is required!</p>",
-	// // or
-	// required: {
-	// 	min: 2,
-	// 	message: ""
-	// },
-	// checkboxes: [
-	// 	{	
-	// 		label:"One",
-	// 		value:"1",
-	// 		name: "hello1",
-	// 		defaultValue: "NOT",
-	// 		// Have this checkbox checked by default
-	// 		checked: true,
-	// 		listener: {
-	// 			type: "click",
-	// 			callback: function(){
-	// 				//alert("hello James Dog");
-	// 			}
-	// 		}
-	// 	},
-	// 	{	
-	// 		label:"Two",
-	// 		value:"2",
-	// 		name: "hello2"
-	// 	}
-	// ]
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-	//var formElement = new FormComponentDefaults(opts,self);
-	//var compContainer = new ContainerComponent({body:layoutContainer});
+	
+	
 	self._props_._form_data[tag] = {
 		paramName: formElement.paramName,
 		component: compContainer,
@@ -8105,23 +8105,23 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		statusId: statusId,
 		isValid: true
 	};
-	//self._props_._values = val
-	//compContainer.listenTo(form_handler, event_trigger_submit, func) 
-	//compContainer.listenTo(form_handler, event_trigger_reset, func)
+	
+	
+	
 
 
-// <div class="form-check">
-//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-//   <label class="form-check-label" for="defaultCheck1">
-//     Default checkbox
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck2" disabled>
-//   <label class="form-check-label" for="defaultCheck2">
-//     Disabled checkbox
-//   </label>
-// </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -8136,10 +8136,10 @@ function FormComponent_datePicker(obj,self){
 	var seperator = (Utils.isNull(obj.seperator)) ? "/" : obj.seperator;
 
 	var required = false;
-	var id = Utils.removeSelector(formElement.selector);//(isNull(obj.id)) ? "F-"+Support.Utils.randomGenerator(22,false) : obj.id;
-	var paramName = formElement.paramName;//(isNull(obj.paramName)) ? "F-"+Support.Utils.randomGenerator(22,false) : obj.paramName;
+	var id = Utils.removeSelector(formElement.selector);
+	var paramName = formElement.paramName;
 	
-	var label = formElement.label;//(isNull(obj.label)) ? "" : obj.label;
+	var label = formElement.label;
 
 	var mFormat = ""
 	var monthFormat = (Utils.isNull(obj.monthFormat)) ? "num" : obj.monthFormat;
@@ -8190,7 +8190,7 @@ function FormComponent_datePicker(obj,self){
     }
 	var i =
 		""
-		//+"<form>"
+		
     	+"	<div class=\"nativeDatePicker\">"
     	+"		<label for=\""+id+"\">"+label+"</label>"
       	+"		<input type=\"date\" id=\""+id+"\" name=\""+id+"\">"
@@ -8229,7 +8229,7 @@ function FormComponent_datePicker(obj,self){
         +"			</select>"
       	+"		</span>"
       	+"	</div>";
-      	//+"</form>";
+      	
 
 
 
@@ -8274,15 +8274,15 @@ function FormComponent_datePicker(obj,self){
 	};
 
 
-	// var len = self._props_._valueIds.datePicker.length;
-	// self._props_._valueIds.datePicker[id] = {
-	// 	id: id,
-	// 	selector: "#"+id,
-	// 	paramName: paramName,
-	// 	required: required,
-	// 	format: format,
-	// 	seperator: seperator
-	// };
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	function initializeValidationAndValues(){
 		var y = $("#"+id+"-year").val();
@@ -8325,65 +8325,65 @@ function FormComponent_datePicker(obj,self){
 		var monthSelect = document.querySelector("#"+id+"-month");
 		var daySelect = document.querySelector("#"+id+"-day");
 
-		// hide fallback initially
+		
 		fallbackPicker.style.display = 'none';
 		fallbackLabel.style.display = 'none';
 
-		// test whether a new date input falls back to a text input or not
+		
 		var test = document.createElement('input');
 		test.type = 'text';
 
-		// if it does, run the code inside the if() {} block
+		
 		if(test.type === 'text') {
-		  // hide the native picker and show the fallback
+		  
 		  nativePicker.style.display = 'none';
 		  fallbackPicker.style.display = 'block';
 		  fallbackLabel.style.display = 'block';
 
-		  // populate the days and years dynamically
-		  // (the months are always the same, therefore hardcoded)
+		  
+		  
 		  populateDays(monthSelect.value);
 		  populateYears();
 		}
 
 		function populateDays(month) {
-		  // delete the current set of <option> elements out of the
-		  // day <select>, ready for the next set to be injected
+		  
+		  
 		  while(daySelect.firstChild){
 		    daySelect.removeChild(daySelect.firstChild);
 		  }
 
-		  // Create variable to hold new number of days to inject
+		  
 		  var dayNum;
 
-		  // 31 or 30 days?
+		  
 		  if(month === 'January' | month === 'March' | month === 'May' | month === 'July' | month === 'August' | month === 'October' | month === 'December') {
 		    dayNum = 31;
 		  } else if(month === 'April' | month === 'June' | month === 'September' | month === 'November') {
 		    dayNum = 30;
 		  } else {
-		  // If month is February, calculate whether it is a leap year or not
+		  
 		    var year = yearSelect.value;
 		    (year - 2016) % 4 === 0 ? dayNum = 29 : dayNum = 28;
 		  }
 
-		  // inject the right number of new <option> elements into the day <select>
+		  
 		  for(i = 1; i <= dayNum; i++) {
 		    var option = document.createElement('option');
 		    option.textContent = i;
 		    daySelect.appendChild(option);
 		  }
 
-		  // if previous day has already been set, set daySelect's value
-		  // to that day, to avoid the day jumping back to 1 when you
-		  // change the year
+		  
+		  
+		  
 		  if(previousDay) {
 		    daySelect.value = previousDay;
 
-		    // If the previous day was set to a high number, say 31, and then
-		    // you chose a month with less total days in it (e.g. February),
-		    // this part of the code ensures that the highest day available
-		    // is selected, rather than showing a blank daySelect
+		    
+		    
+		    
+		    
 		    if(daySelect.value === "") {
 		      daySelect.value = previousDay - 1;
 		    }
@@ -8399,7 +8399,7 @@ function FormComponent_datePicker(obj,self){
 		}
 
 		function populateYears() {
-		  // get this year as a number
+		  
 		  var date = new Date();
 		  var year;
 		  if(Utils.isNull(obj.yearsAgo)){
@@ -8409,7 +8409,7 @@ function FormComponent_datePicker(obj,self){
 		  }
 		  
 
-		  // Make this year, and the 100 years before it available in the year <select>
+		  
 		  for(var i = 0; i <= 100; i++) {
 		    var option = document.createElement('option');
 		    option.textContent = year-i;
@@ -8417,8 +8417,8 @@ function FormComponent_datePicker(obj,self){
 		  }
 		}
 
-		// when the month or year <select> values are changed, rerun populateDays()
-		// in case the change affected the number of available days
+		
+		
 		yearSelect.onchange = function() {
 		  populateDays(monthSelect.value);
 		}
@@ -8427,11 +8427,11 @@ function FormComponent_datePicker(obj,self){
 		  populateDays(monthSelect.value);
 		}
 
-		//preserve day selection
+		
 		var previousDay;
 
-		// update what day has been set to previously
-		// see end of populateDays() for usage
+		
+		
 		daySelect.onchange = function() {
 		  previousDay = daySelect.value;
 		}
@@ -8474,7 +8474,7 @@ function FormComponent_addFileUpload(opts,self){
 		return p;
 	}
 
-	// 7777
+	
 
 
 	var containerDefaults = new ComponentDefaults(opts,self);
@@ -8618,16 +8618,16 @@ function FormComponent_addFileUpload(opts,self){
 			}
 
 			var data = new FormData();
-			//for(var i=0; i<fileInput.files.length; i++){ data.append("files", fileInput.files[i]); }
+			
 			for(var i=0; i<fileInput.files.length; i++){
 				data.append(self._props_._name, fileInput.files[i]); 
 			}
 
-			// if(!isNull(self._props_._data)){
-			// 	for(var d in self._props_._data){
-			// 		data.append(d,self._props_._data[d]);
-			// 	}
-			// }
+			
+			
+			
+			
+			
 
 
 			if(self._beforLoadcallback!=null && self._beforLoadcallback!=undefined){
@@ -8636,7 +8636,7 @@ function FormComponent_addFileUpload(opts,self){
 			}
 
 			request.upload.addEventListener('progress', function(e){
-				//$("#file-upload-form").hide();
+				
 				if(e.lengthComputable){
 					var percent = e.loaded / e.total;
 					console.log(percent);
@@ -8644,7 +8644,7 @@ function FormComponent_addFileUpload(opts,self){
 					if(!showPercent) return;
 					if(opts.percent.handle==false){
 						var progress = document.getElementById(opts.percent.id);
-						//if(isNull(progress)) return;
+						
 						while(progress.hasChildNodes()){
 							progress.removeChild(progress.firstChild);
 						}
@@ -8657,7 +8657,7 @@ function FormComponent_addFileUpload(opts,self){
 				}
 			});
 
-			// when upload is complete
+			
 			request.upload.addEventListener('load', function(e){
 				self.completed = true;
 				var r = {
@@ -8678,7 +8678,7 @@ function FormComponent_addFileUpload(opts,self){
 			});
 
 			request.open("POST", url);
-			request.setRequestHeader("Cache-Control","no-cache");//enctype="multipart/form-data"
+			request.setRequestHeader("Cache-Control","no-cache");
 			if(requestHeader!=null || requestHeader!=undefined){
 				for(var g=0;g<requestHeader.length;g++){
 					request.setRequestHeader(requestHeader[g].param, requestHeader[g].value);
@@ -8690,7 +8690,7 @@ function FormComponent_addFileUpload(opts,self){
 	},self);
 }
 
-// 4444 - handle valid characters
+
 function charactersValidation(val,validation){
 	var _isvalid = false;
 	var  letters = [
@@ -8882,22 +8882,22 @@ function charactersValidation(val,validation){
 	}
 
 
-// characters: {
-// 	except: [],
-// 	beginWithSpecialChar: true,
-// 	endWithSpecialChar: true,
-//	numbers: true,
-// 	beginWithNumber: true,
-// 	endWithNumber: true,
-//  beginWithSpace: false,
-//  trim: false,
-//	lowercase: true,
-//	uppercase: true,
-//	changeToLowerCase: true,
-//	changeToUpperrCase: false,
-// 	error: "",
-// 	success: ""
-// },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	function runSetupDefualts(){
 
@@ -8988,8 +8988,8 @@ function charactersValidation(val,validation){
 }
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - FormEventsHandler */
 function FormEventsHandler_constructor(obj,formElement,self){
 	var preventDefault = false;
@@ -9055,8 +9055,8 @@ function FormEventsHandler_constructor(obj,formElement,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ModalComponent */
 function ModalDialogComponent_mobile(){
 
@@ -9127,7 +9127,7 @@ function ModalDialogComponent_mobile(){
 				}
 			}
 
-			//set button click event
+			
 			options.btns.forEach(function (btn, i) {
 				if(i==0){
 					btn.addEventListener("click", function () {
@@ -9152,7 +9152,7 @@ function ModalDialogComponent_mobile(){
 			});
 
 			if (!options.bottom) {
-				//set position
+				
 				dom.style.top = (document.documentElement.clientHeight - dom.offsetHeight) / 2 + "px";
 				dom.style.left = (document.documentElement.clientWidth - dom.offsetWidth) / 2 + "px";
 			}
@@ -9307,7 +9307,7 @@ function ModalDialogComponent_mobile(){
 			addClass(loadingBg, "mobile-loading-bg");
 			addClass(loading, "mobile-loading");
 			addClass(loading, "animation-zoom-in");
-			img.src = opts.src + type;//"/loading-1.gif";
+			img.src = opts.src + type;
 			loading.appendChild(img);
 
 			if (opts.hint) {
@@ -9334,7 +9334,7 @@ function ModalDialogComponent_mobile(){
 		}
 	};
 
-	// providing better operations in Vue
+	
 	mcxDialog.install = function (Vue, options) {
 		Vue.prototype.$mcxDialog = mcxDialog;
 	};
@@ -9343,13 +9343,13 @@ function ModalDialogComponent_mobile(){
 
 
 
-}// END of ModalDialogComponent_mobile
+}
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - Utils */
 function Utils_createELement(type,options){
-	// 151515
+	
 	if(Utils.isNull(type)){
 		return document.createElement('div');
 	}
@@ -9474,15 +9474,15 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 				}
 
 				
-				// var ec = false;
-				// for(var v=0;v<charExceptions.length;v++){
-				// 	if(charExceptions[v]==special_character){
-				// 		ec = true;
-				// 	}
-				// }
-				// if(!ec){
-				// 	//return true;
-				// }
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				
 
 				for(var v=0;v<s.length;v++){
@@ -9512,9 +9512,9 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 	}
 
 
-	//console.log(charExceptions);
-	//console.log(str);
-	//console.log(contains);
+	
+	
+	
 
 	return contains;
 
@@ -9583,25 +9583,25 @@ function Utils_getClockTime(){
 	return timeString;
 }
 function Utils_detectEngine(){
-	// Edge 20+
+	
 	var isEdge = !Support.Utils.isIE && !!window.StyleMedia;
 
-	// Opera 8.0+
+	
 	var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 
-	// Firefox 1.0+
+	
 	var isFirefox = typeof InstallTrigger !== 'undefined';
 
-	// Safari 3.0+ "[object HTMLElementConstructor]"
+	
 	var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
 
-	// Internet Explorer 6-11
+	
 	var isIE =  /*@cc_on!@*/false || !!document.documentMode;
 
-	// Chrome 1+
+	
 	var isChrome = !!window.chrome && !!window.chrome.webstore;
 
-	// Blink engine detection
+	
 	var isBlink = (isChrome || isOpera) && !!window.CSS;
 	return {
 		isEdge: isEdge,
@@ -9617,15 +9617,15 @@ function Utils_detectEngine(){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - AppLayout */
 function AppLayout_build(self){
-	// Each time a new row is created an object is added to 
-	// the layout_container object. The layout_container
-	// has two properties type and columns. When the row
-	// method is called the column property is initialed 
-	// with an empty array and the type is row. 
+	
+	
+	
+	
+	
 	
 	self._props_._elements._fragment = document.createDocumentFragment();
 	var layout = self._props_._layout_container;
@@ -9642,7 +9642,7 @@ function AppLayout_build(self){
 		}
 		
 		var columns = layout[prop].columns;
-		//console.log(layout[prop]);
+		
 		var containerColumn = null;
 			
 		if(!Utils.isNull(layout[prop].obj)){
@@ -9651,11 +9651,11 @@ function AppLayout_build(self){
 			}else if(!Utils.isNull(layout[prop].obj.className)){
 				topRowClasses = layout[prop].obj.className;
 			}
-			//topRowClasses = (Utils.isNull(layout[prop].obj.classes)) ? "" : layout[prop].obj.classes;
+			
 		}
 		
 		row.id = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
-		//topRowClasses = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
+		
 		row.className = "row "+topRowClasses;
 		for(var i=0;i<columns.length;i++){
 			if(Utils.isNull(columns[i][1])){
@@ -9738,10 +9738,10 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 					divRow.id = row_id;
 				}
 
-			//}
-			//if(arrayOfItems[i]=="row"){
-			//	divRow = document.createElement("div");
-			//	divRow.className = "row";
+			
+			
+			
+			
 			}else{
 				var mycomp = _getComponentFromRout(arrayOfItems[i],self);
 				_handleLayoutType(mycomp,divRow,nodes,colClasses,_fragment,id,st,cl,viewId,topDiv,self);
@@ -9757,10 +9757,10 @@ function _getComponentFromRout(obj123,self){
 	var arrayOfItems = [obj123],
 		i = 0;
 	
-	// 4444
-	// something that may not be needed
+	
+	
 	if(arrayOfItems[i].charAt(0) == "#"){
-		//console.log(self);
+		
 		var c = stateManager.getMapRoute(self._props_._routes.route,arrayOfItems[i]);
 		var f = applicationManager.retrieve(c,Flags.Method);
 		if(typeof f === "function"){
@@ -9773,11 +9773,11 @@ function _getComponentFromRout(obj123,self){
 		if(typeof f === "function"){
 			mycomp = f(self._props_._routes);
 		}else{
-			// 1212
+			
 			mycomp = _create_body({ body: arrayOfItems[i], original: true });
 
 			console.log(mycomp);
-			//console.error(arrayOfItems[i]+" is not a function for rout: "+self._props_._routes.route);
+			
 		}
 	}
 	return mycomp;
@@ -9797,10 +9797,10 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		var node;
 		if(typeof arrayOfItems[i].getHtml() === "string"){
 			node = convertStringToHTMLNode(arrayOfItems[i].getHtml(self._props_._routes));
-			//console.log(node);
+			
 		}else if(typeof arrayOfItems[i].getHtml() === "object"){
 			node = arrayOfItems[i].getHtml(self._props_._routes);
-			//console.log(node);
+			
 		}
 
 		node = arrayOfItems[i].getHtml(self._props_._routes);
@@ -9859,7 +9859,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		_view_._props_._container.appendChild(v.getHtml());
 		topDiv.appendChild(_view_._props_._container.cloneNode(true));
 
-		/////////////////////////////////////
+		
 
 
 		function _getComponentType(obj){
@@ -9918,7 +9918,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			var rt = _view_._props_._views_objects;
 
 			var validRoute = false;
-			// get init view as a default 
+			
 			var route_view = null;
 			console.log(rt)
 			for(var i=0; i<rt.length; i++){
@@ -9939,52 +9939,52 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			return route_view;
 		}
 
-		//topDiv.appendChild(node);
+		
 
 
 		
-		// if(ty.charAt(0)=="."){
-		// 	//p = "<div class='"+arrayOfItems[i].getParentElementName().split(".")[1]+" '>"+arrayOfItems[i].getStartHtml()+"</div>";
+		
+		
 
-		// 	var node = document.createElement("div");
-		// 	node.className = arrayOfItems[i].getParentElementName().split(".")[1];
-		// 	var node2 = null;
-		// 	if(typeof arrayOfItems[i].getHtml() === "object"){
-		// 		node2 = arrayOfItems[i].getHtml();
-		// 	}else
-		// 	if(typeof arrayOfItems[i].getHtml() === "string"){
-		// 		node2 = convertStringToHTMLNode(arrayOfItems[i].getHtml());
-		// 	}
+		
+		
+		
+		
+		
+		
+		
+		
+		
 			
 
-		// 	node.appendChild(node2);
+		
 
-		// 	if(divRow!=null){
-		// 		divRow.appendChild(node);
-		// 		topDiv.appendChild(divRow);
-		// 		divRow = null;
-		// 	}else{
-		// 		topDiv.appendChild(node);
-		// 	}
+		
+		
+		
+		
+		
+		
+		
 			
-		// }else
-		// if(ty.charAt(0)=="#"){
-		// 	//p = "<div id='"+arrayOfItems[i].getParentElementName().split("#")[1]+" '>"+arrayOfItems[i].getStartHtml()+"</div>";
-		// 	var node = document.createElement("div");
-		// 	node.id = arrayOfItems[i].getParentElementName().split("#")[1];
+		
+		
+		
+		
+		
 
-		// 	var node2 = convertStringToHTMLNode(arrayOfItems[i].getStartHtml());
+		
 
-		// 	node.appendChild(node2);
+		
 
-		// 	if(divRow!=null){
-		// 		divRow.appendChild(node);
-		// 		topDiv.appendChild(divRow);
-		// 		divRow = null;
-		// 	}else{
-		// 		topDiv.appendChild(node);
-		// 	}
-		// }
+		
+		
+		
+		
+		
+		
+		
+		
 		
 	}else{
 		if(arrayOfItems[i].setParent){
@@ -10020,8 +10020,8 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 }
 function _getLayoutColumnClasses(columns){
 
-	// col-lg col-md col-sm col-xs col-offset-lg col-offset-md
-	//
+	
+	
 
 	/*
 
@@ -10047,7 +10047,7 @@ function _getLayoutColumnClasses(columns){
 
 	var colClasses = "";
 
-	//console.log(columns);
+	
 
 	for(col in columns){
 
@@ -10090,7 +10090,7 @@ function _getLayoutColumnClasses(columns){
 
 function _sortClassesDisplay(col,columns,colClasses){
 
-// none inline inline-block block table table-cell table-row flex inline-flex
+
 	if(col.includes("d_none")){
 		return _displaythis("d-"+columns[col]+"-none",colClasses);
 	}else if(col.includes("d_inline")){
@@ -10123,7 +10123,7 @@ function _sortClassesDisplay(col,columns,colClasses){
 }
 function _sortClassesVisible(col,columns,colClasses){
 	if(colClasses==""){
-		//colClasses = "visible-"+columns[col];
+		
 		colClasses = "d-"+columns[col]+"-none";
 	}else{
 		colClasses = " visible-"+columns[col];
@@ -10141,23 +10141,23 @@ function _sortClassesHidden(col,columns,colClasses){
 function _sortClassesOffset(col,columns,colClasses){
 	if(col.includes("-")){
 		var c = col.split("-");
-		// offset-md-
-		// col-md-offset-3
+		
+		
 		if(colClasses==""){
 			colClasses = "offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}else{
 			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = " "+colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}
 	}else if(col.includes("_")){
 		var c = col.split("_");
 		if(colClasses==""){
 			colClasses = "offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}else{
 			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}
 	}
 	return colClasses;
@@ -10168,7 +10168,7 @@ function ViewLayoutController_initializeListeners(self){
 	var components = self._typeHolder.typeComponent;
 	var len = components.length;
 	for(var i=0;i<len;i++){
-		//components[i].initializeListeners();
+		
 	}
 
 	for(prop in self._typeHolder){
@@ -10206,12 +10206,12 @@ function _getFragementForViewLayout(self){
 
 		}else{
 			row = null;
-			//rows[rows.length-1].innerHTML = self._build_order[i];
+			
 			var xmlString = self._build_order[i],
 			    parser = new DOMParser(),
 			    doc = parser.parseFromString(xmlString, "text/html");
 
-			//console.log(doc.body.firstChild);
+			
 
 			rows[rows.length-1].appendChild(doc.body);
 		}
@@ -10231,11 +10231,11 @@ function _layoutMake(obj,arrayOfItems){
 		var type = "";
 		if(prop.type!=null && prop.type!=undefined){
 			var fragment = document.createDocumentFragment();
-			//this._fragment = document.createDocumentFragment();
+			
 			var el = document.createElement(prop.type);
 			if(prop.id!=null && prop.id!=undefined){ el.id = prop.id; }
 			if(prop.classes!=null && prop.classes!=undefined){ el.className = prop.classes; }
-			//fragment.appendChild(el);
+			
 			if(prop.body!=null && prop.body!=undefined){
 				var isObj = true;
 				var myObj = null;
@@ -10274,13 +10274,13 @@ function _layoutMake(obj,arrayOfItems){
 							el.innerHTML = tmpBody
 						}
 						
-						// var _d = document.createElement("div");
-						// _d.innerHTML = tmpBody;
-						// if(myObj!=null){
-						// 	myObj.appendChild(_d);
-						// }else{
-						// 	el.appendChild(_d);
-						// }
+						
+						
+						
+						
+						
+						
+						
 						
 
 						isObj = false;
@@ -10301,23 +10301,23 @@ function _layoutMake(obj,arrayOfItems){
 	}
 
 
-	//this._custHtml[this._custHtml.length] = custHtml;
+	
 };
 
 
 
 
 
-///////////////////////////////////////////////////////////////
 
-// 5051
 
-// Array - body: ["@component",{}]
-// Array - body: ["&template",{}]
-// Array - body: [components...]
-// Object - body: component
-// Object - body: HTMLElement
-// String - body: HTMLE String
+
+
+
+
+
+
+
+
 
 function buildBody(object,self){
 	var body = null;
@@ -10336,7 +10336,7 @@ function buildBody(object,self){
 
 	var template = (Utils.isNull(object.template)) ? "" : object.template;
 	var obj = (Utils.isNull(object.obj)) ? {} : object.obj;
-	//var original = (Utils.isNull(obj.original)) ? false : obj.original;
+	
 	var blankComponent = new ContainerComponent();
 	var mBody;
 	object = object;
@@ -10344,10 +10344,10 @@ function buildBody(object,self){
 		if(typeof body[0] === "string" && body[0].charAt(0) == "@"){
 			return _build_from_string(body[0],self,body[1],object);
 		}else{
-			// 4444
-			// experimental: check to see if this works
-			// this takes in an array of components, HTMLElements and string elements
-			// and builds 1 element that returns a fragment
+			
+			
+			
+			
 			var fragment = document.createDocumentFragment();
 			for (var i = 0; i < body.length; i++) {
 				_decomposeArray(body[i],fragment);
@@ -10392,8 +10392,8 @@ function buildBody(object,self){
 			}
 		}else if(body.charAt(0) === "&"){
 			var p = body.substr(1);
-			// 4444
-			// convet template parser
+			
+			
 			var t = applicationManager.getLoadedFileContents(p);
 			t = applicationManager.templateParser(t,template);
 			var view = Utils.convertStringToHTMLNode(t);
@@ -10521,36 +10521,36 @@ function getView(body,obj,self){
 		object: obj
 	};
 
-	// 5555
+	
 	var method = body.slice(1);
 	var v = applicationManager.getMethod(method)(paramValues);
 	return v;
 }
-// function _build_view(body,obj,self){
-// 	var bodyWithoutAt = body.slice(0);
-// 	var params = (!Utils.isNull(obj) && obj.params) ? obj.params : {};
-// 	var paramValues = null;
-// 	for(var i in params){
-// 		if(i==body || i==bodyWithoutAt){
-// 			paramValues = params[i];
-// 			break;
-// 		}
-// 	}
-
-// 	// 5555
-// 	var method = body.slice(1);
-// 	var v = applicationManager.getMethod(method)(paramValues);
-// 	return v;
-// }
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
-	//console.log(self);
+	
 	for(var i=0; i<self._props_._events.length; i++){
 		var sel = self._props_._events[i].selector;
 		if(sel==selector){
@@ -10563,7 +10563,7 @@ function isEventRegistered(selector,self){
 
 
 
-// 4444 - stop multiple registration of events
+
 
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
@@ -10596,11 +10596,11 @@ function _Utils_registerListenerCallback(obj,self){
 					var alreadyRegistered = isEventRegistered(obj.callback[i].selector,self);
 
 					var eventType = (Utils.isNull(obj.callback[i].type)) ? "click" : obj.callback[i].type;
-					//function _Utils_registerListenerCallbackForSelf(type,selector,moreData,func,self,preventDefault,stopPropagation){
+					
 					var preventDefault = (Utils.isNull(obj.callback[i].preventDefault)) ? false : obj.callback[i].preventDefault;
 					var stopPropagation = (Utils.isNull(obj.callback[i].stopPropagation)) ? false : obj.callback[i].stopPropagation;
 					self._props_._events.push({
-						selector: obj.callback[i].selector,// "#"+(Utils.isNull(obj.callback[i].selector)) ? selector : obj.callback[i].selector,
+						selector: obj.callback[i].selector,
 						type: eventType,
 						func: obj.callback[i].func,
 						preventDefault: preventDefault,
@@ -10613,10 +10613,10 @@ function _Utils_registerListenerCallback(obj,self){
 				var stopPropagation = (Utils.isNull(obj.callback.stopPropagation)) ? false : obj.callback.stopPropagation;
 				
 				var alreadyRegistered = isEventRegistered(obj.callback.selector,self);
-				//if(alreadyRegistered) return;
+				
 
 				self._props_._events.push({
-					selector: obj.callback.selector,//"#"+(Utils.isNull(obj.callback.selector)) ? selector : obj.callback.selector,
+					selector: obj.callback.selector,
 					type: eventType,
 					func: obj.callback.func,
 					preventDefault: preventDefault,
@@ -10633,7 +10633,7 @@ function Thread(){
 	var blobURL = URL.createObjectURL( new Blob([ '(',
 
 
-////////////////////////////////////////////////////////
+
 		function(){
 
 			 this.onmessage = function(e){
@@ -10641,25 +10641,25 @@ function Thread(){
 
 
 
-		//console.log(e);
-// function loadUpFiles(base,files,self){
-// 	// var files = applicationManager._props_._files;
-// 	// var base = applicationManager._props_._basePath;
-// 	for(var i in files){
-// 		_load(i,files[i]);
-// 	}
-// 	function _load(alias,filePath){
-// 		var file;
-// 		if(base == "" || base==null){
-// 			file = files[alias];
-// 		}else{
-// 			file = base+"/"+files[alias];
-// 		}
-// 		readTextFile(file,function(content,xrh){
-// 			applicationManager._props_._file_contents[alias] = content;
-// 		});
-// 	}
-// }
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 var self = this;
 
 function readTextFile(file,callback){
@@ -10680,7 +10680,7 @@ function readTextFile(file,callback){
 readTextFile("../js/includes/components/html/header.html",function(a){
 	self.postMessage(a);
 });
-////////////////////////////////////////////////////////
+
 			 };
 
 		}.toString(),
@@ -10691,7 +10691,7 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 
 	worker.addEventListener('message',function(e){
 		var msg = e.data;
-		//console.log(msg);
+		
 		
 	});  
 
@@ -10699,7 +10699,7 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 		worker.postMessage('sending');
 	},2000);
 
-	//URL.revokeObjectURL( blobURL );
+	
 }
 
 
@@ -10708,28 +10708,6 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 
 
 
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-// END
 
 
 
@@ -10742,19 +10720,41 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 
 
 
-// function setAppGlobals(){
-// 	window.AppManager = applicationManager;
-// 	window.AppPages = pages;
-// 	window.AppUtils = Utils;
-// 	window.AppView = ViewManager;
-// 	window.AppLayout = layoutManager;
-// 	window.AppFlags = Flags;
-// 	window.AppComp = componentFactory;
-// 	window.AppDialog = componentFactory.dialog();
-// 	window.AppStateManager = stateManager;
-// 	window.AppPlugin = appPlugin;
-// 	window.AppSessionManager = sessionManager;
-// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function setBaseURL(self,url){
 	var config = self._props_._application_configuration;
 	if(!Utils.isNull(config.application)){
@@ -10968,7 +10968,7 @@ ApplicationContextManager.prototype = {
 		var config = this._props_._application_configuration;
 		if(config!=null && config['application']!=undefined){
 
-		//if(this._props_._baseURL){
+		
 			var app = config['application'];
 			if(isProd!=null & isProd!=undefined){
 				url =_funcConfigProd(app,partialUrl,isProd);
@@ -11084,9 +11084,9 @@ function initializeApplication(self){
 	window.AppFactoryDialog = componentFactory.dialog();
 	window.Brick = Brick;
 
-	//if(!client) loadAllPluginCSSFiles();
+	
 		
-	//loadUpTheme();
+	
 
 
 	function a1(configFile){
@@ -11099,16 +11099,16 @@ function initializeApplication(self){
 	} 
 	function loadUpTheme(){
 
-// application:
-// 	development_url: "http://localhost/newapp3/2wokegurls/"
-// 	prod: true
-// 	production_url: "https://wait.2wokegurls.com/"
-// 	theme: "equippedcoding_2woke_gurls|One"
+
+
+
+
+
 
 	
-//newapp2/newapp1/myapp/js/plugins/_default/plugin.config.json
-		//console.log(config);
-		//console.log(plugins);
+
+		
+		
 
 		if(Utils.isNull(config.application) || Utils.isNull(config.application.theme)){
 			return;
@@ -11130,15 +11130,15 @@ function initializeApplication(self){
 		}
 
 
-		//console.log(self.URL());
+		
 
 		self.setVar('url',self.URL());
-		//console.log(gl_app_plugins);
-		//console.log(plugin1);
+		
+		
 
 		var theme1;
 		for(var i=0; i<plugin1.themes.length; i++){
-			//console.log(plugin1.themes[i])
+			
 			var n = plugin1.themes[i].directory;
 			if(n==theme){
 				theme1 = plugin1.themes[i];
@@ -11146,14 +11146,14 @@ function initializeApplication(self){
 			}
 		}
 
-		//console.log(theme1);
-// http://localhost/newapp2/myapp1/myapp/js/plugins/zibra4/plugin.config.json 
-		// load head and styles
-		//var url = self.URL("js/plugins/"+plugin1["id"]+"/plugin.config.json");
+		
+
+		
+		
 		a1("js/plugins/"+plugin1["id"]+"/plugin.config.json")
 		.then(function(con){
 			con = JSON.parse(con);
-			//console.log(con);
+			
 
 			var currentThemeConfig;
 			var cur = con.themes;
@@ -11181,7 +11181,7 @@ function initializeApplication(self){
 						t = t.replace("}","");
 						t = t.trim();
 
-						//console.log(t);
+						
 
 						var varUrl = self.getVar(t);
 						if(!Utils.isNull(varUrl)){
@@ -11210,7 +11210,7 @@ function initializeApplication(self){
 				for(var i=0; i<themeStyles.length; i++){
 
 					var loc = plugin1.id +"/themes/"+themeDir+"/"+themeStyles[i];
-					//_load_theme_style(loc);
+					
 				}
 			}
 
@@ -11220,13 +11220,13 @@ function initializeApplication(self){
 			}
 
 			var component = theme1.component(gl_applicationContextManager,config);
-			//console.log(component);
+			
 			if(!Utils.isNull(component)){
 				$('body').append(component.getHtml());
 			}
 			
 
-			// 151515
+			
 
 
 		});
@@ -11275,7 +11275,7 @@ window.ApplicationSegments = ApplicationSegments;
 return ApplicationContextManager;
 
 
-})); // End
+})); 
 
 
 
