@@ -22,7 +22,7 @@ var _AppFactoryStart = {
 	NoCapture: 'NoCapture',
 	cb: null,
 	config: null,
-	main: async function(isAdmin,configFile,extra,callback,type){
+	main: async function(isAdmin,configFile,extra,callback,type,socketio){
 
 		var appfac_config = null;
 		if(type==this.Capture){

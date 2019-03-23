@@ -9,7 +9,7 @@
 *
 *
 *
-*
+* 
 *
 * 
 *
@@ -50,31 +50,32 @@
 // 0000 - implemention
 // 4444 - incomplete
 // 2222 - Utils
+// 9898 - ContainerComponent
 
-/*
+
 
 // First default the incoming object
-obj = (Utils.isNull(obj)) ? {} : obj;
+//obj = (Utils.isNull(obj)) ? {} : obj;
 
 // extend any necassary classes
-_.extend(this,
-	new AppFactoryManager('FormComponent'), 
-	new ComponentManager(Flags.Type.component,this), 
-	new EventManager(this)
-);
+//_.extend(this,
+//	new AppFactoryManager('FormComponent'), 
+//	new ComponentManager(Flags.Type.component,this), 
+//	new EventManager(this)
+//);
 
 // register this component
-applicationManager.register(this);
+//applicationManager.register(this);
 
 // give component unique id
 //this._props_._id = "d-"+Utils.randomGenerator(12,false);
 
 // add this.getId() to component element id
-var topComponentElement = Utils.createElement({ id:this.getId() });
+//var topComponentElement = Utils.createElement({ id:this.getId() });
 
 // add this at end of constructor
-applicationManager.setComponent(this);
-*/
+//applicationManager.setComponent(this);
+
 
 
 /* Global Variables */ 
@@ -140,6 +141,7 @@ var AppFactoryManagerTypes = [
 	"LayoutManager",
 	"ViewManager"
 ];
+
 /* AppFactoryManager */
 function AppFactoryManager(type){
 	this._appfactory_manager = {
@@ -393,6 +395,7 @@ function StateManager(){
 	};
 
 }
+// 5051
 StateManager.prototype = {
 	mapRoute: function(route,layout){
 
@@ -457,8 +460,8 @@ StateManager.prototype = {
 	/**
 	* 
 	*/
-	addRoute: function(rout,method){
-		this._state_manager._routes[rout] = method;  
+	addRoute: function(route,method){
+		this._state_manager._routes[route] = method;  
 	},
 
 	/**
@@ -480,6 +483,54 @@ StateManager.prototype = {
 	}
 };
 
+
+
+// 9999
+/** @exports ApplicationSegments
+* @classdesc A segment is a plugin thats can be tied to another plugin
+* but cannot be active by its self. In the plugin.config.json specify
+* the option segment:true. This allows for this plugin to be loaded before
+* non-segmented plugins. The segmented plugin is retreived by calling 
+* segments.get("plugin_name|plugin_theme")
+* @class
+* @constructor
+*/
+function ApplicationSegments(){
+	this._props_ = {};
+}
+ApplicationSegments.prototype = {
+
+	set: function(segments){
+		this._props_._segments = segments;
+	},
+
+
+	/**
+	*
+	* return {Object} - Plugin segment
+	*/
+	get: function(segment){
+		var segments = this._props_._segments;
+		var plugin = segment.split("|")[0];
+		var theme = segment.split("|")[1];
+		var client = null;
+
+		if(segments[plugin]){
+			var themes = segments[plugin].client;
+			for(var i=0; i<themes.length; i++){
+				if(themes[i].directory==theme){
+					client = themes[i];
+					break;
+				}
+			}
+
+
+		}
+
+		return client;
+	}
+
+};
 
 
 
@@ -571,22 +622,20 @@ ApplicationPlugin.prototype = {
 
 		//console.log(plugin);
 		//console.log(pluginThemes);
-		/*
-		if(!Utils.isNull(pluginThemes)){
+		
+		//if(!Utils.isNull(pluginThemes)){
 
-			var themes = [];
-			for(var i=0; i<pluginThemes.length; i++){
-				themes.push({
-					id: ,
-					component: pluginThemes[i](gl_applicationContextManager,config)
-				});
-
-
+		//	var themes = [];
+		//	for(var i=0; i<pluginThemes.length; i++){
+		//		themes.push({
+		//			id: ,
+		//			component: pluginThemes[i](gl_applicationContextManager,config)
+		//		});
 				//console.log(pluginThemes[i](gl_applicationContextManager,config));
-			}
+		//	}
 		
 
-		}*/
+		//}
 
 
 		return {
@@ -823,7 +872,7 @@ Pages.prototype = {
 	}
 };
 
-
+var ViewsHolder = [];
 
 // 9999
 /** @exports ViewManager
@@ -848,31 +897,57 @@ function ViewManager(opt){
 	self._props_._container = document.createElement('div');
 	self._props_._container.id = self._props_._id;
 
+
 	if(Utils.isNull(opt)){ opt = {}; }
 	if(Utils.isNull(opt.routable)){
 		opt.routable = false;
 	}
-	
-	var component_container = new ContainerComponent({
-		id: self._props_._id,
-		body: ""
-	});
-
-	self._props_._current_view = null;
-	self._props_._component_containers = {};
-	self._props_._component_containers['parent'] = component_container;
-	self._props_._component_containers['children'] = {};
-	self._props_._options = opt;
-	self._props_._obj = {};
-
+	// 4444
+	// routable by view component
+	opt.routable = false;
+	self._props_._is_routable = opt.routable;
+	self._props_._containers = new ContainerComponent();
+	self._props_._active_view = null;
 	self._props_._views_objects = [];
+	self._props_._options = opt;
+
+	ViewsHolder.push(self);
+
+	
 
 	// 5555
 	self.getHtml = function(){
-		return this._props_._component_containers.parent.getHtml();
+
+		//var parent = self._props_._component_containers.parent;
+		// 5050
+		var objs = self._props_._views_objects;
+		var obj = null;
+		for (var i = 0; i < objs.length; i++) {
+			var init = objs[i].init;
+			if(init){
+				obj = objs[i];
+				break;
+			}
+		}
+
+		if(obj){
+			var trigger = false;
+			self._props_._active_view = obj;
+			var container = buildBody(obj,self);
+			self._props_._containers.addComponent(container,true);
+			if(opt.routable){
+				var route = getNewRoute(obj.id,self);
+				stateManager.go(route,trigger);
+			}
+		}
+
+		return self._props_._containers.getHtml();
+
+		//return this._props_._component_containers.parent.getHtml();
 	};
 }
 ViewManager.prototype = {
+
 
 	/**
 	* Render the view
@@ -881,13 +956,14 @@ ViewManager.prototype = {
 	* @param {String} - (required) Id of the view to render.
 	* @param {Component} - (optional) component body to add.
 	* @param {Boolean} - (optional) When a body is added it will not replace the
+	* @param {Boolean} - trigger the router
 	* initial body but if this is set to true the component body supplied will
 	* replace the initial body.
 	* @param {Boolean} (optional) If this ViewManager is router capable then this
 	* will trigger it route.
 	*/
-	render: function(id,body,replace,trigger){
-		ViewManager_render(id,body,replace,trigger,this);
+	render: function(id,opts){
+		ViewManager_render(id,opts,this);
 	},
 
 	/**
@@ -918,40 +994,49 @@ ViewManager.prototype = {
 		return MultiView_getView(id,this);
 	},
 
+
+		// 5050
+		// 5051
 	/**
 	* Add new view to this ViewManager
 	*/
 	newSubView: function(opts){
-		// 1111
 		var self = this;
 		var opt = self._props_._options;
-		if(opt.routable==true && Utils.isNull(opts.route)){
-			opts.route = opts.id;
+		/*
+		if(opt.routable==true){
+			if(Utils.isNull(opts.route)){
+				opts.route = opts.id;
+			}
+			var v = buildBody(opts,self);
+			if(!Utils.isNull(v) && v.TYPE && v.TYPE == "v"){
+
+			}
 		}
+		*/
+		if(opts.id){
+			for (var i = 0; i < self._props_._views_objects.length; i++) {
+				if(opts.id == self._props_._views_objects[i].id){
+					console.error("Theres already a View Component with the id: "+opts.id);
+					break;
+				}
+			}
+		}else{ console.error("View Component does not contain an id"); }
 
 		self._props_._views_objects.push(opts); 
-
-		var body = new ContainerComponent();
-		self._props_._temp_body = body;
-		if(opts.body){
-			body = opts.body;
-		}
-
-		var component_container = new ContainerComponent({
-			body: body
-		});// nnnnn
-
-		self._props_._component_containers['children'][opts.id] = {
-			container: component_container,
-			options: opts
-		};
-
 		if(opts.init!=undefined && opts.init==true){
-			self._props_._component_containers.parent.addComponent(
-				self._props_._component_containers['children'][opts.id].container,
-				true);
+			var b = buildBody(opts,self);
+			self._props_._containers.addComponent(b, true);
 		}
 		return this;
+	},
+
+	/** Checks if this view is routable.
+	* 
+	* @return {Boolean} - Is this view routable
+	*/
+	isRoutable: function(){
+		return this._props_._is_routable;
 	}
 
 
@@ -1123,6 +1208,7 @@ AppLayout.prototype = {
 
 
 // 9999
+// 9898
 /** @exports ComponentFactory
 * @classdesc A top-level component that handles all other components except ViewManager component and AppLayout component.
 * @class
@@ -1147,7 +1233,6 @@ ComponentFactory.prototype = {
 		return new ButtonComponent(opts);
 	},
 
-
 	/**
 	* A Container Component is a special type of component
 	* It contain other components. 
@@ -1157,7 +1242,7 @@ ComponentFactory.prototype = {
 	},
 
 	/**
-	* BrickComponent !Incomplete
+	* Returns a BrickComponent, is also accessable through the global Brick method. 
 	*/
 	brick: function(obj){
 		return new BrickComponent(obj);
@@ -1176,7 +1261,7 @@ ComponentFactory.prototype = {
 	},
 
 	/**
-	* 
+	* Returns a FormComponent
 	*/
 	form: function(obj){
 		return new FormComponent(obj);
@@ -1694,95 +1779,91 @@ function ModalComponent_setContent(opts,self){
 
 
 
-/*
-
-var mylist = ["one","two","three"];
-
-var list = Component.list({
 
 
-	list: mylist,
-	func: function(index,item){
+// var mylist = ["one","two","three"];
 
-		this.label = item;
+// var list = Component.list({
 
-		this.badge = {
-			value:115,
-			id: "badge1"
-		};
 
-		this.style = "";
+// 	list: mylist,
+// 	func: function(index,item){
+
+// 		this.label = item;
+
+// 		this.badge = {
+// 			value:115,
+// 			id: "badge1"
+// 		};
+
+// 		this.style = "";
 	
-		this.id = "";
+// 		this.id = "";
 
-		this.classes = "";
+// 		this.classes = "";
 
-		this.html = "";
+// 		this.html = "";
 
-		this.select = function(){
+// 		this.select = function(){
 	
-		}
+// 		}
 
-		return this;
+// 		return this;
 
-	}
-
-
-
-});
-
-for(var i=0;i<mylist.length;i++){
-	setupListItem(i);
-}
-
-function setupListItem(index){
-	var gh = mylist[index];
-	list.item({
-		label: mylist[index].name,
-		badge: {
-			value:115,
-			id: "badge1"
-		},
-
-		// set meta data to be tied to list item
-		meta: {},
-
-		listener: function(e,self,optional,extra){
-
-			var btn1 = Utils.createElement({
-				el: 'button',
-				innerHTML: 'close'
-			});
-
-			var d = Component.mobileDialog();
-			// d.open('hello you',{
-			// 	btns: [btn1]
-			// });
-			var f = "Install Plugin "+mylist[index].name;
-			function btnclick(index){
-				// console.log(index);
-				AppDialog.toggle();
-			}
-			function onClose(index){
-				// console.log('Dialog has closed')
-				AppDialog.toggle();
-			}
-			d.showBottom({onClose: onClose,btn: [f], btnClick: btnclick});
-
-			// fix z-index, toast is getting covered up
-			// d.toast('Cloasing Application',5);
-
-			// d.loading({hint:"Please Wait While Loading",type:2});
-			// setTimeout(function(){
-			// 	d.closeLoading();
-			// },5000);
-		}
-	});
-}
+// 	}
 
 
-*/
 
+// });
+
+// for(var i=0;i<mylist.length;i++){
+// 	setupListItem(i);
+// }
+
+// function setupListItem(index){
+// 	var gh = mylist[index];
+// 	list.item({
+// 		label: mylist[index].name,
+// 		badge: {
+// 			value:115,
+// 			id: "badge1"
+// 		},
+
+// 		// set meta data to be tied to list item
+// 		meta: {},
+
+// 		listener: function(e,self,optional,extra){
+
+// 			var btn1 = Utils.createElement({
+// 				el: 'button',
+// 				innerHTML: 'close'
+// 			});
+
+// 			var d = Component.mobileDialog();
+// 			// d.open('hello you',{
+// 			// 	btns: [btn1]
+// 			// });
+// 			var f = "Install Plugin "+mylist[index].name;
+// 			function btnclick(index){
+// 				// console.log(index);
+// 				AppDialog.toggle();
+// 			}
+// 			function onClose(index){
+// 				// console.log('Dialog has closed')
+// 				AppDialog.toggle();
+// 			}
+// 			d.showBottom({onClose: onClose,btn: [f], btnClick: btnclick});
+
+// 			// fix z-index, toast is getting covered up
+// 			// d.toast('Cloasing Application',5);
+
+// 			// d.loading({hint:"Please Wait While Loading",type:2});
+// 			// setTimeout(function(){
+// 			// 	d.closeLoading();
+// 			// },5000);
+// 		}
+// 	});
+// }
 
 
 
@@ -2196,22 +2277,26 @@ FormValidationDefaults.prototype = {
 * @tutorial 04-building_forms
 */
 function FormComponent(obj){
-	if(Utils.isNull(obj)){
-		console.error("Tag is required for form component!");
-		return;
-	}
-	var tag = "";
-	if(typeof obj === 'string'){
-		tag = obj;
-		obj = {};
-	}else{
-		if(Utils.isNull(obj.tag)){
-			console.error("Tag is required for form component!");
-			return;
-		}else{
-			tag = obj.tag;
-		}
-	}
+	
+	
+	// if(Utils.isNull(obj)){
+	// 	//console.error("Tag is required for form component!");
+	// 	//return;
+
+	// }
+	// var tag = "";
+	// if(typeof obj === 'string'){
+	// 	tag = obj;
+	// 	obj = {};
+	// }else{
+	// 	if(Utils.isNull(obj.tag)){
+	// 		console.error("Tag is required for form component!");
+	// 		return;
+	// 	}else{
+	// 		tag = obj.tag;
+	// 	}
+	// }
+	
 	obj = (Utils.isNull(obj)) ? {} : obj;
 	_.extend(this,
 		new AppFactoryManager('FormComponent'), 
@@ -2229,14 +2314,6 @@ function FormComponent(obj){
 	};
 
 	applicationManager.setComponent(this);
-
-	var isSet = sessionStorage.getItem(tag);
-	if(Utils.isNull(isSet)){
-		sessionStorage.setItem(tag,JSON.stringify({}));
-	}
-
-	this._props_._tag = tag;
-	this._props_._prevent_remember = false;
 	
 	this._props_._setRemeber = function(_tagId,_value){
 		if(self._props_._prevent_remember) return;
@@ -2567,6 +2644,8 @@ function ContainerComponent(obj){
 	if(!Utils.isNull(obj)){
 		if(!Utils.isNull(obj.classes)){
 			self._props_._container.className = obj.classes;
+		}else if(!Utils.isNull(obj.className)){
+			self._props_._container.className = obj.className;
 		}
 		if(!Utils.isNull(obj.style)){
 			self._props_._container.style = obj.style;
@@ -2659,15 +2738,31 @@ ContainerComponent.prototype = {
 		//}
 		function addToDOM(setComponent1){
 
-			//console.log(setComponent);
+			
 			//var id = self.getId();
+
+			//console.log(self.getId());
+			//console.log(setComponent);
+
+			if(Utils.isNull(setComponent1)) return;
+
+
+
+
 			var id = self._props_._component_element_container_id;
 			if(isEmpty==true){
 				$("#"+id).empty();
 			}
-			//if(Utils.isNull(setComponent1)) return;
-			$("#"+id).append(setComponent1.getHtml());
-			setComponent1.initializeListeners();
+			
+
+			//console.log(setComponent1);
+			if(setComponent1.TYPE){
+				$("#"+id).append(setComponent1.getHtml());
+				setComponent1.initializeListeners();
+			}else{
+				$("#"+id).append(setComponent1);
+			}
+			
 		}
 
 	},
@@ -2859,135 +2954,239 @@ var Brick = {
 		if(typeof obj === "string"){
 			obj = {innerHTML: obj };
 		}
-		var e = Utils.createElement('h6',obj);
-		return e;
+		return Utils.createElement('h6',obj);
 	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	article: function(obj){},
+	article: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('article',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	section: function(obj){},
+	section: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('section',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	footer: function(obj){},
+	footer: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('footer',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	nav: function(obj){},
+	nav: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('nav',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	blockquote: function(obj){},
+	blockquote: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('blockquote',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	ol: function(obj){},
+	ol: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('ol',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	pre: function(obj){},
+	pre: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('pre',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	a: function(obj){},
+	a: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('a',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	abbr: function(obj){},
+	abbr: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('abbr',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	br: function(obj){},
+	br: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('br',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	area: function(obj){},
+	area: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('area',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	audio: function(obj){},
+	audio: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('audio',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	video: function(obj){},	
+	video: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('video',obj);
+	},	
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	table: function(obj){},
+	table: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('table',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	tbody: function(obj){},
+	tbody: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('tbody',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	tfoot: function(obj){},
+	tfoot: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('tfoot',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	td: function(obj){},
+	td: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('td',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	th: function(obj){},
+	th: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('th',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	tr: function(obj){},
+	tr: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('tr',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	button: function(obj){},
+	button: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('button',obj);
+	},
 
 	/**
 	* Add
 	* @return {HTMLElement} 
 	*/
-	form: function(obj){},
+	form: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('form',obj);
+	},
 
 	/**
 	* Add
@@ -3026,7 +3225,12 @@ var Brick = {
 	* Add
 	* @return {HTMLElement} 
 	*/
-	option: function(obj){},
+	option: function(obj){
+		if(typeof obj === "string"){
+			obj = {innerHTML: obj };
+		}
+		return Utils.createElement('option',obj);
+	},
 
 	/**
 	* Add
@@ -3103,6 +3307,14 @@ BrickComponent.prototype = {
 	*
 	* @return {BrickComponent}
 	*/
+	a: function(opts){
+		return BrickComponent_make("a",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
 	h1: function(opts){
 		return BrickComponent_make("h1",opts,this);
 	},
@@ -3169,6 +3381,39 @@ BrickComponent.prototype = {
 		return BrickComponent_make("textarea",opts,this);
 	},
 
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	ul: function(opts){
+		return BrickComponent_make("ul",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	li: function(opts){
+		return BrickComponent_make("li",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	ol: function(opts){
+		return BrickComponent_make("ol",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	button: function(opts){
+		return BrickComponent_make("button",opts,this);
+	},
+
+
 	/** 
 	* Build this BrickComponent.
 	* 
@@ -3187,6 +3432,12 @@ BrickComponent.prototype = {
 
 		self._props_._fragment = fragment;
 
+		return this;
+	},
+
+
+	end: function(){
+		this.build();
 		return this;
 	}
 
@@ -3419,19 +3670,19 @@ NavigationComponent.prototype = {
 
 function _navigation1(self,view){
 
-	/*
-	<div id="mySidenav" class="sidenav">
-	  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-	  <a href="#">About</a>
-	  <a href="#">Services</a>
-	  <a href="#">Clients</a>
-	  <a href="#">Contact</a>
-	</div>
+	
+	// <div id="mySidenav" class="sidenav">
+	//   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+	//   <a href="#">About</a>
+	//   <a href="#">Services</a>
+	//   <a href="#">Clients</a>
+	//   <a href="#">Contact</a>
+	// </div>
 
-	<div id="main">
-  	...
-	</div>
-	*/
+	// <div id="main">
+ //  	...
+	// </div>
+	
 
 	var defaultBody;
 
@@ -3631,57 +3882,6 @@ function _side_navigation(self){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // 1001
 /** @exports TableComponent
 * @classdesc Instatiated by the  {@link ViewLayoutController} class
@@ -3734,13 +3934,13 @@ function TableComponent (obj){
 	_thead.className = "uieb-table-thead";
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
 
-	/*
-	self._props_._tableStructure._rows.push({
-		column_line_num: self._props_._tableStructure._rowCount,
-		rowId: _tr.id,
-		rows: _rows, [id,val]..
-	});
-	*/
+	
+	// self._props_._tableStructure._rows.push({
+	// 	column_line_num: self._props_._tableStructure._rowCount,
+	// 	rowId: _tr.id,
+	// 	rows: _rows, [id,val]..
+	// });
+	
 
 
 
@@ -3904,13 +4104,13 @@ TableComponent.prototype = {
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
 		// setConnectedData: function(cellId,connectId,type,value,available,modified)
-		/*
-		_column_[i] = { 
-			id: _th.id,
-			name: obj.columns[i].name,
-			type: _type //remote|normal
-		};
-		*/
+		
+		// _column_[i] = { 
+		// 	id: _th.id,
+		// 	name: obj.columns[i].name,
+		// 	type: _type //remote|normal
+		// };
+		
 		if(isNull(columnIndex)){
 			return this._props_._tableStructure._column;
 		}else{
@@ -4060,15 +4260,15 @@ TableComponent.prototype = {
 
 	updateRow: function(cellId,newValue,updateOnDOM){
 		var isNull = Utils.isNull;
-		/*
-			self._props_._tableStructure._rows.push({
-				column_line_num: self._props_._tableStructure._rowCount,
-				rowId: _tr.id,
-				rows: _rows,
-			});
+		
+			// self._props_._tableStructure._rows.push({
+			// 	column_line_num: self._props_._tableStructure._rowCount,
+			// 	rowId: _tr.id,
+			// 	rows: _rows,
+			// });
 
 
-		*/
+		
 		var self = this;
 		var found = false;  
 		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
@@ -4120,19 +4320,19 @@ TableComponent.prototype = {
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
 
-		/*
-			table({
-				updatable: true,
+		
+			// table({
+			// 	updatable: true,
 				
-				// add this if you only want columns
-				// this is overridden by content
-				columns: columns,
-				content: content,
-				delemeter: delemeter,
-				no_conents_error_message: no_conents_error_message,
-				filename: filename
-			});
-		*/
+			// 	// add this if you only want columns
+			// 	// this is overridden by content
+			// 	columns: columns,
+			// 	content: content,
+			// 	delemeter: delemeter,
+			// 	no_conents_error_message: no_conents_error_message,
+			// 	filename: filename
+			// });
+		
 
 		console.log(obj);
 
@@ -4218,32 +4418,32 @@ TableComponent.prototype = {
 };
 
 
-/*
 
-	* Returns an object with the table object and the holder object.
-	* The holder object is a uieb CUstomizerComponent
-	*
-	* If contents is nothing then this method will return a
-	* uieb element with the no_conents_error_message displayed.
-	* 
-	* 
-	* @param {String } delemeter
+
+// 	 Returns an object with the table object and the holder object.
+// 	 The holder object is a uieb CUstomizerComponent
+// 	
+// 	 If contents is nothing then this method will return a
+// 	 uieb element with the no_conents_error_message displayed.
+// 	 
+// 	 
+// 	 @param {String } delemeter
 	
-	createTable: function(obj){
-*/
-/*
-table({
-	updatable: true,
+// 	createTable: function(obj){
+
+
+// table({
+// 	updatable: true,
 	
-	// add this if you only want columns
-	// this is overridden by content
-	columns: columns,
-	content: content,
-	delemeter: delemeter,
-	no_conents_error_message: no_conents_error_message,
-	filename: filename
-});
-*/
+// 	// add this if you only want columns
+// 	// this is overridden by content
+// 	columns: columns,
+// 	content: content,
+// 	delemeter: delemeter,
+// 	no_conents_error_message: no_conents_error_message,
+// 	filename: filename
+// });
+
 function TableComponent__add_col(obj,self,containerId){
 	var isNull = Utils.isNull;
 
@@ -4323,20 +4523,20 @@ function TableComponent__add_col(obj,self,containerId){
 
 
 
-					/*
-					var new_row_data = [];
-					for(var b=0; b<row_items.length; b++){
-						dosome(b);
-					}
+					
+					// var new_row_data = [];
+					// for(var b=0; b<row_items.length; b++){
+					// 	dosome(b);
+					// }
 
-					function dosome(indx){
-						var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
-						new_row_data[indx] = val;
-					}
-					_updateRow(new_row_data);
+					// function dosome(indx){
+					// 	var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
+					// 	new_row_data[indx] = val;
+					// }
+					// _updateRow(new_row_data);
 
 					//console.log(table.getRows());
-					*/
+					
 
 					// self._props_._modalDialog.toggle();
 				});
@@ -4664,20 +4864,20 @@ function TableComponent__add_row(self){
 	// self._props_._modalDialog.toggle();
 }
 function TableComponent_row(obj,self){
-	/*
-	table.row({
-		id:"",
-		columnsData:[
-			{
-				html: "",
-				callback: {
-					type: '',
-					func: function(data){}
-				}
-			}
-		]
-	});
-	*/
+	
+	// table.row({
+	// 	id:"",
+	// 	columnsData:[
+	// 		{
+	// 			html: "",
+	// 			callback: {
+	// 				type: '',
+	// 				func: function(data){}
+	// 			}
+	// 		}
+	// 	]
+	// });
+	
 
 	var isNull = Utils.isNull;
 
@@ -4930,27 +5130,27 @@ function TableComponent_row(obj,self){
 	
 
 	
-	/*
-	console.log(self._props_._elements._tbody.id);
-	findComponent(self._props_._elements._tbody.id,_tr,function(elem){
-		console.log(self._props_._elements._tbody.lastChild);
-		//$(self._props_._elements._tbody).children()[0].append(_tr);
+	
+	// console.log(self._props_._elements._tbody.id);
+	// findComponent(self._props_._elements._tbody.id,_tr,function(elem){
+	// 	console.log(self._props_._elements._tbody.lastChild);
+	// 	//$(self._props_._elements._tbody).children()[0].append(_tr);
 
-		if(document.getElementById(self._props_._elements._tbody.id)){
-			document.getElementById(self._props_._elements._tbody.id)
-			.lastChild.appendChild(_tr);
-		}
+	// 	if(document.getElementById(self._props_._elements._tbody.id)){
+	// 		document.getElementById(self._props_._elements._tbody.id)
+	// 		.lastChild.appendChild(_tr);
+	// 	}
 		
-	});
-	*/
+	// });
+	
 
 
-	/*
-	registerListenerCallbackForSelf(self,"click",start.id,function(data){
-    		data.e.preventDefault();
-    		self.start();
-    	});
-    	*/
+	
+	// registerListenerCallbackForSelf(self,"click",start.id,function(data){
+ //    		data.e.preventDefault();
+ //    		self.start();
+ //    	});
+    	
 
 }
 
@@ -4958,15 +5158,15 @@ function TableComponent_getTableAsString(delemeter,self){
 
 	var isNull = Utils.isNull;
 
-	/*
-			self._props_._tableStructure._rows.push({
-				column_line_num: self._props_._tableStructure._rowCount,
-				rowId: _tr.id,
-				rows: _rows, [id,val]..
-			});
+	
+			// self._props_._tableStructure._rows.push({
+			// 	column_line_num: self._props_._tableStructure._rowCount,
+			// 	rowId: _tr.id,
+			// 	rows: _rows, [id,val]..
+			// });
 
 
-		*/
+		
 
 
 	if(isNull(delemeter)){
@@ -5001,39 +5201,39 @@ function TableComponent_getTableAsString(delemeter,self){
 	
 
 
-	/*
-	var builtTableStr = "";
-	for(var p=0; p<rows.length; p++){
-		var rowSplit = rows[p];
-		var rowString = "";
-		var start = 0;
-		for(var h=0; h<rowSplit.length; h++){
-			if(start==0){
-				rowString += rowSplit[h];
-			}else{
-				rowString += delemeter+rowSplit[h];
-			}
-			start++;
-		}
-		rowString += "\n";
-		builtTableStr += rowString;
-	}
+	
+	// var builtTableStr = "";
+	// for(var p=0; p<rows.length; p++){
+	// 	var rowSplit = rows[p];
+	// 	var rowString = "";
+	// 	var start = 0;
+	// 	for(var h=0; h<rowSplit.length; h++){
+	// 		if(start==0){
+	// 			rowString += rowSplit[h];
+	// 		}else{
+	// 			rowString += delemeter+rowSplit[h];
+	// 		}
+	// 		start++;
+	// 	}
+	// 	rowString += "\n";
+	// 	builtTableStr += rowString;
+	// }
 
-	// add column name
-	var colNames = self._props_._tableStructure._columnNames;
-	var start = 0;
-	var names = "";
-	for(var i=0; i<colNames.length; i++){
-		if(start==0){
-			names += colNames[i];
-		}else{
-			names += delemeter+colNames[i];
-		}
-		start++;
-	}
-	builtTableStr = names+"\n"+delemeter+builtTableStr;
-	return builtTableStr
-	*/
+	// // add column name
+	// var colNames = self._props_._tableStructure._columnNames;
+	// var start = 0;
+	// var names = "";
+	// for(var i=0; i<colNames.length; i++){
+	// 	if(start==0){
+	// 		names += colNames[i];
+	// 	}else{
+	// 		names += delemeter+colNames[i];
+	// 	}
+	// 	start++;
+	// }
+	// builtTableStr = names+"\n"+delemeter+builtTableStr;
+	// return builtTableStr
+	
 }
 
 
@@ -5048,162 +5248,6 @@ function TableComponent_getTableAsString(delemeter,self){
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5753,7 +5797,7 @@ function ApplicationManager_start_runInterval(self){
 					CONNECTED_COMPONENTS.push(components[i].id);
 					var comp = components[i].component._props_._dom_events;
 					// activate attach events
-					ApplicationManager_start_handleAttachEvents(comp);
+					ApplicationManager_start_handleAttachEvents(comp,components[i].component);
 				}
 			}else{
 				components[i].component.deInitializeListener();
@@ -5772,7 +5816,7 @@ function ApplicationManager_start_runInterval(self){
 	}, 100);
 
 }
-function ApplicationManager_start_handleAttachEvents(comp){
+function ApplicationManager_start_handleAttachEvents(comp,component){
 	if(!Utils.isNull(comp)){
 		if(comp._addToDOMEventOnce && comp._addToDOMCount < 1 ){
 			comp._addToDOMCount++;
@@ -5781,6 +5825,7 @@ function ApplicationManager_start_handleAttachEvents(comp){
 		if(comp._addToDOMEvent){
 			if( Array.isArray( comp._addToDOMEvent )){
 				for(var k=0;k<comp._addToDOMEvent.length; k++){
+					//console.log(component)
 					comp._addToDOMEvent[k]();
 				}
 			}else{
@@ -5824,7 +5869,7 @@ function ApplicationManager_templateParser(htmlString,replacements,self){
 
 
 
-
+// 5050
 function StateManager_buidRoutes(self){
 	var routes = {};
 	var router = {}
@@ -5928,7 +5973,7 @@ function AppComponent_getHtml_component_fragment(self,route){
 	self._props_._elements._fragment = fragment;
 	return self._props_._elements._fragment.cloneNode(true);
 }
-// 5555
+// 5050
 function _create_body(object){
 	var body = object.body;
 	var template = (Utils.isNull(object.template)) ? "" : object.template;
@@ -6198,9 +6243,33 @@ function Pages_newPageView(obj,self){
 			};
 			pages.setRoute(obj); 
 
+
+
+			// 5050
+
 			var layoutComponent = applicationManager.retrieve(_registeredLayout,Flags.Method)(obj);
 			$(applicationManager.getRootElement()).empty();
 			$(applicationManager.getRootElement()).append(layoutComponent.getHtml(obj));
+				
+			
+
+			setTimeout(function(){
+				var lay = layout.split(" ");
+				for (var i = 0; i < lay.length; i++) {
+					if(lay[i].includes("=")){
+						var c = lay[i].split("=");
+						var comp = buildBody(c[1],layoutComponent);
+						if(!Utils.isNull(comp)){
+							if(comp.TYPE){
+								$(c[0]).append(comp.getHtml());
+							}else{
+								$(c[0]).append(comp);
+							}
+						}
+					}
+				}
+			},100);
+		
 		});
 	}
 }
@@ -6241,55 +6310,43 @@ function Pages__get(){
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 /* 0000 - ViewManager */
-function ViewManager_render(id,body,replace,trigger,self){
-	//var view = self.getView(id);
-	if(Utils.isNull(trigger)){
-		trigger = false;
-	}
-	// This is what the view object is holding
-	// this._props_._component_containers['children'][id] = {
-	// 	container: component_container,
-	// 	options: opts
-	// };
-	// 1111
-	var view = self._props_._component_containers['children'][id];
-	if(view){
-		self._props_._current_view = view;
-		var container = view.container;
-		if(!Utils.isNull(body)){
-			container = body;
-			if(!Utils.isNull(replace) && replace==true){
-				self._props_._component_containers['children'][id].container = container;
-			}
-		}
+function ViewManager_render(id,opts,self){
+	var trigger = false;
+	var replace = true;
+	var addComponentBody = null;
+	if(Utils.isNull(opts)){}
+	// 5050
+	// 5051
 
-		// 4444 - add component to trigger route, instead of jus having the default component
-		if(self._props_._options.routable==true){
-			if(!trigger){
-				self._props_._component_containers.parent.addComponent(container,true);
-			}
+	var mOpts = null;
+	for (var i = 0; i < self._props_._views_objects.length; i++) {
+		if(id == self._props_._views_objects[i].id){
+			mOpts = self._props_._views_objects[i];
+			break;
+		}
+	}
+	if(mOpts){
+		self._props_._active_view = mOpts;
+		var mBody = buildBody(mOpts,self);
+		self._props_._containers.addComponent(mBody,replace);
+		if(mOpts.routable==true){
 			var route = getNewRoute(id,self);
 			stateManager.go(route,trigger);
-		}else{
-			self._props_._component_containers.parent.addComponent(container,true);
 		}
+	}
+}
+function getNewRoute(id,self){
+	var hash = window.location.hash;
+	var current_route = self.getCurrentViewInRoute();
+	var route = "";
+	var routeFromId = self.getRouteFromId(id);
+
+	if(current_route!=null){
+		route = hash.replace(current_route.trim(),routeFromId.trim());
 	}else{
-		console.error("view is undefined for view: "+id)
+		route = hash+"/"+routeFromId;
 	}
-	function getNewRoute(id,self){
-		var hash = window.location.hash;
-		var current_route = self.getCurrentViewInRoute();
-		var route = "";
-		var routeFromId = self.getRouteFromId(id);
-
-		if(current_route!=null){
-			route = hash.replace(current_route.trim(),routeFromId.trim());
-		}else{
-			route = hash+"/"+routeFromId;
-		}
-		return route;
-	}
-
+	return route;
 }
 function MultiView_getCurrentViewInRoute(self){
 	var routes = window.location.hash.split("/");
@@ -6426,6 +6483,16 @@ function FormComponent_constructor(obj,self){
 		reset: "form:reset:"+Utils.randomGenerator(6,false),
 		submit: "form:submit:"+Utils.randomGenerator(6,false)
 	};
+
+	var tag = self.getId();
+
+	var isSet = sessionStorage.getItem(tag);
+	if(Utils.isNull(isSet)){
+		sessionStorage.setItem(tag,JSON.stringify({}));
+	}
+
+	self._props_._tag = tag;
+	self._props_._prevent_remember = false;
 
 
 	// 4444 - better control how form is submited
@@ -6724,9 +6791,6 @@ function handleFormPageBuild(pages,self){
 		});
 	}
 
-
-	console.log(view.getHtml());
-	console.log(view);
 	self._props_._form.appendChild(view.getHtml());
 
 
@@ -9409,17 +9473,17 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 					}
 				}
 
-				/*
-				var ec = false;
-				for(var v=0;v<charExceptions.length;v++){
-					if(charExceptions[v]==special_character){
-						ec = true;
-					}
-				}
-				if(!ec){
-					//return true;
-				}
-				*/
+				
+				// var ec = false;
+				// for(var v=0;v<charExceptions.length;v++){
+				// 	if(charExceptions[v]==special_character){
+				// 		ec = true;
+				// 	}
+				// }
+				// if(!ec){
+				// 	//return true;
+				// }
+				
 
 				for(var v=0;v<s.length;v++){
 					if(s[v]==special_character){
@@ -9582,7 +9646,12 @@ function AppLayout_build(self){
 		var containerColumn = null;
 			
 		if(!Utils.isNull(layout[prop].obj)){
-			topRowClasses = (Utils.isNull(layout[prop].obj.classes)) ? "" : layout[prop].obj.classes;
+			if(!Utils.isNull(layout[prop].obj.classes)){
+				topRowClasses = layout[prop].obj.classes;
+			}else if(!Utils.isNull(layout[prop].obj.className)){
+				topRowClasses = layout[prop].obj.className;
+			}
+			//topRowClasses = (Utils.isNull(layout[prop].obj.classes)) ? "" : layout[prop].obj.classes;
 		}
 		
 		row.id = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
@@ -9614,7 +9683,7 @@ function AppLayout_build(self){
 }
 function AppLayout_col(columns,arrayOfItems,obj,self){
 	if(!Array.isArray(arrayOfItems)){
-		//console.log( "Second parameter must be an array of objects" );
+		arrayOfItems = [arrayOfItems];
 	}
 	
 	var currentRow = self._props_._current_row_id;
@@ -9646,9 +9715,33 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 
 	for(var i=0;i<arrayOfItems.length;i++){
 		if(typeof arrayOfItems[i]=="string"){
-			if(arrayOfItems[i]=="row"){
+			if(arrayOfItems[i].includes("row")){
+				var rows1 = arrayOfItems[i].split(" ");
+				var row_classes = "";
+				var row_id = "";
+				for(var m=1; m<rows1.length; m++){
+
+					if(rows1[m].includes("id=")){
+						var row1_id = rows1[m].split("=")[1];
+						row_id = row1_id;
+					}else{
+						if(row_classes==""){
+							row_classes += rows1[m]; 
+						}else{
+							row_classes += " "+rows1[m]; 
+						}					
+					}
+				}
 				divRow = document.createElement("div");
-				divRow.className = "row";
+				divRow.className = "row "+row_classes;
+				if(row_id!=""){
+					divRow.id = row_id;
+				}
+
+			//}
+			//if(arrayOfItems[i]=="row"){
+			//	divRow = document.createElement("div");
+			//	divRow.className = "row";
 			}else{
 				var mycomp = _getComponentFromRout(arrayOfItems[i],self);
 				_handleLayoutType(mycomp,divRow,nodes,colClasses,_fragment,id,st,cl,viewId,topDiv,self);
@@ -9664,6 +9757,8 @@ function _getComponentFromRout(obj123,self){
 	var arrayOfItems = [obj123],
 		i = 0;
 	
+	// 4444
+	// something that may not be needed
 	if(arrayOfItems[i].charAt(0) == "#"){
 		//console.log(self);
 		var c = stateManager.getMapRoute(self._props_._routes.route,arrayOfItems[i]);
@@ -9847,50 +9942,50 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		//topDiv.appendChild(node);
 
 
-		/*
-		if(ty.charAt(0)=="."){
-			//p = "<div class='"+arrayOfItems[i].getParentElementName().split(".")[1]+" '>"+arrayOfItems[i].getStartHtml()+"</div>";
+		
+		// if(ty.charAt(0)=="."){
+		// 	//p = "<div class='"+arrayOfItems[i].getParentElementName().split(".")[1]+" '>"+arrayOfItems[i].getStartHtml()+"</div>";
 
-			var node = document.createElement("div");
-			node.className = arrayOfItems[i].getParentElementName().split(".")[1];
-			var node2 = null;
-			if(typeof arrayOfItems[i].getHtml() === "object"){
-				node2 = arrayOfItems[i].getHtml();
-			}else
-			if(typeof arrayOfItems[i].getHtml() === "string"){
-				node2 = convertStringToHTMLNode(arrayOfItems[i].getHtml());
-			}
+		// 	var node = document.createElement("div");
+		// 	node.className = arrayOfItems[i].getParentElementName().split(".")[1];
+		// 	var node2 = null;
+		// 	if(typeof arrayOfItems[i].getHtml() === "object"){
+		// 		node2 = arrayOfItems[i].getHtml();
+		// 	}else
+		// 	if(typeof arrayOfItems[i].getHtml() === "string"){
+		// 		node2 = convertStringToHTMLNode(arrayOfItems[i].getHtml());
+		// 	}
 			
 
-			node.appendChild(node2);
+		// 	node.appendChild(node2);
 
-			if(divRow!=null){
-				divRow.appendChild(node);
-				topDiv.appendChild(divRow);
-				divRow = null;
-			}else{
-				topDiv.appendChild(node);
-			}
+		// 	if(divRow!=null){
+		// 		divRow.appendChild(node);
+		// 		topDiv.appendChild(divRow);
+		// 		divRow = null;
+		// 	}else{
+		// 		topDiv.appendChild(node);
+		// 	}
 			
-		}else
-		if(ty.charAt(0)=="#"){
-			//p = "<div id='"+arrayOfItems[i].getParentElementName().split("#")[1]+" '>"+arrayOfItems[i].getStartHtml()+"</div>";
-			var node = document.createElement("div");
-			node.id = arrayOfItems[i].getParentElementName().split("#")[1];
+		// }else
+		// if(ty.charAt(0)=="#"){
+		// 	//p = "<div id='"+arrayOfItems[i].getParentElementName().split("#")[1]+" '>"+arrayOfItems[i].getStartHtml()+"</div>";
+		// 	var node = document.createElement("div");
+		// 	node.id = arrayOfItems[i].getParentElementName().split("#")[1];
 
-			var node2 = convertStringToHTMLNode(arrayOfItems[i].getStartHtml());
+		// 	var node2 = convertStringToHTMLNode(arrayOfItems[i].getStartHtml());
 
-			node.appendChild(node2);
+		// 	node.appendChild(node2);
 
-			if(divRow!=null){
-				divRow.appendChild(node);
-				topDiv.appendChild(divRow);
-				divRow = null;
-			}else{
-				topDiv.appendChild(node);
-			}
-		}
-		*/
+		// 	if(divRow!=null){
+		// 		divRow.appendChild(node);
+		// 		topDiv.appendChild(divRow);
+		// 		divRow = null;
+		// 	}else{
+		// 		topDiv.appendChild(node);
+		// 	}
+		// }
+		
 	}else{
 		if(arrayOfItems[i].setParent){
 			arrayOfItems[i].setParent(self);
@@ -9951,13 +10046,37 @@ function _getLayoutColumnClasses(columns){
 
 
 	var colClasses = "";
+
+	//console.log(columns);
+
 	for(col in columns){
+
 		if(col.includes("offset")){
 			colClasses = colClasses+" "+_sortClassesOffset(col,columns,colClasses);
 		}else if(col.includes("visible")){
 			colClasses = colClasses+" "+_sortClassesVisible(col,columns,colClasses);
 		}else if(col.includes("hidden")){
 			colClasses = colClasses+" "+_sortClassesHidden(col,columns,colClasses);
+
+
+		}else if(col.includes("d_none")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_inline")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_inline_block")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_block")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_table")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_table_cell")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_table_row")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_flex")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
+		}else if(col.includes("d_inline_flex")){
+			colClasses = _sortClassesDisplay(col,columns,colClasses)
 		}else{
 			if(colClasses==""){
 				colClasses = colClasses+" "+colClasses+"col-"+col+"-"+columns[col]+" ";
@@ -9969,9 +10088,43 @@ function _getLayoutColumnClasses(columns){
 	return colClasses;
 }
 
+function _sortClassesDisplay(col,columns,colClasses){
+
+// none inline inline-block block table table-cell table-row flex inline-flex
+	if(col.includes("d_none")){
+		return _displaythis("d-"+columns[col]+"-none",colClasses);
+	}else if(col.includes("d_inline")){
+		return _displaythis("d-"+columns[col]+"-inline",colClasses);
+	}else if(col.includes("d_inline_block")){
+		return _displaythis("d-"+columns[col]+"-inline-block",colClasses)
+	}else if(col.includes("d_block")){
+		return _displaythis("d-"+columns[col]+"-block",colClasses);
+	}else if(col.includes("d_table")){
+		return _displaythis("d-"+columns[col]+"-table",colClasses);
+	}else if(col.includes("d_table_cell")){
+		return _displaythis("d-"+columns[col]+"-table-cell",colClasses);
+	}else if(col.includes("d_table_row")){
+		return _displaythis("d-"+columns[col]+"-table-row",colClasses);
+	}else if(col.includes("d_flex")){
+		return _displaythis("d-"+columns[col]+"-flex",colClasses);
+	}else if(col.includes("d_inline_flex")){
+		return _displaythis("d-"+columns[col]+"-inline-flex",colClasses);
+	}
+	
+
+	function _displaythis(d,columnClassesString){
+		if(columnClassesString==""){
+			columnClassesString = d;
+		}else{
+			columnClassesString = columnClassesString+" "+d;
+		}
+		return columnClassesString;
+	}
+}
 function _sortClassesVisible(col,columns,colClasses){
 	if(colClasses==""){
-		colClasses = "visible-"+columns[col];
+		//colClasses = "visible-"+columns[col];
+		colClasses = "d-"+columns[col]+"-none";
 	}else{
 		colClasses = " visible-"+columns[col];
 	}
@@ -9988,17 +10141,23 @@ function _sortClassesHidden(col,columns,colClasses){
 function _sortClassesOffset(col,columns,colClasses){
 	if(col.includes("-")){
 		var c = col.split("-");
+		// offset-md-
+		// col-md-offset-3
 		if(colClasses==""){
-			colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			colClasses = "offset-"+c[1]+"-"+columns[col]+" ";
+			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
 		}else{
-			colClasses = " "+colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
+			//colClasses = " "+colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
 		}
 	}else if(col.includes("_")){
 		var c = col.split("_");
 		if(colClasses==""){
-			colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			colClasses = "offset-"+c[1]+"-"+columns[col]+" ";
+			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
 		}else{
-			colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
+			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
 		}
 	}
 	return colClasses;
@@ -10114,15 +10273,15 @@ function _layoutMake(obj,arrayOfItems){
 						}else{
 							el.innerHTML = tmpBody
 						}
-						/*
-						var _d = document.createElement("div");
-						_d.innerHTML = tmpBody;
-						if(myObj!=null){
-							myObj.appendChild(_d);
-						}else{
-							el.appendChild(_d);
-						}
-						*/
+						
+						// var _d = document.createElement("div");
+						// _d.innerHTML = tmpBody;
+						// if(myObj!=null){
+						// 	myObj.appendChild(_d);
+						// }else{
+						// 	el.appendChild(_d);
+						// }
+						
 
 						isObj = false;
 					}
@@ -10147,6 +10306,242 @@ function _layoutMake(obj,arrayOfItems){
 
 
 
+
+
+///////////////////////////////////////////////////////////////
+
+// 5051
+
+// Array - body: ["@component",{}]
+// Array - body: ["&template",{}]
+// Array - body: [components...]
+// Object - body: component
+// Object - body: HTMLElement
+// String - body: HTMLE String
+
+function buildBody(object,self){
+	var body = null;
+
+	if(object!=null || object!=undefined){
+		if(object.body){
+			body = object.body;
+		}else{
+			body = object;
+		}
+	}else{
+		console.error("Body is undefined");
+		return new ContainerComponent();
+	}
+
+
+	var template = (Utils.isNull(object.template)) ? "" : object.template;
+	var obj = (Utils.isNull(object.obj)) ? {} : object.obj;
+	//var original = (Utils.isNull(obj.original)) ? false : obj.original;
+	var blankComponent = new ContainerComponent();
+	var mBody;
+	object = object;
+	if(Array.isArray(body)){
+		if(typeof body[0] === "string" && body[0].charAt(0) == "@"){
+			return _build_from_string(body[0],self,body[1],object);
+		}else{
+			// 4444
+			// experimental: check to see if this works
+			// this takes in an array of components, HTMLElements and string elements
+			// and builds 1 element that returns a fragment
+			var fragment = document.createDocumentFragment();
+			for (var i = 0; i < body.length; i++) {
+				_decomposeArray(body[i],fragment);
+			}
+			return fragment;
+		}
+		
+	}else
+	if(typeof body === "string"){
+		return _build_from_string(body,self,null,object);
+	}else 
+	if(typeof body === "object"){
+		return _build_from_object(body,self,null,object);
+	}
+
+	function _build_from_object(body){
+		if(!Utils.isNull(body.TYPE)){
+			if(Utils.isNull(object.original) && object.original==true){
+				return body;
+			}else{
+				return body.getHtml();
+			}
+		}else{
+			return body;
+		}
+	}
+	function _build_from_string(body,self,params,object){
+		if(body.charAt(0) === "@"){
+			var view = _build_view(body,params,self,object);
+			if(Utils.isNull(view)){ 
+				console.error("Manager.register() function did not return a component: "+body);
+				return new ContainerComponent(); 
+			}
+			if(view.TYPE){
+				return view.getHtml();
+			}else{
+				if(typeof view === "string"){
+					return Utils.convertStringToHTMLNode(view);
+				}else{
+					return view;
+				}
+			}
+		}else if(body.charAt(0) === "&"){
+			var p = body.substr(1);
+			// 4444
+			// convet template parser
+			var t = applicationManager.getLoadedFileContents(p);
+			t = applicationManager.templateParser(t,template);
+			var view = Utils.convertStringToHTMLNode(t);
+			return view;
+		}else{
+			var view = Utils.convertStringToHTMLNode(body);
+			return view;
+		}
+	}
+	function _decomposeArray(b,fragment){
+		if(typeof b === "object"){
+			if(b.TYPE){
+				fragment.appendChild(b.getHtml());
+			}else{
+				fragment.appendChild(b);
+			}
+		}else if(b === "string"){
+			if(b.charAt(0) != "@"){
+				var element = Utils.convertStringToHTMLNode(b);
+				fragment.appendChild(element);
+			}
+		}else if(Array.isArray(b)){
+			if(typeof b[0] === "string" && b[0].charAt(0) == "@"){
+				var n = _build_from_string(b[0],self,b[1]);
+				if(n){
+					if(n.TYPE){
+						fragment.appendChild(n.getHtml());
+					}else{
+						fragment.appendChild(n);
+					}
+				}
+			}
+		}
+	}
+}
+function getAppFactoryHTML(body,obj){
+	obj = (obj) ? obj : {};
+	var mBody = null;
+	if(typeof body === "string"){
+		if(body.charAt(0) === "@"){
+			var view = _getView(body,obj);
+			mBody = convertIntoAppFactoryObject(view);
+		}else{
+			mBody = convertIntoAppFactoryObject(body);
+		}
+	}else if(typeof body === "object"){
+		if(Utils.isNull(body.TYPE)){
+			mBody = body;
+		}else{
+			mBody = convertIntoAppFactoryObject(body);
+		}
+	}
+	return mBody;
+}
+function convertIntoAppFactoryObject(body){
+	var mBody;
+	if(!Utils.isNull(body.TYPE)){
+		return body;
+	}
+	mBody = Utils.convertStringToHTMLNode( body );
+	return mBody;
+}
+function _build_view(body,params,self,obj){
+	var paramValues = {
+		parent: self,
+		params: params,
+		object: obj
+	};
+	var method = body.slice(1);
+	var v = applicationManager.getMethod(method)(paramValues);
+	return v;
+}
+function getComponentType(obj,self){
+	var blankComponent = componentManager.container({
+		body: "<div></div>"
+	});
+	if(Utils.isNull(obj.body)){
+		return blankComponent;
+	}
+	var body = obj.body;
+	if(Array.isArray(body)){
+		if(body[0].charAt(0) === "@"){
+			var view 
+			var view = getView(body[0],obj);
+			if(Utils.isNull(view)){ return blankComponent; }
+		}else{
+		}
+	}else
+	if(typeof body === "string"){
+		if(body.charAt(0) === "@"){
+			var view = getView(body,obj);
+			if(Utils.isNull(view)){ return blankComponent; }
+			return view;
+		}else{
+			var stringComponent = componentManager.container({
+				body: body,
+				listener: obj.listener
+			});
+			return stringComponent;
+		}
+	}else if(typeof body === "object"){
+		if(!Utils.isNull(body.TYPE)){
+			return body;
+		}else{
+			var stringComponent = componentManager.container({
+				body: body,
+				listener: obj.listener
+			});
+			return stringComponent;
+		}
+	}
+	return blankComponent;
+}
+function getView(body,obj,self){
+	var bodyWithoutAt = body.slice(0);
+
+	if(!Utils.isNull(obj) && !Utils.isNull(obj.body)){
+		if(Array.isArray(obj.body)){
+			params = obj.body[1];
+		}
+	}
+	var paramValues = {
+		parent: self,
+		params: params,
+		object: obj
+	};
+
+	// 5555
+	var method = body.slice(1);
+	var v = applicationManager.getMethod(method)(paramValues);
+	return v;
+}
+// function _build_view(body,obj,self){
+// 	var bodyWithoutAt = body.slice(0);
+// 	var params = (!Utils.isNull(obj) && obj.params) ? obj.params : {};
+// 	var paramValues = null;
+// 	for(var i in params){
+// 		if(i==body || i==bodyWithoutAt){
+// 			paramValues = params[i];
+// 			break;
+// 		}
+// 	}
+
+// 	// 5555
+// 	var method = body.slice(1);
+// 	var v = applicationManager.getMethod(method)(paramValues);
+// 	return v;
+// }
 
 
 
@@ -10452,7 +10847,7 @@ function registerAppFactoryPlugin(plugin){
 * @param {String} - (optional) Override the app configuration application url
 * @tutorial GettingStarted
 */
-function ApplicationContextManager(config,plugins,baseUrl){
+function ApplicationContextManager(config,plugins,baseUrl,socketio){
 	var configFile = config;
 	pages = new Pages(this);
 	stateManager = new StateManager(this);
@@ -10591,6 +10986,21 @@ ApplicationContextManager.prototype = {
 
 	},
 
+	SetSockitIO: function(socketio){
+		this.socketio = socketio;
+		if(this.socketio){
+			var socket = this.socketio('localhost:9005', {
+			    reconnection: false
+			});
+		    socket.on('reload-page',function(){
+		    	document.location.reload(true);
+		    });
+		    socket.on('diconnect',function(){
+		    	console.log("diconnected");
+		    });
+		}
+	},
+
 	setApplicationPlugins: function(plugins){
 		this._props_._application_plugins = plugins;
 	},
@@ -10688,13 +11098,13 @@ function initializeApplication(self){
 		});
 	} 
 	function loadUpTheme(){
-/*
-application:
-	development_url: "http://localhost/newapp3/2wokegurls/"
-	prod: true
-	production_url: "https://wait.2wokegurls.com/"
-	theme: "equippedcoding_2woke_gurls|One"
-*/
+
+// application:
+// 	development_url: "http://localhost/newapp3/2wokegurls/"
+// 	prod: true
+// 	production_url: "https://wait.2wokegurls.com/"
+// 	theme: "equippedcoding_2woke_gurls|One"
+
 	
 //newapp2/newapp1/myapp/js/plugins/_default/plugin.config.json
 		//console.log(config);
@@ -10859,6 +11269,8 @@ application:
 window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
 
 window.ApplicationContextManager = ApplicationContextManager;
+
+window.ApplicationSegments = ApplicationSegments;
 
 return ApplicationContextManager;
 
