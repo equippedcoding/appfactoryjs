@@ -1,6 +1,7 @@
 {
     "application": {
-        "prod": true,
+        "use-static":false,
+        "prod": false,
         "production_url": "",
         "development_url": "",
         "client-active-theme":"default|default",

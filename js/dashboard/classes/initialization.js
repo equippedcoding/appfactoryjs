@@ -1,7 +1,8 @@
 define(['jquery'],function($){
-
+ 
 
 	function init(client,app,config_appfac,jsonPluginConfigs,admin_dashboard_callback){
+
 
 		var Utils = app.Utils;  
 		var Plugin = app.getPlugin();
@@ -141,6 +142,7 @@ define(['jquery'],function($){
 					//break;
 				//}
 
+
 				var dir1 = _jsonPluginConfigs[i];
 
 				for (var n = 0; n < _generatedPluginConfigs.length; n++) {
@@ -149,24 +151,22 @@ define(['jquery'],function($){
 
 					var dir2 = mConfig;
 
-					//var dir2 = _generatedPluginConfigs[i];
-
 					if(dir1.directory == dir2.directory){
 						// merge client config
 						var clientDir1 = dir1.client;
 						var clientDir2 = dir2.client;
-						for(var n=0; n<clientDir1.length; n++){
-							if((n+1) > clientDir2.length){break;}	
-							clientDir1[n].component = clientDir2[n].component
+						for(var m=0; m<clientDir1.length; m++){
+							if((m+1) > clientDir2.length){break;}	
+							clientDir1[m].component = clientDir2[m].component
 						}
 						dir1.client = clientDir1;
 
 						//merge admin config
 						var adminDir1 = dir1.admin;
 						var adminDir2 = dir2.admin;
-						for(var n=0; n<adminDir1.length; n++){
-							if((n+1) > adminDir2.length){break;}
-							adminDir1[n].component = adminDir2[n].component
+						for(var m=0; m<adminDir1.length; m++){
+							if((m+1) > adminDir2.length){break;}
+							adminDir1[m].component = adminDir2[m].component
 						}
 						dir1.admin = adminDir2;					
 
@@ -292,11 +292,26 @@ define(['jquery'],function($){
 				};
 			}
 
-			var activeClientPluginDirectory = client_active_theme.split('|')[1];
+			var activeClientPluginDirectory = null;
+			if(client_active_theme.includes("|")){
+				activeClientPluginDirectory = client_active_theme.split('|')[1];
+			}else if(client_active_theme.includes(" ")){
+				activeClientPluginDirectory = client_active_theme.split(' ')[1];
+			}
+
+			
 
 			if(activeClientPluginDirectory==plugin.directory){
 				activeClientPlugin['config'] = plugin;
 				var activeClientThemeDirectory = client_active_theme.split('|')[0];
+				
+				var activeClientThemeDirectory = null;
+				if(client_active_theme.includes("|")){
+					activeClientThemeDirectory = client_active_theme.split('|')[0];
+				}else if(client_active_theme.includes(" ")){
+					activeClientThemeDirectory = client_active_theme.split(' ')[0];
+				}
+				
 
 				for(var h=0; h<compiledPlugin.client.length; h++){
 					if(activeClientThemeDirectory == plugin.client[h].directory){

@@ -5,8 +5,10 @@ if(!file_exists("includes/core/config/master_config.php")){
 	exit();
 }
 
-require_once "includes/core/init.php";
+require_once "../../php/core/init.php";
+
 ?>
+
 
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">

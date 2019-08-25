@@ -1,5 +1,7 @@
 var AppFactoryStart = (function(){
 
+var IsAdmin = false;
+
 function a(configFile){
 	return new Promise(resolve => {
 		var rawFile = new XMLHttpRequest();
@@ -16,6 +18,51 @@ function mergeToFrom(obj, src) {
     return obj;
 }
 
+
+function LoadDependencies(baseUrl,classes,views,dependencies){
+	// baseUrl - standered/client
+	// 'js/plugins/standered/client/classes/Standered'
+	//,'../../../admin/classes/MediaFilesHandler'
+	//,'../../../admin/themes/default/components/newEpisodeFormComponent'
+
+	if(baseUrl.includes("/client")){
+		for(var i=0; i < classes.length; i++){
+			if(IsAdmin){
+				classes[i] = "../../classes/" + classes[i];
+			}else{
+				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
+			}
+		}
+		for (var i=0; i < views.length; i++) {
+			var theme = views[i].split("/")[0];
+			var view = views[i].split("/")[1];
+			if(IsAdmin){
+				views[i] = "../../themes/"+theme+"/components/"+view;
+			}else{
+				views[i] = "js/plugins/"+baseUrl+"/themes/"+theme+"/components/"+view;
+			}
+		}
+	}else if(baseUrl.includes("/admin")){
+		for(var i=0; i < classes.length; i++){
+			if(IsAdmin){
+				classes[i] = "../../classes/" + classes[i];
+			}else{
+				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
+			}
+		}
+		for (var i=0; i < views.length; i++) {
+			var theme = views[i].split("/")[0];
+			var view = views[i].split("/")[1];
+			views[i] = "../../themes/"+theme+"/components/"+view;
+		}
+	}
+
+	var deps = classes.concat(views).concat(dependencies);
+	return deps;
+}
+window.LoadDependencies = LoadDependencies;
+
+
 var _AppFactoryStart = {
 
 	Capture: 'Capture',
@@ -24,6 +71,7 @@ var _AppFactoryStart = {
 	config: null,
 	main: async function(isAdmin,configFile,extra,callback,type,socketio){
 
+		IsAdmin = isAdmin;
 		var appfac_config = null;
 		if(type==this.Capture){
 			this.cb = callback;
@@ -31,8 +79,10 @@ var _AppFactoryStart = {
 			//if(isAdmin) configuration.config.paths = reformPath(configuration.config.paths);
 			this.config = config;
 		}else{
+
 			var configFileString = await a(configFile);
 			appfac_config = JSON.parse(configFileString);
+
 			addPluginsSupported(function(plugins){
 				run(configFileString,plugins);
 			});
@@ -40,10 +90,15 @@ var _AppFactoryStart = {
 		}
 
 		function run(configFileString,plugins){
-
+			console.log(plugins);
 			var configuration = setup(configFileString,plugins);
 			configuration.config.paths = reformPath(configuration.config.paths);
+
+			//console.log(configuration.config);
+
 			requirejs.config(configuration.config);
+
+			//console.log(configuration.require);
 
 			requirejs(configuration.require, function(a){
 				var requireArgs = arguments;
@@ -204,3 +259,13 @@ var _AppFactoryStart = {
 
 
 })();
+
+
+
+
+
+
+
+
+
+

@@ -28,10 +28,10 @@ if(isset($_POST['dbhost'])){
 
 	    	$myfile = fopen("includes/core/config/master_config.php", "w") or die("Unable to open file!");
 		$txt  = "<?php \n";
-		$txt .= "define('uieb_dbhost', '".$host."'); \n";
-		$txt .= "define('uieb_dbname', '".$name."'); \n";
-		$txt .= "define('uieb_dbuser', '".$user."'); \n";
-		$txt .= "define('uieb_dbpassword', '".$passwd."'); \n";
+		$txt .= "define('appfactory_dbhost', '".$host."'); \n";
+		$txt .= "define('appfactory_dbname', '".$name."'); \n";
+		$txt .= "define('appfactory_dbuser', '".$user."'); \n";
+		$txt .= "define('appfactory_dbpassword', '".$passwd."'); \n";
 		$txt .= "?>";
 		fwrite($myfile, $txt);
 		fclose($myfile);
@@ -58,20 +58,16 @@ if(isset($_POST['dbhost'])){
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8"> 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="stylesheet" type="text/css" href="../../styles/libs/bootstrap/bootstrap.css">
-	<!--<link rel="stylesheet" type="text/css" href="styles/libs/bootstrap/bootstrap-theme.css">-->
-	<link rel="stylesheet" type="text/css" href="../../styles/libs/jquery/jquery-ui.css">
-	<link rel="stylesheet" type="text/css" href="../../styles/libs/jquery/jquery-ui.theme.css">
+	<link rel="stylesheet" type="text/css" href="../../styles/libs/bootstrap4/bootstrap.css">
 
-	<script src="../../js/libs/jquery/dist/jquery.js"></script>
-	<link rel="stylesheet" type="text/css" href="../../styles/uieb_styles.css">
+	<script src="../../js/libs/jquery/jquery.js"></script>
 	<link rel="stylesheet" type="text/css" href="styles/styles.css">
 
-	<title>Erotass - Administration Dashboard</title>
+	<title>AppfactoryJS - Create Database</title>
 </head>
 <body>
 

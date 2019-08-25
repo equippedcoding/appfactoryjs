@@ -25,10 +25,10 @@ require_once 'config/master_config.php';
 */
 $GLOBALS['config'] = array(
 	'mysql' => array(
-		'host' => uieb_dbhost,//'localhost',
-		'username' => uieb_dbuser,//'erotass',
-		'password' => uieb_dbpassword,//'kgjkjf495ndk999',
-		'db' => uieb_dbname//'erotassdb'
+		'host' => appfactory_dbhost,//'localhost', 
+		'username' => appfactory_dbuser,//'erotass',
+		'password' => appfactory_dbpassword,//'kgjkjf495ndk999',
+		'db' => appfactory_dbname//'erotassdb'
 	),
 	'remember' => array(
 		'cookie_name' => 'hash',

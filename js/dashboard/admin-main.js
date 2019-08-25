@@ -1,9 +1,8 @@
 AppFactoryStart.main(true,"../../config.appfac.js",{
 	baseUrl: "./",
-	paths:{'initScript':'./dashboard/classes/initialization'},
+	paths:{'initScript':'dashboard/classes/initialization'},
 	require: ['appfactory','initScript']
-},function(config_appfac,plugins,requireArgs){ 
-
+},function(config_appfac,plugins,requireArgs){  
 
 	var app = new ApplicationContextManager();
 	app.setApplicationConfiguration(config_appfac);
@@ -21,8 +20,6 @@ AppFactoryStart.main(true,"../../config.appfac.js",{
 
 
 	requireArgs[1](false,app,config_appfac,plugins,function(myPlugins){
-
-		console.log(myPlugins)
 
 		Manager.register('main:plugins',function(obj){
 			var button = Component.button({
