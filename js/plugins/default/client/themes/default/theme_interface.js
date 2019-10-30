@@ -28,8 +28,8 @@ define([],function(){
 
 
 		// start application life cycle with routing 
-		Manager.init(true,function(){
-			Pages.newPageView({
+		app.Manager.init(true,function(){
+			app.Pages.newPageView({
 				baseRoute: 'home',
 				init: true,
 				routes: {
