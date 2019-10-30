@@ -7,7 +7,7 @@
 * components for users to add to their application.
 *  
 *
-*
+* 
 *
 *   
 *
@@ -51,7 +51,8 @@
 // 4444 - incomplete
 // 2222 - Utils
 // 9898 - ContainerComponent
-
+// 7676 - Pole
+// 5051 - buildBody
 
 
 // First default the incoming object
@@ -662,7 +663,7 @@ function ComponentManager(type,context){
 	var self = this;
 	this._props_ = {
 		_application_manager: applicationManager,
-		_id: Utils.randomGenerator(16,false),
+		_id: "c"+Utils.randomGenerator(16,false),
 		_componentName: type,
 		_extensionObject: [],
 		_events: [],
@@ -963,8 +964,22 @@ ViewManager.prototype = {
 	* @param {Boolean} (optional) If this ViewManager is router capable then this
 	* will trigger it route.
 	*/
+	// render: function(id,opts,rerender){
+	// 	ViewManager_render(id,opts,rerender,this);
+
+	// 	// {
+	// 	// 	rerender: true,
+	// 	// 	params: params
+	// 	// }
+	// },
+
 	render: function(id,opts){
 		ViewManager_render(id,opts,this);
+
+		// {
+		// 	rerender: true,
+		// 	params: params
+		// }
 	},
 
 	/**
@@ -2299,6 +2314,8 @@ function FormComponent(obj){
 	// }
 	
 	obj = (Utils.isNull(obj)) ? {} : obj;
+
+
 	_.extend(this,
 		new AppFactoryManager('FormComponent'), 
 		new ComponentManager(Flags.Type.component,this), 
@@ -2310,6 +2327,8 @@ function FormComponent(obj){
 
 	FormComponent_constructor(obj,this);
 
+	var tag = obj.tag;
+
 	this.getHtml = function(){
 		return this._props_._elements._container;
 	};
@@ -2317,22 +2336,30 @@ function FormComponent(obj){
 	applicationManager.setComponent(this);
 	
 	this._props_._setRemeber = function(_tagId,_value){
+
 		if(self._props_._prevent_remember) return;
-		var rmb = sessionStorage.getItem(tag);
+		var rmb = sessionStorage.getItem(_tagId);
 		if(!Utils.isNull(rmb)){
 			rmb = JSON.parse(rmb);
 			rmb[_tagId] = _value;
-			sessionStorage.setItem(tag,JSON.stringify(rmb));
+			sessionStorage.setItem(_tagId,JSON.stringify(rmb));
 		}else{
-			console.log('Value Not saved');
+			var rmb = {};
+			rmb[_tagId] = _value;
+			sessionStorage.setItem(_tagId,JSON.stringify(rmb));
 		}
 
 	};
 	this._props_._getRemeber = function(_tagId){
 		if(self._props_._prevent_remember) return null;
-		var rmb = sessionStorage.getItem(tag);
-		rmb = JSON.parse(rmb);
-		return rmb[_tagId];
+		var rmb = sessionStorage.getItem(_tagId);
+		if(rmb){
+			rmb = JSON.parse(rmb);
+			return rmb[_tagId];
+		}else{
+			return null;
+		}
+
 	};
 	this._props_._stopRemembering = function(){
 		if(self._props_._prevent_remember) return;
@@ -2531,6 +2558,7 @@ function ButtonComponent(opts){
 		new EventManager(this)
 	);	
 	applicationManager.register(this);
+	applicationManager.setComponent(this);
 
 	if(Utils.isNull(opts)){
 		opts = {};
@@ -2551,7 +2579,7 @@ function ButtonComponent(opts){
 	// 	el: 'button',
 	// 	innerHTML: label,
 	// 	id: id,
-	// 	style: style,
+	// 	style: style, 
 	// 	className: className
 	// });
 
@@ -2583,7 +2611,7 @@ function ButtonComponent(opts){
 	}
 	else if (!Utils.isNull(opts.callback)) {
 		_Utils_registerListenerCallbackForSelf("click",selector,opts.callback,self);
-	}
+	}  
 
 	this.getHtml = function(){
 		return button;//defaultBody.getHtml();
@@ -3360,6 +3388,11 @@ BrickComponent.prototype = {
 		return BrickComponent_make("h6",opts,this);
 	},
 
+
+	header: function(opts){
+		return BrickComponent_make("header",opts,this);
+	},
+
 	/*
 	input: function(opts){
 		return BrickComponent_make("input",opts,this);
@@ -3414,6 +3447,13 @@ BrickComponent.prototype = {
 		return BrickComponent_make("button",opts,this);
 	},
 
+	section: function(opts){
+		return BrickComponent_make("section", opts, this);
+	},
+
+	img: function(opts){
+		return BrickComponent_make("img", opts, this);
+	},
 
 	/** 
 	* Build this BrickComponent.
@@ -3446,7 +3486,7 @@ BrickComponent.prototype = {
 function BrickComponent_make(element,opts,self){
 
 	if(opts==undefined){
-		opts = {};
+		opts = {};  
 	}
 
 	var el;
@@ -5778,6 +5818,7 @@ function ApplicationManager_start_createDiv(self){
 	$('body').append(self.getRootElement());
 }
 var CONNECTED_COMPONENTS = [];
+// 7676
 function ApplicationManager_start_runInterval(self){  
 
 	var interval = setInterval(function(){ 
@@ -5797,6 +5838,7 @@ function ApplicationManager_start_runInterval(self){
 					// Add to 
 					CONNECTED_COMPONENTS.push(components[i].id);
 					var comp = components[i].component._props_._dom_events;
+
 					// activate attach events
 					ApplicationManager_start_handleAttachEvents(comp,components[i].component);
 				}
@@ -6257,7 +6299,6 @@ function Pages_newPageView(obj,self){
 
 			setTimeout(function(){
 				var lay = layout.split(" ");
-				console.log(lay);
 				for (var i = 0; i < lay.length; i++) {
 					if(lay[i].includes("=")){
 						var c = lay[i].split("=");
@@ -6318,7 +6359,8 @@ function ViewManager_render(id,opts,self){
 	var trigger = false;
 	var replace = true;
 	var addComponentBody = null;
-	if(Utils.isNull(opts)){}
+	opts = (opts) ? opts : {};
+	var params = (opts.params) ? opts.params : null;
 	// 5050
 	// 5051
 
@@ -6329,9 +6371,15 @@ function ViewManager_render(id,opts,self){
 			break;
 		}
 	}
-	if(mOpts){
+	if(mOpts){ // jjjj
 		self._props_._active_view = mOpts;
-		var mBody = buildBody(mOpts,self);
+		var _options = {};
+		if(params && typeof mOpts.body==='string'){
+			_options.body = [mOpts.body,params];
+		}else{
+			_options.body = mOpts.body;
+		}
+		var mBody = buildBody(_options,self);
 		self._props_._containers.addComponent(mBody,replace);
 		if(mOpts.routable==true){
 			var route = getNewRoute(id,self);
@@ -9206,7 +9254,7 @@ function ModalDialogComponent_mobile(){
 			addClass(dialog, "animation-zoom-in");
 			addClass(dialogContent, "dialog-content");
 
-			dialogContent.innerText = content;
+			dialogContent.innerHTML = content;
 
 			dialog.appendChild(dialogContent);
 
@@ -9357,7 +9405,7 @@ function Utils_createELement(type,options){
 	if(Utils.isNull(type)){
 		return document.createElement('div');
 	}
-	var inputTypes = ["input","checkbox","radio","submit","button","file"];
+	var inputTypes = ["input","checkbox","radio","submit","file"];
 	var ownTypes = ["el","selector","_el","_selector"];
 	var oneParam = ["disabled","selected"];
 	if(typeof type !== 'string'){
@@ -10319,8 +10367,7 @@ function _layoutMake(obj,arrayOfItems){
 
 ///////////////////////////////////////////////////////////////
 
-// 5051
-
+// 5051 jjjj
 // Array - body: ["@component",{}]
 // Array - body: ["&template",{}]
 // Array - body: [components...]
@@ -11088,12 +11135,39 @@ function initializeApplication(self){
 	var plugins = self._props_._application_plugins;
 	var baseUrl = self._props_._baseUrl;
 
+	console.log(config);
 
+
+
+	window.GetClientPath = function(path,plugin,theme){
+		var activeTheme = config['application']['client-active-theme'];
+		var _plugin = "";
+		var _theme = "";
+		if(plugin==undefined){
+			var _pluginAndTheme = [];
+			if(activeTheme.includes("|")){
+				_pluginAndTheme = activeTheme.split("|");
+			}else if(activeTheme.includes(" ")){
+				_pluginAndTheme = activeTheme.split(" ");
+			}
+			_plugin = _pluginAndTheme[0];
+			_theme = _pluginAndTheme[1];
+		}else{
+			_plugin = plugin;
+			_theme = theme;
+		}
+		return "js/plugins/"+_plugin+"/client/themes/"+_theme+"/"+path;
+	};
 	window.AppDialog = componentFactory.dialog();
 	window.AppFactoryDialog = componentFactory.dialog();
 	window.Brick = Brick;
 
-	 loadAllPluginCSSFiles();
+	//AFGetAdminPath
+	//AFGetClientPath
+	//AFDialog
+	//AFBrick
+
+	loadAllPluginCSSFiles();
 		
 	//loadUpTheme();
 

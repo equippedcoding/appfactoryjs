@@ -19,7 +19,7 @@ function mergeToFrom(obj, src) {
 }
 
 
-function LoadDependencies(baseUrl,classes,views,dependencies){
+function LoadDependencies(baseUrl,classes,views,dependencies){ 
 	// baseUrl - standered/client
 	// 'js/plugins/standered/client/classes/Standered'
 	//,'../../../admin/classes/MediaFilesHandler'
@@ -35,7 +35,7 @@ function LoadDependencies(baseUrl,classes,views,dependencies){
 		}
 		for (var i=0; i < views.length; i++) {
 			var theme = views[i].split("/")[0];
-			var view = views[i].split("/")[1];
+			var view = views[i].split("/")[1] + "/" +views[i].split("/")[2];
 			if(IsAdmin){
 				views[i] = "../../themes/"+theme+"/components/"+view;
 			}else{
@@ -90,7 +90,7 @@ var _AppFactoryStart = {
 		}
 
 		function run(configFileString,plugins){
-			console.log(plugins);
+
 			var configuration = setup(configFileString,plugins);
 			configuration.config.paths = reformPath(configuration.config.paths);
 
