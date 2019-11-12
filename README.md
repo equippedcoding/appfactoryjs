@@ -4,7 +4,7 @@ Javascript framework to build apps quick using components
 
 ## Getting Started
 
-Use the command line tool [appfactoryjs]](https://github.com/equippedcoding/appfactory-cli) to download the framework.
+Use the command line tool [appfactoryjs-command-line-tool](https://github.com/equippedcoding/appfactory-cli) to download the framework.
 The framework is plugin based, so all work is done with in a plugin. Within the default plugin...
 
 build a view
