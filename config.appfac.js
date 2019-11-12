@@ -1,11 +1,20 @@
 {
     "application": {
-        "use-static":false,
+        "use-static": false,
         "prod": false,
         "production_url": "",
         "development_url": "",
-        "client-active-theme":"default|default",
-        "admin-active-themes": {"default":"default"}
+        "client-active-theme": "default|default",
+        "admin-active-theme": "default|default",
+        "plugins": {
+            "default": {
+                "name": "Default",
+                "directory": "default",
+                "start": "init",
+                "admin-active": true,
+                "client-active": true
+            }
+        }
     },
     "index-config": {
         "title": "",
@@ -15,17 +24,18 @@
             "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">",
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">"
         ],
-        "head": [ 
+        "head": [
+            "<script src=\"js/libs/jquery/jquery.js\"></script>",
+            "<script src=\"js/libs/underscore/underscore.js\"></script>",
+            "<script src=\"js/libs/backbone/backbone.js\"></script>",
+            "<script src=\"js/libs/appfactoryjs/appfactory.js\"></script>",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/libs/bootstrap4/bootstrap.css\">",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"js/libs/appfactoryjs/appfactory.css\">",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/client/styles.css\">"
         ],
-        "body": [],
-        "scripts": {
-            "requirejs-script": "<script data-main=\"js/main.js\" src=\"js/libs/requirejs/require.js\"></script>",
-            "appfactorystarter-script": "<script src=\"js/libs/appfactoryjs/appfactorystarter.js\"></script>",
-            "build-output-script": ""
-        }
+        "body": [
+            "<script data-main=\"js/main.js\" src=\"js/libs/requirejs/require.js\"></script>"
+        ]
     },
     "index-admin-config": {
         "title": "",
@@ -35,17 +45,18 @@
             "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">",
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">"
         ],
-        "head": [ 
+        "head": [
+            "<script src=\"../../js/libs/jquery/jquery.js\"></script>",
+            "<script src=\"../../js/libs/underscore/underscore.js\"></script>",
+            "<script src=\"../../js/libs/backbone/backbone.js\"></script>",
+            "<script src=\"../../js/libs/appfactoryjs/appfactory.js\"></script>",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"../../styles/libs/bootstrap4/bootstrap.css\">",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"../../js/libs/appfactoryjs/appfactory.css\">",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/admin/styles.css\">"
         ],
-        "body": [],
-        "scripts": {
-            "requirejs-script": "<script data-main=\"../../js/dashboard/admin-main.js\" src=\"../../js/libs/requirejs/require.js\"></script>",
-            "appfactorystarter-script": "<script src=\"../../js/libs/appfactoryjs/appfactorystarter.js\"></script>",
-            "build-output-script": ""
-        }
+        "body": [
+            "<script data-main=\"js/main.js\" src=\"../../js/libs/requirejs/require.js\"></script>"
+        ]
     },
     "requirejs-config": {
         "waitSeconds": 35,
@@ -54,8 +65,6 @@
         "out": "build-complete.js",
         "optimize": "none",
         "paths": {
-            "appfactory": "libs/appfactoryjs/appfactory",
-            "jquery": "libs/jquery/jquery",
             "jqueryui": "libs/jquery-ui-1.12.1/jquery-ui",
             "underscore": "libs/underscore/underscore",
             "backbone": "libs/backbone/backbone",

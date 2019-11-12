@@ -88,6 +88,8 @@ if($userStatic){
 	$html .= '</body>';
 	$html .= '</html>';
 
+	//ob_clean();
+	//ob_end_flush();
 
 	echo $html;
 }

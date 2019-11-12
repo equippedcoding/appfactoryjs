@@ -16,7 +16,10 @@
     "client": [
         {
             "directory": "default",
-            "start": "theme_interface"
+            "start": "theme_interface",
+            "head": [
+                "<link rel=\"stylesheet\" type=\"text/css\" class=\"default\" href=\"./js/plugins/default/client/themes/default/styles/css/styles.css\">"
+            ]
         }
     ]
 }

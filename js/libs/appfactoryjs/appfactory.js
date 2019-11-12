@@ -9,7 +9,7 @@
 *
 * 
 *
-*   
+*    
 *
 * 
 *
@@ -27,13 +27,13 @@
 (function (root, factory) {             
 	/*global define*/
 	if (typeof define === 'function' && define.amd) {
-		define(['jquery','backbone','bootstrap'], factory); // AMD
+		define([], factory); // AMD
 	} else if (typeof module === 'object' && module.exports) { 
 		module.exports = factory(); // Node
 	} else {
 		root.appfactory = factory(); // Browser
 	}
-}(this, function ($,Backbone,bootstrap) {    
+}(this, function () {    
 
 
 // cd C:\ws\template\js\libs\appfactoryjs
@@ -1508,8 +1508,9 @@ function NavComponent(opts){
 
 	self._props_._elements._container.addComponent(container,true);
 
+	var classNames = (opts.className) ? opts.className : "";
 
-	var navClasses = "nav "+self._props_._position_class;
+	var navClasses = "nav "+self._props_._position_class + " " +classNames;
 	self._props_._elements._ul = createElement({
 		el:'ul',
 		className: navClasses
@@ -3315,6 +3316,34 @@ function BrickComponent(){
 }
 BrickComponent.prototype = {
 
+
+	array: function(type,arrayObjs){
+
+		console.log(arrayObjs);
+
+		if(typeof type === 'string'){
+			for (var i = 0; i < arrayObjs.length; i++) {
+				arrayObjs[i]['_el'] = type;
+			}
+		}else if(Array.isArray(type)){
+			arrayObjs = type;
+		}
+
+		var b = null;
+		for (var i = 0; i < arrayObjs.length; i++) {
+			if(b==null){
+				var myType = arrayObjs[i]._el;
+				delete arrayObjs[i]._el;
+				b = Brick.stack().make(myType,arrayObjs[i]);
+			}else{
+				var myType = arrayObjs[i]._el;
+				delete arrayObjs[i]._el;
+				b.make(myType,arrayObjs[i]);
+			}
+		}
+		return b;
+	},
+
 	/**
 	*
 	* @return {BrickComponent}
@@ -3338,6 +3367,14 @@ BrickComponent.prototype = {
 	*/
 	a: function(opts){
 		return BrickComponent_make("a",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
+	i:function(opts){
+		return BrickComponent_make("i",opts,this);
 	},
 
 	/**
@@ -9486,8 +9523,8 @@ function Utils_convertStringToHTMLNode(string,isFrag){
 	    doc = parser.parseFromString(xmlString, "text/html");
 	    var frag = document.createDocumentFragment();
 	    if(!Utils.isNull(doc.body)){
-		for(var i=0;i<doc.body.childNodes.length;i++){
-			frag.appendChild(doc.body.childNodes[i].cloneNode(true));
+			for(var i=0;i<doc.body.childNodes.length;i++){
+				frag.appendChild(doc.body.childNodes[i].cloneNode(true));
 		    }
 	    }
 	return frag.cloneNode(true);
@@ -10812,7 +10849,7 @@ readTextFile("../js/includes/components/html/header.html",function(a){
 // 	window.AppSessionManager = sessionManager;
 // }
 function setBaseURL(self,url){
-	var config = self._props_._application_configuration;
+	var config = self._props_._application_config;
 	if(!Utils.isNull(config.application)){
 		var base = "";
 		if(!Utils.isNull(config.application.prod) && config.application.prod==true){
@@ -10884,6 +10921,7 @@ var appPlugin;
 
 var gl_applicationContextManager = null;
 var gl_app_plugins = [];
+var gl_app_configuration = null;
 
 
 /**
@@ -10903,7 +10941,7 @@ function registerAppFactoryPlugin(plugin){
 * @param {String} - (optional) Override the app configuration application url
 * @tutorial GettingStarted
 */
-function ApplicationContextManager(config,plugins,baseUrl,socketio){
+function ApplicationContextManager(config,plugins,baseUrl){
 	var configFile = config;
 	pages = new Pages(this);
 	stateManager = new StateManager(this);
@@ -10923,7 +10961,6 @@ function ApplicationContextManager(config,plugins,baseUrl,socketio){
 		_vars: {},
 
 		_baseURL: "",
-		_application_configuration: null,
 
 		_Pages: pages,
 		_StateManager: stateManager,
@@ -10935,6 +10972,8 @@ function ApplicationContextManager(config,plugins,baseUrl,socketio){
 		_ViewManager: ViewManager
 	};
 
+	this._props_._application_config = config;
+
 	this.Pages = this._props_._Pages;
 	this.Manager = this._props_._ApplicationManager;
 	this.Factory = this._props_._ComponentFactory;
@@ -10943,6 +10982,8 @@ function ApplicationContextManager(config,plugins,baseUrl,socketio){
 	this.Layout = this._props_._LayoutManager;
 	this.Plugin = this._props_._ApplicationPlugin;
 
+	this._props_._application_plugins = this._props_._application_config['application']['plugins'];
+
 	if(configFile!=undefined){
 		var configFileObject;
 		if(typeof configFile === "string"){
@@ -10950,7 +10991,7 @@ function ApplicationContextManager(config,plugins,baseUrl,socketio){
 		}else{
 			configFileObject = configFile;
 		}
-		this._props_._application_configuration = configFileObject;
+		this._props_._application_config = configFileObject;
 
 		setBaseURL(this,baseUrl);
 	}
@@ -10981,8 +11022,8 @@ ApplicationContextManager.prototype = {
 	* Start and initialize Appfactory application.
 	*
 	*/
-	initializeApplication: function(){
-		initializeApplication(this);
+	initializeApplication: function(isClient,activePlugin){
+		initializeApplication(isClient,activePlugin,this);
 	},
 
 	/**
@@ -11021,7 +11062,7 @@ ApplicationContextManager.prototype = {
 			partialUrl = "";
 		}
 		var url = "";
-		var config = this._props_._application_configuration;
+		var config = this._props_._application_config;
 		if(config!=null && config['application']!=undefined){
 
 		//if(this._props_._baseURL){
@@ -11067,7 +11108,7 @@ ApplicationContextManager.prototype = {
 	* 
 	*/
 	setApplicationConfiguration: function(config){
-		this._props_._application_configuration = config;
+		this._props_._application_config = config;
 	},
 
 	/**
@@ -11125,227 +11166,268 @@ ApplicationContextManager.prototype = {
 	*/
 	getView: function(){
 		return this._props_._ViewManager;
+	},
+
+	getActivePluginPath: function(){
+		var active = this._props_._application_config['application']["client-active-theme"];
+		var activeplugin = active.split("|")[0];
+		var activetheme = active.split("|")[1];
+
+		var plugins = this._props_._application_config['application']["plugins"];
+		var theme = this._props_._active_plugin_theme;
+
+		var plugin = plugins[activeplugin];
+
+		var path = "";
+		if(isAdmin){
+			path = "../../js/plugins/"+plugin.directory+"/"+activePlugin.start;
+		}else{
+			path = "js/plugins/"+plugin.directory+"/"+activePlugin.start;
+		}
+
+		return path;
+	},
+
+	getActivePluginThemePath: function(){
+
 	}
 
 };
 
-function initializeApplication(self){
-
-	var config = self._props_._application_config;
-	var plugins = self._props_._application_plugins;
-	var baseUrl = self._props_._baseUrl;
-
-	console.log(config);
 
 
+function initializeApplication(isClient,activePlugin,self){
 
-	window.GetClientPath = function(path,plugin,theme){
-		var activeTheme = config['application']['client-active-theme'];
-		var _plugin = "";
-		var _theme = "";
-		if(plugin==undefined){
-			var _pluginAndTheme = [];
-			if(activeTheme.includes("|")){
-				_pluginAndTheme = activeTheme.split("|");
-			}else if(activeTheme.includes(" ")){
-				_pluginAndTheme = activeTheme.split(" ");
-			}
-			_plugin = _pluginAndTheme[0];
-			_theme = _pluginAndTheme[1];
-		}else{
-			_plugin = plugin;
-			_theme = theme;
-		}
-		return "js/plugins/"+_plugin+"/client/themes/"+_theme+"/"+path;
-	};
 	window.AppDialog = componentFactory.dialog();
 	window.AppFactoryDialog = componentFactory.dialog();
 	window.Brick = Brick;
 
-	//AFGetAdminPath
-	//AFGetClientPath
-	//AFDialog
-	//AFBrick
+	if(isClient==false){
+		//for (var i = 0; i < plugins.length; i++) {}
+		return;
+	}
 
-	loadAllPluginCSSFiles();
-		
-	//loadUpTheme();
+	var config_appfac = self._props_._application_config;
+	var plugins = self._props_._application_plugins;
+	var baseUrl = self._props_._baseUrl;
 
+	if(self._props_._application_config['application']['prod']==false){
+		console.log(config_appfac);
+	}
 
-	function a1(configFile){
-		return new Promise(resolve => {
-			var rawFile = new XMLHttpRequest();
-	    	rawFile.open("GET", configFile, false);
-	    	rawFile.send(null); 
-	    	resolve(rawFile.responseText)
-		});
-	} 
-	function loadUpTheme(){   
+	var app = self;
 
-// application:
-// 	development_url: "http://localhost/newapp3/2wokegurls/"
-// 	prod: true
-// 	production_url: "https://wait.2wokegurls.com/"
-// 	theme: "equippedcoding_2woke_gurls|One"
+	var admin_active_theme = config_appfac['application']['admin-active-theme'];
 
-	
-//newapp2/newapp1/myapp/js/plugins/_default/plugin.config.json
-		//console.log(config);
-		//console.log(plugins);
+	var client_plugin_config = config_appfac['application']['client-active-theme'];
+	var client_active_plugin = client_plugin_config.split("|")[0];
+	var client_active_theme = client_plugin_config.split("|")[1];
 
-		if(Utils.isNull(config.application) || Utils.isNull(config.application.theme)){
-			return;
-		}
+	var url = "js/plugins/"+client_active_plugin+"/plugin.config.json";
+	$.getJSON( url, function( pluginconfig ) {
 
+		var Utils = app.Utils;   
+		var Plugin = app.getPlugin(); 
+		var Manager = app.getManager(); 
+		var Pages = app.getPages();
+		var View = app.getView();
+		var Layout = app.getLayout();
+		var Factory = app.getComp();
 
-		var theme_settings = config.application.theme.split("|");
+		var generatedPluginConfigs = Plugin.getRegisteredPlugins();
 
-		var dir = theme_settings[0];
-		var theme = theme_settings[1];
-
-		var plugin1;
-		for(var i=0; i<gl_app_plugins.length; i++){
-			var id = gl_app_plugins[i].id;
-			if(id==dir){
-				plugin1 = gl_app_plugins[i];
+		var aciveTheme = null;
+		for (var i = 0; i < activePlugin['client-themes'].length; i++) {
+			if(client_active_theme.trim() == activePlugin['client-themes'][i].directory.trim()){
+				activeTheme = activePlugin['client-themes'][i];
 				break;
 			}
 		}
 
+		var html = activeTheme.component(app);
 
-		//console.log(self.URL());
+		if(html!=undefined){
+			$('body').append(html);
+		}
 
-		self.setVar('url',self.URL());
-		//console.log(gl_app_plugins);
-		//console.log(plugin1);
+		var clientactivetheme = null;
+		var clientthemes = pluginconfig['client-themes'];
 
-		var theme1;
-		for(var i=0; i<plugin1.themes.length; i++){
-			//console.log(plugin1.themes[i])
-			var n = plugin1.themes[i].directory;
-			if(n==theme){
-				theme1 = plugin1.themes[i];
+		for (var i = 0; i < clientthemes.length; i++) {
+			if(clientthemes[i].theme==client_active_theme){
+				clientactivetheme = clientthemes[i];
 				break;
 			}
 		}
 
-		//console.log(theme1);
-// http://localhost/newapp2/myapp1/myapp/js/plugins/zibra4/plugin.config.json 
-		// load head and styles
-		//var url = self.URL("js/plugins/"+plugin1["id"]+"/plugin.config.json");
-		a1("js/plugins/"+plugin1["id"]+"/plugin.config.json")
-		.then(function(con){
-			con = JSON.parse(con);
-			//console.log(con);
-
-			var currentThemeConfig;
-			var cur = con.themes;
-
-			for(var i=0; i<cur.length; i++){
-				if(cur[i]['directory']==theme1['directory']){
-					currentThemeConfig = cur[i];
-					break;
-				}
-			}
-
-			var headArray = [];
-			if(currentThemeConfig.head){
-				var head = currentThemeConfig.head;
-				for(var i=0; i<head.length; i++){
-
-					var h = head[i];
-
-					var m = h.match(/\${[^)]*\}/);
-
-
-					var h2 = head[i];
-					if(m!=null && m.length>0){
-						var t = m[0].replace("${","");
-						t = t.replace("}","");
-						t = t.trim();
-
-						//console.log(t);
-
-						var varUrl = self.getVar(t);
-						if(!Utils.isNull(varUrl)){
-							h2 = head[i].replace(/\${[^)]*\}/,varUrl);
-						}else{
-							h2 = head[i].replace(/\${[^)]*\}/,"");
-						}
-					}
-					headArray[i] = h2;
-				}
-			}
-
-			for(var i=0; i<headArray.length; i++){
-
-				$('head').append(headArray[i]);
-
-			}
-
-
-			if(!Utils.isNull(theme1.styles) && Array.isArray(theme1.styles)){
-
-				var themeStyles = theme1.styles;
-				var themeDir = theme1.directory;
-
-
-				for(var i=0; i<themeStyles.length; i++){
-
-					var loc = plugin1.id +"/themes/"+themeDir+"/"+themeStyles[i];
-					//_load_theme_style(loc);
-				}
-			}
-
-			function _load_theme_style(s){
-				var url = self.URL("js/plugins/"+loc);
-				$('head').append("<link rel='stylesheet' href='"+url+"' />");
-			}
-
-			var component = theme1.component(gl_applicationContextManager,config);
-			//console.log(component);
-			if(!Utils.isNull(component)){
-				$('body').append(component.getHtml());
-			}
-			
-
-			// 151515
-
-
-		});
-
-		
-
-	}
-	function loadAllPluginCSSFiles(){
-		if(plugins==null || plugins==undefined) return;
-	for(var i=0; i<plugins.length; i++){
-		var p = plugins[i];
-		if(!Utils.isNull(p.css)){
-			var location = p.location;
-			if(!Utils.isNull(p.css.admin)){
-				var css = p.css.admin;
-				for(var n=0; n<css.length; n++){
-				var url = 
-			self.URL("js/plugins/"+location+"/"+css[n]);
-					$('head').append(
-"<link rel='stylesheet' href='"+url+"' />");
-				}
-			}
-			if(!Utils.isNull(p.css.client)){
-				var css = p.css.client;
-				for(var n=0; n<css.length; n++){
-				var url = 
-			self.URL("js/plugins/"+location+"/"+css[n]);
-					$('head').append(
-"<link rel='stylesheet' href='"+url+"' />");
-				}
+		if(clientactivetheme!=null){
+			for (var i = 0; i < clientactivetheme.head.length; i++) {
+				$('head').append(clientactivetheme.head[i]);
 			}
 		}
 
-	}
-	}
+	});
+
 }
+
+
+
+
+function a1(configFile){
+	return new Promise(resolve => {
+		var rawFile = new XMLHttpRequest();
+    	rawFile.open("GET", configFile, false);
+    	rawFile.send(null); 
+    	resolve(rawFile.responseText)
+	});
+} 
+
+
+
+function LoadDependencies(baseUrl,classes,views,dependencies){ 
+	// baseUrl - standered/client
+	// 'js/plugins/standered/client/classes/Standered'
+	//,'../../../admin/classes/MediaFilesHandler'
+	//,'../../../admin/themes/default/components/newEpisodeFormComponent'
+
+	if(baseUrl.includes("/client")){
+		for(var i=0; i < classes.length; i++){
+			if(IsAdmin){
+				classes[i] = "../../classes/" + classes[i];
+			}else{
+				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
+			}
+		}
+		for (var i=0; i < views.length; i++) {
+			var theme = views[i].split("/")[0];
+			var view = views[i].split("/")[1] + "/" +views[i].split("/")[2];
+			if(IsAdmin){
+				views[i] = "../../themes/"+theme+"/components/"+view;
+			}else{
+				views[i] = "js/plugins/"+baseUrl+"/themes/"+theme+"/components/"+view;
+			}
+		}
+	}else if(baseUrl.includes("/admin")){
+		for(var i=0; i < classes.length; i++){
+			if(IsAdmin){
+				classes[i] = "../../classes/" + classes[i];
+			}else{
+				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
+			}
+		}
+		for (var i=0; i < views.length; i++) {
+			var theme = views[i].split("/")[0];
+			var view = views[i].split("/")[1];
+			views[i] = "../../themes/"+theme+"/components/"+view;
+		}
+	}
+
+	var deps = classes.concat(views).concat(dependencies);
+	return deps;
+}
+
+function LoadActivePlugin(){
+
+}
+
+function GetLoadedConfiguration(app){
+	var config = gl_app_configuration;
+	gl_app_configuration = null;
+	return config;
+}
+
+function LoadConfiguration(config){
+
+	var decodeHTML = function (html) {
+		var txt = document.createElement('textarea');
+		txt.innerHTML = html;
+		return txt.value;
+	};
+
+	config = decodeHTML(config.trim());
+
+	console.log(config);
+
+	if(typeof config === 'string'){
+		config = JSON.parse(config.trim());
+	}
+	gl_app_configuration = config;
+}
+
+function GetClientPath(app,path,plugin,theme){
+	var activeTheme = app._props_._application_config['application']['client-active-theme'];
+	var _plugin = "";
+	var _theme = "";
+	if(plugin==undefined){
+		var _pluginAndTheme = [];
+		if(activeTheme.includes("|")){
+			_pluginAndTheme = activeTheme.split("|");
+		}else if(activeTheme.includes(" ")){
+			_pluginAndTheme = activeTheme.split(" ");
+		}
+		_plugin = _pluginAndTheme[0];
+		_theme = _pluginAndTheme[1];
+	}else{
+		_plugin = plugin;
+		_theme = theme;
+	}
+	return "js/plugins/"+_plugin+"/client/themes/"+_theme+"/"+path;
+}
+
+window.AFLoadDependencies = LoadDependencies;
+
+window.AFLoadActivePlugin = LoadActivePlugin;
+
+window.AFGetLoadedConfiguration = GetLoadedConfiguration;
+
+window.AFLoadConfiguration = LoadConfiguration;
+
+window.AFGetClientPath = GetClientPath;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

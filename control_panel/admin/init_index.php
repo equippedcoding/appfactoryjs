@@ -29,8 +29,7 @@ require_once "../../php/core/init.php";
 
 	
 
-		<script data-main="../../js/dashboard/admin-main.js" src="../../js/libs/requirejs/require.js"></script>
-        <script src="../../js/libs/appfactoryjs/appfactorystarter.js"></script>
+	<script data-main="js/main.js" src="../../js/libs/requirejs/require.js"></script>
             
 </body>
 </html>
