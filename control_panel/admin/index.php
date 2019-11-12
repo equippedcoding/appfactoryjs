@@ -1,6 +1,6 @@
 <?php
 
-require_once "../../php/core/init.php";
+//require_once "../../php/core/init.php";
 
 
 

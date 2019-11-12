@@ -52,7 +52,7 @@
             "<script src=\"../../js/libs/appfactoryjs/appfactory.js\"></script>",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"../../styles/libs/bootstrap4/bootstrap.css\">",
             "<link rel=\"stylesheet\" type=\"text/css\" href=\"../../js/libs/appfactoryjs/appfactory.css\">",
-            "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/admin/styles.css\">"
+            "<link rel=\"stylesheet\" type=\"text/css\" href=\"styles/styles.css\">"
         ],
         "body": [
             "<script data-main=\"js/main.js\" src=\"../../js/libs/requirejs/require.js\"></script>"
