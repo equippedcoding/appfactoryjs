@@ -1,8 +1,8 @@
 /* This file is auto generated  */
-define(["appfactory",
+define([
 	 './admin/themes/default/theme_interface'
 	,"./client/themes/default/theme_interface"]
-	,function(app,adminInterface,eod34BWyyjxcs){
+	,function(adminInterface,eod34BWyyjxcs){
 
 
 	RegisterAppFactoryPlugin({
