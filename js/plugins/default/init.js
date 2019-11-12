@@ -4,23 +4,27 @@ define([
 	,"./client/themes/default/theme_interface"]
 	,function(adminInterface,eod34BWyyjxcs){
 
-
-	RegisterAppFactoryPlugin({
+	var plugin = {
 		directory:'default',
-		admin: [
-		{
-	        "directory": "default",
-	        "start": "theme_interface",
-			"component":adminInterface,
-		}
+		"admin-themes": [
+			{
+		        "directory": "default",
+		        "start": "theme_interface",
+				"component":adminInterface,
+			}
 		],
-		client: [
-    {
-        "directory": "default",
-        "start": "theme_interface",
-        "component": eod34BWyyjxcs
-    }
-]
-	}); 
+		"client-themes": [
+		    {
+		        "directory": "default",
+		        "start": "theme_interface",
+		        "component": eod34BWyyjxcs
+		    }
+		]
+	}; 
+
+
+	RegisterAppFactoryPlugin(plugin); 
+
+	return plugin;
 
 });

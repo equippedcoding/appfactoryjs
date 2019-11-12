@@ -11237,6 +11237,7 @@ function initializeApplication(isClient,activePlugin,self){
 		var generatedPluginConfigs = Plugin.getRegisteredPlugins();
 
 		var aciveTheme = null;
+
 		for (var i = 0; i < activePlugin['client-themes'].length; i++) {
 			if(client_active_theme.trim() == activePlugin['client-themes'][i].directory.trim()){
 				activeTheme = activePlugin['client-themes'][i];

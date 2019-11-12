@@ -7,13 +7,13 @@
     "services": {
         "dir": "-"
     },
-    "admin": [
+    "admin-themes": [
         {
             "directory": "default",
             "start": "theme_interface"
         }
     ],
-    "client": [
+    "client-themes": [
         {
             "directory": "default",
             "start": "theme_interface",
