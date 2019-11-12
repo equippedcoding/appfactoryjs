@@ -39,7 +39,6 @@ $.getJSON( "../../config.appfac.js", function( config ) {
 			}
 
 			function openCloseNavListener(){
-				console.log($('.appfac_sidenav').css('width'))
 				if($('.appfac_sidenav').css('width')=='0px'){
 					$('.appfac_sidenav').css('width','200px')
 					$('#appfac_main_section').css('marginLeft','200px')
