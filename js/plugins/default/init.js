@@ -1,8 +1,8 @@
 /* This file is auto generated  */
-define([
+define(['appfactory'
 	 './admin/themes/default/theme_interface'
 	,"./client/themes/default/theme_interface"]
-	,function(adminInterface,eod34BWyyjxcs){
+	,function(appfac,adminInterface,eod34BWyyjxcs){
 
 	var plugin = {
 		directory:'default',

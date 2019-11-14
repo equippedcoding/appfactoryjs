@@ -2,7 +2,7 @@ define([],function(){
 	
 
 
-	function init(app,config){
+	function init(app){
 
 		// register some method to be called later, and output html
 		app.Manager.register('homeLayout', function(){
