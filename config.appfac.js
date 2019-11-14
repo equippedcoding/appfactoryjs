@@ -4,7 +4,7 @@
         "prod": false,
         "production_url": "",
         "development_url": "",
-        "client-active-theme": "newplugin|theme4",
+        "client-active-theme": "default|default",
         "admin-active-theme": "default|default",
         "plugins": {
             "default": {
