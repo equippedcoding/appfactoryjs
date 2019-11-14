@@ -18,7 +18,6 @@ $indexConfig = $htmlJSON["index-config"];
 
 if($userStatic){
 	require_once("static-index.html");
-	echo "useing static";
 }else{
 	$doctype = "";
 

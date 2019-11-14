@@ -26,14 +26,26 @@
 */
 (function (root, factory) {             
 	/*global define*/
+	// if (typeof define === 'function' && define.amd) {
+	// 	define([], factory); // AMD
+	// } else if (typeof module === 'object' && module.exports) { 
+	// 	module.exports = factory(); // Node
+	// } else {
+	// 	root.appfactory = factory(); // Browser
+	// }
+
+
 	if (typeof define === 'function' && define.amd) {
-		define([], factory); // AMD
-	} else if (typeof module === 'object' && module.exports) { 
-		module.exports = factory(); // Node
+		// AMD
+		define(['jquery','backbone'], factory);
+	} else if (typeof module !== 'undefined' && module.exports) {
+		// CommonJS
+		module.exports = factory(require('jquery'));
 	} else {
-		root.appfactory = factory(); // Browser
-	}
-}(this, function () {    
+		// Global
+		factory(jQuery);
+	}	
+}(this, function ($) {    
 
 
 // cd C:\ws\template\js\libs\appfactoryjs
