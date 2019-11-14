@@ -1149,6 +1149,16 @@ function AppLayout(obj){
 	this._container_row = 0;
 	this._container_col = [];
 
+	var className = (Utils.isNull(obj.className)) ? null : obj.className;
+	if(className==null){
+		(Utils.isNull(obj.classes)) ? "" : obj.classes;
+	}
+
+	var styles = (Utils.isNull(obj.style)) ? null : obj.style;
+	if(styles==null){
+		(Utils.isNull(obj.styles)) ? "" : obj.styles;
+	}
+
 	this._props_ = {
 		_id: this._id,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
@@ -1169,8 +1179,8 @@ function AppLayout(obj){
 		_super_view_id: null,
 		_top_row : {
 			_id: this._id,
-			_classes: (Utils.isNull(obj.classes)) ? "": obj.classes,
-			_styles: (Utils.isNull(obj.styles)) ? "": obj.styles
+			_classes: className,
+			_styles: styles
 		},
 		_dom_events:{
 			_addToDOMEvent:[],
@@ -9800,7 +9810,7 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 
 	var colClasses = _getLayoutColumnClasses(columns);
 	var viewId = (viewId==null ||veiwId==undefined) ? "" : viewid;
-	var cl = (obj.classes==null ||obj.classes==undefined) ? "" : obj.classes;
+	var cl = (obj.className==null ||obj.className==undefined) ? "" : obj.className;
 	var id = (obj.id==null ||obj.id==undefined) ? "" : obj.id;
 	var st = (obj.styles==null ||obj.styles==undefined) ? "" : obj.styles;
 
