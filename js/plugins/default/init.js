@@ -1,5 +1,5 @@
 /* This file is auto generated  */
-define(['appfactory'
+define(['appfactory',
 	 './admin/themes/default/theme_interface'
 	,"./client/themes/default/theme_interface"]
 	,function(appfac,adminInterface,eod34BWyyjxcs){

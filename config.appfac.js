@@ -66,7 +66,7 @@
         "out": "js/build/bundle.js",
         "optimize": "none",
         "paths": {
-            "appfactory":"libs/appfactory/appfactory",
+            "appfactory": "libs/appfactoryjs/appfactory",
             "underscore":"libs/underscore/underscore",
             "backbone":"libs/backbone/backbone",
             "bootstrap":"libs/bootstrap/bootstrap",
