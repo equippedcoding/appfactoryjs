@@ -1,5 +1,6 @@
 {
     "application": {
+        "version":"0.1.4",
         "use-static": false,
         "prod": false,
         "production_url": "",
