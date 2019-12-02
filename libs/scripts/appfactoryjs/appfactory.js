@@ -1,4 +1,3 @@
-
 /**
 * @overview AppFactoryJS is a javscript framework tha can be including as a single 
 * js file (but with limitations) or as a whole application framework. 
@@ -7,7 +6,7 @@
 * AppFactoryJS consist of a client app and the admin dashboard. To add modular 
 * components for users to add to their application.
 *  
-*
+* 
 * 
 *
 *    
@@ -25,127 +24,29 @@
 * @license BSD-2-Clause. 
 * @version 0.0.1   
 */
-(function (root, factory) {             
-	/*global define*/
-	
-	
-	
-	
-	
-	
-	
-
-
+(function (root, factory) {    
 	if (typeof define === 'function' && define.amd) {
-		
 		define(['jquery','backbone'], factory);
 	} else if (typeof module !== 'undefined' && module.exports) {
-		
 		module.exports = factory(require('jquery'));
 	} else {
-		
 		factory(jQuery);
 	}	
 }(this, function ($) {    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Global Variables */ 
-
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
 
-
-
-/** @exports Flags
-* Application constants
-* 
-*/
 var Flags = Object.freeze({
-	/**
-	* Type
-	*/
 	Type: {view:"v",component:"c",layout:"l"},
-
-	/**
-	* Component
-	*/
 	Component: "comp",
-
-	/**
-	* Method
-	*/
 	Method: "meth"
 });
 
 
-/* Global Functions */
 function GL_RegisterListenerCallback(obj,self,id,moreData){
 
 }
-
-/** @exports AppFactoryStarter
-* @classdesc !important - This module is only apart of the Full Application
-* @class
-* @constructor
-* @tutorial 01-GettingStarted
-*/
-var AppFactoryStarter = {
-
-	/**
-	* Starts the application life cycle. Must be called before 
-	* running any application code.
-	* @param {String} configFile - Path and file name of the configuration json file
-	* @param {Object} extra - RequireJS users configuration
-	* @param {Function} callback - Run application method
-	* @param {String} basepath - 
-	*/
-	main: function(configFile,extra,callback,basepath){}
-};
-
-
 
 var AppFactoryManagerTypes = [
 	"ApplicationManager",
@@ -220,7 +121,7 @@ ApplicationManager.prototype = {
 	},  
 
 	/**
-	*
+	* Register a method to be called later with in the app
 	*/
 	register: function(id,method){
 		if(!Utils.isNull(method)){
@@ -234,9 +135,6 @@ ApplicationManager.prototype = {
 		}
 	},
 
-	/**
-	*
-	*/
 	retrieve: function(id,flag){
 		if(flag == Flags.Component){
 			return _g();
@@ -259,13 +157,14 @@ ApplicationManager.prototype = {
 	},
 
 	/**
-	* Get all saved objects.
+	* Get all stored objects, by setAny.
 	*/
 	getAll: function(){
 		return this._application_manager._any;
 	},
 
 	/**
+	* Store an object to be retrieved later anywhere with in the app
 	*
 	*/
 	setAny: function(id,any){
@@ -273,6 +172,7 @@ ApplicationManager.prototype = {
 	},
 
 	/**
+	* Get object set by setAny 
 	*
 	*/
 	getAny: function(id){
@@ -284,8 +184,21 @@ ApplicationManager.prototype = {
 	},	
 
 	/**
+	* Get registered method, set by register()
 	*
 	*/
+	get: function(id,params){
+		var method = this._application_manager._methods[id];
+		if(Utils.isNull(method)){
+			console.error("Method: "+id+" does not exist");
+		}
+		var component = method(params);
+		if(Utils.isNull(component)){
+			console.error("Component: "+id+" is null");
+		}
+		return component;
+	},
+
 	getComponents: function(){
 		return this._application_manager._components;
 	},
@@ -300,18 +213,6 @@ ApplicationManager.prototype = {
 	},
 
 	run: function(id,params){
-		var method = this._application_manager._methods[id];
-		if(Utils.isNull(method)){
-			console.error("Method: "+id+" does not exist");
-		}
-		var component = method(params);
-		if(Utils.isNull(component)){
-			console.error("Component: "+id+" is null");
-		}
-		return component;
-	},
-
-	get: function(id,params){
 		var method = this._application_manager._methods[id];
 		if(Utils.isNull(method)){
 			console.error("Method: "+id+" does not exist");
@@ -342,13 +243,6 @@ ApplicationManager.prototype = {
 		this._application_manager._componentElements[tag];
 	},
 
-	/**
-	*
-	*/
-	getRootElement: function(){
-		return this._application_manager._root_element;
-	},
-
 	getLoadedFileContents: function(alias){
 		return this._application_manager._file_contents[alias];
 	},
@@ -375,11 +269,11 @@ ApplicationManager.prototype = {
 
 
 
-/** @exports SessionManager
-* @classdesc The SessionManager handles user session.
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
 
@@ -389,11 +283,11 @@ SessionManager.prototype = {};
 
 
 
-/** @exports StateManager
-* @classdesc The SessionManager handles the state of the application.
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
 	
@@ -501,15 +395,15 @@ StateManager.prototype = {
 
 
 
-/** @exports ApplicationExtensions
-* @classdesc A segment is a plugin thats can be tied to another plugin
-* but cannot be active by its self. In the plugin.config.json specify
-* the option segment:true. This allows for this plugin to be loaded before
-* non-segmented plugins. The segmented plugin is retreived by calling 
-* segments.get("plugin_name|plugin_theme")
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
 function ApplicationExtensions(){
 	this._props_ = {};
 }
@@ -550,11 +444,11 @@ ApplicationExtensions.prototype = {
 
 
 
-/** @exports PluginManager
-* @classdesc The PluginManager creates plugins for the AppfactoryJS application.
-* @class
-* @constructor
-*/ 
+ 
+ 
+ 
+ 
+
 function ApplicationPlugin(){
 	this.plugins = [];
 }
@@ -665,11 +559,11 @@ ApplicationPlugin.prototype = {
 
 /* Components */
 
-/** @exports ComponentManager
-* @classdesc The ComponentManager is the top component that every other component inherits from.
-* @class
-* @constructor
-*/ 
+ 
+ 
+ 
+ 
+ 
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
 	context.TYPE = type;
@@ -1306,11 +1200,11 @@ ImageComponent.prototype = {
 
 
 
-/** @exports NavComponent
-* @classdesc Creates a Nav component
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+
 function NavComponent(opts){
 	opts = (Utils.isNull(opts)) ? {} : opts;
 	_.extend(this,
@@ -2681,7 +2575,6 @@ ContainerComponent.prototype = {
 
 	/**
 	* Adds a component to this component
-	* nnnnn
 	* @param {ComponentManager} (required) The component to add.
 	* @param {Boolean} (optional) Default is true - Empties the component 
 	* of all other components before adding the new component. If set to
@@ -2829,7 +2722,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create div 
+	* @param {Object}
 	* @return {HTMLElement} this
 	*/
 	div: function(obj){
@@ -2841,7 +2735,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create span
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	span: function(obj){
@@ -2853,19 +2748,22 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create ul
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	ul: function(obj){},
 
 	/**
-	* Add
+	* Create li
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	li: function(obj){},
 
 	/**
-	* Add
+	* Create p
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	p: function(obj){
@@ -2877,7 +2775,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create h1
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	h1: function(obj){
@@ -2889,7 +2788,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create h2
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	h2: function(obj){
@@ -2901,7 +2801,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create h3
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	h3: function(obj){
@@ -2913,7 +2814,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create h4
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	h4: function(obj){
@@ -2925,7 +2827,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create h5
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	h5: function(obj){
@@ -2937,7 +2840,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create h6
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	h6: function(obj){
@@ -2948,7 +2852,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create article
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	article: function(obj){
@@ -2959,7 +2864,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create section
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	section: function(obj){
@@ -2970,7 +2876,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create footer
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	footer: function(obj){
@@ -2981,7 +2888,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create nav
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	nav: function(obj){
@@ -2992,7 +2900,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create blockquote
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	blockquote: function(obj){
@@ -3003,7 +2912,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create ol
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	ol: function(obj){
@@ -3014,7 +2924,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create pre
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	pre: function(obj){
@@ -3025,7 +2936,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create a
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	a: function(obj){
@@ -3036,7 +2948,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create abbr
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	abbr: function(obj){
@@ -3047,7 +2960,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create br
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	br: function(obj){
@@ -3058,7 +2972,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create area
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	area: function(obj){
@@ -3069,7 +2984,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create audio
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	audio: function(obj){
@@ -3080,7 +2996,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create video
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	video: function(obj){
@@ -3091,7 +3008,8 @@ var Brick = {
 	},	
 
 	/**
-	* Add
+	* Create table
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	table: function(obj){
@@ -3102,7 +3020,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create tbody
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	tbody: function(obj){
@@ -3113,7 +3032,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create tfoot
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	tfoot: function(obj){
@@ -3124,7 +3044,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create td
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	td: function(obj){
@@ -3135,7 +3056,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create th
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	th: function(obj){
@@ -3146,7 +3068,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create tr
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	tr: function(obj){
@@ -3157,7 +3080,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create button
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	button: function(obj){
@@ -3168,7 +3092,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create form
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	form: function(obj){
@@ -3179,7 +3104,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create input
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	input: function(obj){
@@ -3191,7 +3117,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create label
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	label: function(obj){
@@ -3203,7 +3130,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create textarea
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	textarea: function(obj){
@@ -3212,7 +3140,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create option
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	option: function(obj){
@@ -3223,7 +3152,8 @@ var Brick = {
 	},
 
 	/**
-	* Add
+	* Create img
+	* @param {Object}
 	* @return {HTMLElement} 
 	*/
 	img: function(obj){
@@ -3276,7 +3206,12 @@ function BrickComponent(){
 }
 BrickComponent.prototype = {
 
-
+	/**
+	* An array of components to build
+	*
+	* @param
+	*
+	*/
 	array: function(type,arrayObjs){
 
 		console.log(arrayObjs);
@@ -3444,6 +3379,10 @@ BrickComponent.prototype = {
 		return BrickComponent_make("button",opts,this);
 	},
 
+	/**
+	*
+	* @return {BrickComponent}
+	*/
 	section: function(opts){
 		return BrickComponent_make("section", opts, this);
 	},
@@ -3526,11 +3465,11 @@ function BrickComponent_make(element,opts,self){
 
 
 
-/** @exports NavigationComponent
-* @classdesc A top-level component that.
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+
 function NavigationComponent(obj){
 	_.extend(this, 
 		new AppFactoryManager('NavigationComponent'), 
@@ -3917,21 +3856,356 @@ function _side_navigation(self){
 
 
 
-
-
-
-
 /** @exports TableComponent
-* @classdesc Instatiated by the  {@link ViewLayoutController} class
+* @classdesc Wrapper for TableHandler class 
 * @class
 * @constructor
-* @param {Object} obj
-* @param {string} obj.id
-* @param {string} obj.classes
-* @param {string} obj.styles
 */
-function TableComponent (obj){
+function TableComponent(opts){
 
+	if(opts==undefined || opts==null){
+		opts = {};
+	}
+	this._props_ = {};
+
+	this._props_._opts = opts;
+
+	this._props_._is_creating = false;
+
+	this._props_._table_body = {
+		_columns: [],
+		_rows: null
+	};
+
+
+}
+
+
+TableComponent.prototype = {
+
+	/**
+	*	Add headers to table
+	*
+	*/
+	headers: function(opts){
+		this._props_._is_creating = true;
+
+		this._props_._table_body._rows = opts;
+		return this;
+	},
+
+	/**
+	*	Add single column to table
+	*
+	*/
+	column: function(opts){
+		this._props_._is_creating = true;
+
+		this._props_._table_body._columns.push(opts);
+
+		return this;
+	},
+
+	/**
+	*	Add columns to table
+	*
+	*/
+	columns: function(opts){
+		this._props_._is_creating = true;
+		if(Array.isArray(opts)){
+			for (var i = 0; i < opts.length; i++) {
+				if(Array.isArray(opts[i])){
+					this._props_._table_body._columns.push(opts[i]);
+				}else{
+					console.log('Table column options must be an array');
+					console.log(opts);
+				}
+			}
+		}else{
+			console.log('Table columns provided must be an array');
+			console.log(opts);
+		}
+		return this;
+	},
+
+	/**
+	* Add an event listener to this table. When a cell is clicked an
+	* event is triggered and the value of the cell and the event is
+	* passed to this method.
+	*
+	*/
+	listener: function(listener){
+		this._props_._listener = listener; 
+		return this;
+	},
+
+
+	/**
+	*	Build this table
+	*
+	*/
+	build: function(){
+		this._props_._is_creating = true;
+
+		var table = new TableHandler(this._props_._table_body,this);
+
+		return table.build();
+
+	},
+
+
+	/**
+	*	Creates a table from given file or text
+	*
+	*/
+	createTable: function(opts){
+
+		if(this._props_._is_creating){
+			console.log('cant call createTable on already created table.');
+			return;
+		}
+
+		var container = new ContainerComponent();
+
+		if(opts.filename){
+			$.get(opts.filename,function(content){
+				mysetup(content);
+			});
+		}else if(opts.content){
+			mysetup(opts.content);
+		}
+
+		function mysetup(content){
+			var seperator = "\t";
+
+			if(opts.delemeter){
+				seperator = opts.delemeter;
+			}
+
+			var file_rows = content.split("\n");
+
+			var headerData = [];
+			var row = file_rows[0];
+			for (var i = 0; i < row.length; i++) {
+				headerData.push(row[i]);
+			};
+
+			var columnsData = [];
+			
+			for(var i=1; i<file_rows.length; i++){
+				var column = file_rows[i].split(seperator);
+				columnsData.push(column);
+			}
+
+			var table1 = new TableComponent({
+				id: (opts.id) ? opts.id : "",
+				className: opts.className,
+				_createTableOptions: opts
+				
+			});
+			var p = table1
+			.headers(headerData)
+			.columns(columnsData)
+			.build();
+
+			container.addComponent(p);
+		}
+
+
+
+
+		
+
+		return container;
+
+		
+
+		
+
+	}
+
+
+
+};
+
+
+
+/** @exports TableHandler
+* @classdesc Creates a table, Cannot be accessed directly but through 
+* the TableComponent class.
+* @class
+* @constructor
+*/
+function TableHandler(opts,tableComponent){
+
+	_.extend(this, 
+		new AppFactoryManager('TableHandler'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager()
+	);
+	applicationManager.register(this);
+
+
+	var self = this;
+	var createTableOptions = (tableComponent._props_._opts._createTableOptions) ? 
+		tableComponent._props_._opts._createTableOptions : {}; 
+
+	var _container = document.createElement('div');
+	_container.id = "table-"+Utils.randomGenerator(22,false);
+	var _table = document.createElement('table');
+	var _thead = document.createElement('thead');
+	var _tbody = document.createElement('tbody');
+	
+	_table.appendChild(_thead);
+	_table.appendChild(_tbody);
+
+	var tableClassName = (tableComponent._props_._opts.className) ? tableComponent._props_._opts.className : "";
+
+	_table.className = tableClassName;
+	_tbody.className = "";
+	_thead.className = "";
+	_thead.id = "";
+
+	_container.appendChild(_table);
+
+	
+	var tmpRow = [];
+	if(tableComponent._props_._opts.scoped){
+		var content = tableComponent._props_._opts.scoped.content;
+		tmpRow.push({content: content});
+		for (var i = 0; i < opts._rows.length; i++) {
+			tmpRow.push(opts._rows[i]);
+		}
+		opts._rows = tmpRow;
+	}
+
+	var tr1 = document.createElement('tr');
+	if(opts._rows==undefined){
+		opts._rows = [];
+	}
+	for (var i = 0; i < opts._rows.length; i++) {
+		var content = null;
+		if(typeof opts._rows[i] === "string"){
+			content = opts._rows[i];
+
+			var th = document.createElement('th'); 
+			th.innerHTML = content;
+			th.scope = "col";
+			tr1.appendChild(th);
+
+
+		}else{
+			
+			
+			
+
+			opts._rows[i]._type = "th";
+			opts._rows[i].innerHTML = opts._rows[i].content;
+			opts._rows[i]._create_element_from_this_object = true;
+			delete opts._rows[i].content;
+
+			var th = buildBody(opts._rows[i],self);
+
+			th.scope = "col";
+			tr1.appendChild(th);
+
+		}
+
+	}
+	_thead.appendChild(tr1);
+
+
+	var ids = [];
+	var columnCount = 1;
+	for (var i = 0; i < opts._columns.length; i++) {
+		var column = opts._columns[i];
+		var tr = document.createElement('tr'); 
+		var count = 0;
+		for (var n = 0; n < column.length; n++) {
+			var content = null;
+			if(typeof column[n] === "string"){
+				content = column[n];
+			}else{
+				content = column[n].content;
+			}
+
+			var td = document.createElement('td'); 
+			if(tableComponent._props_._opts.scoped){
+				if(count==0){
+					var th2 = document.createElement('th'); 
+					th2.scope = "row";
+					th2.innerHTML = columnCount;
+					columnCount++;
+					count++;
+					tr.appendChild(th2);
+				}
+			}
+			var id = "a"+Utils.randomGenerator(12);
+			td.innerHTML = content;
+			td.id = id;
+			tr.appendChild(td);
+			ids.push(id);
+		}
+		_tbody.appendChild(tr);
+	}
+
+	_Utils_registerListenerCallbackForSelf("run","",function(data){
+					console.log("what");
+		setTimeout(function(){
+
+					console.log("yes");
+		for (var i = 0; i < ids.length; i++) {
+			$("#"+ids[i]).click(function(e){
+					console.log("no");
+				if(createTableOptions.listener){
+					console.log("hello");
+					createTableOptions.listener(e.target.innerHTML,e);
+				}else if(tableComponent._props_._listener){
+					console.log("world");
+					tableComponent._props_._listener(e.target.innerHTML,e);
+				}
+			})
+		}
+
+		},1000);
+
+
+	},self);
+
+	this._props_._fragment = document.createDocumentFragment();
+	this._props_._fragment.appendChild(_container);
+
+	this.getHtml = function(){
+		return this._props_._fragment.cloneNode(true);
+	}
+
+
+}
+TableHandler.prototype = {
+
+	/**
+	* Builds this table
+	*
+	*/
+	build: function(){
+		return this;
+	}
+};
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+function TableComponent245 (obj){
+	
 	var isNull = Utils.isNull;
 
 	_.extend(this, 
@@ -3946,6 +4220,8 @@ function TableComponent (obj){
 		obj = {};
 		obj.columns = [];
 	}
+
+	
 
 
 	this.TYPE = Flags.Type.component;
@@ -4085,13 +4361,13 @@ function TableComponent (obj){
 				elementTextDownloadAsFile("houstonvote_downloaded_file.txt", self.getTableAsString());
 			})
 			$("#"+addSaveBtn.id).click(function(e){
-				Utils.toggleFullScreenLoader();
+				
 				if(!isNull(obj.save)){
 					obj.save(self);
 				}
-				setTimeout(function(){
-					Utils.toggleFullScreenLoader();
-				},1500);
+				
+				
+				
 			});
 
 		},self,true);
@@ -4128,7 +4404,7 @@ function TableComponent (obj){
 	
 }
 
-TableComponent.prototype = {
+TableComponent245.prototype = {
 
 	getRowCellData: function(rowId){
 		if(isNull(rowId) || rowId==false){
@@ -4136,7 +4412,6 @@ TableComponent.prototype = {
 		}else{
 			return this._props_._tableStructure._row_cell_data[rowId];
 		}
-		
 	},
 
 	getColumnData: function(columnIndex){
@@ -4371,7 +4646,7 @@ TableComponent.prototype = {
 			
 			
 		
-
+			
 		console.log(obj);
 
 		
@@ -4402,13 +4677,15 @@ TableComponent.prototype = {
 
 		var editable = (isNull(obj.editable)) ? false : obj.editable;
 
+		var updatable = (isNull(obj.updatable)) ? false : obj.updatable;
+
 		
 		var mode = (isNull(obj.mode)) ? "normal" : obj.mode;
 		var tm = new ComponentFactory();
 		var table = tm.table({
-			updatable: true,
-			editable: editable,
-			mode: mode,
+			updatable: updatable,
+			editable: false,
+			mode: false,
 			columns: columns,
 			save: obj.save,
 			cellRequestForConnectedData: obj.cellRequestForConnectedData
@@ -4416,6 +4693,7 @@ TableComponent.prototype = {
 
 		
 	
+
 		var columnsData = [];
 		
 		for(var i=1; i<file_rows.length; i++){
@@ -5310,11 +5588,11 @@ function TableComponent_getTableAsString(delemeter,self){
 
 
 
-/** @exports CMSUsers
-* @classdesc A component that handles multiple components with in one view.
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+
 function CMSUsers(){
 
 }
@@ -5338,11 +5616,11 @@ CMSUsers.prototype = {
 }
 
 
-/** @exports CMSManager
-* @classdesc A component that handles multiple components with in one view.
-* @class
-* @constructor
-*/
+ 
+ 
+ 
+ 
+
 function CMSManager(){
 
 }
@@ -9107,6 +9385,8 @@ function FormEventsHandler_constructor(obj,formElement,self){
 
 
 /* 0000 - ModalComponent */
+
+
 function ModalDialogComponent_mobile(){
 
 
@@ -9396,7 +9676,8 @@ function ModalDialogComponent_mobile(){
 
 
 
-/* 0000 - Utils */
+/* 0000 5051 - Utils */
+
 function Utils_createELement(type,options){
 	
 	if(Utils.isNull(type)){
@@ -9454,7 +9735,10 @@ function Utils_createELement(type,options){
 			}else if(i == "innerHTML"){
 				element.innerHTML = options[i];
 			}else{
-				element.setAttribute(i, options[i]);
+				
+				
+				if(i.charAt(0) != "_")
+					element.setAttribute(i, options[i]);
 			}
 			
 		}
@@ -9802,6 +10086,7 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 		columns,arrayOfItems,obj,self
 	];
 }
+
 function AppLayout_build(self){
 	
 	
@@ -10456,10 +10741,28 @@ function _layoutMake(obj,arrayOfItems){
 
 
 
+
+
+
+
+
+
+
 function buildBody(object,self){
 	var body = null;
-	
+
 	if(object!=null || object!=undefined){
+
+		if(object._create_element_from_this_object!=undefined && 
+			object._create_element_from_this_object!=null && 
+			object._create_element_from_this_object==true){
+
+			var el = Utils_createELement(object._type,object);
+
+			return el;
+		}
+
+
 		if(object.body){
 			body = object.body;
 		}else{
@@ -10765,78 +11068,6 @@ function _Utils_registerListenerCallback(obj,self){
 
 
 
-function Thread(){
-	var blobURL = URL.createObjectURL( new Blob([ '(',
-
-
-
-		function(){
-
-			 this.onmessage = function(e){
-				this.postMessage('Succefully sent messgae back to you but with a catch');
-
-
-
-		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var self = this;
-
-function readTextFile(file,callback){
-	self.postMessage(file);
-	var rawFile = new XMLHttpRequest();
-	rawFile.open("GET", "../js/includes/components/html/header.html", false);
-	rawFile.onreadystatechange = function (){
-	   if(rawFile.readyState === 4) {
-		  if(rawFile.status === 200 || rawFile.status == 0){
-			 var allText = rawFile.responseText;
-			 if(callback!=null && callback!=undefined) callback(allText,file,rawFile);
-		  }
-	   }
-    }
-    rawFile.send(null);    
-}
-
-readTextFile("../js/includes/components/html/header.html",function(a){
-	self.postMessage(a);
-});
-
-			 };
-
-		}.toString(),
-
-	')()' ], { type: 'application/javascript' } ) );
-
-	var worker = new Worker( blobURL );
-
-	worker.addEventListener('message',function(e){
-		var msg = e.data;
-		
-		
-	});  
-
-	setTimeout(function(){
-		worker.postMessage('sending');
-	},2000);
-
-	
-}
 
 
 
@@ -11049,10 +11280,6 @@ ApplicationContextManager.prototype = {
 		this._props_._segmented_plugins = extension;
 	},
 
-
-	/**
-	* {@link Flags}
-	*/
 	Flags: Flags,  
 
 	/**
@@ -11298,7 +11525,7 @@ function initializeApplication(isClient,activePlugin,self){
 		var clientthemes = pluginconfig['client-themes'];
 
 		for (var i = 0; i < clientthemes.length; i++) {
-			if(clientthemes[i].theme==client_active_theme){
+			if(clientthemes[i].directory==client_active_theme){
 				clientactivetheme = clientthemes[i];
 				break;
 			}
