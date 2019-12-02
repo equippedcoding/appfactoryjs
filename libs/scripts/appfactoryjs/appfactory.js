@@ -1,3 +1,4 @@
+
 /**
 * @overview AppFactoryJS is a javscript framework tha can be including as a single 
 * js file (but with limitations) or as a whole application framework. 
