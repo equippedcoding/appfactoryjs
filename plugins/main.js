@@ -4,7 +4,7 @@ xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
 		var config = JSON.parse(xhttp.responseText);
 		require.config(config['requirejs-config']);
-		requirejs(['appfactory','plugins/default/init'],function(appfactory,activePlugin){
+		requirejs(['appfactory','plugins/app/init'],function(appfactory,activePlugin){
 			var app = new ApplicationContextManager(config);
 			app.initializeApplication(true,activePlugin);
 		});

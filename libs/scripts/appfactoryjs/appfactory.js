@@ -24,18 +24,35 @@
 * @license BSD-2-Clause. 
 * @version 0.0.1   
 */
-(function (root, factory) {    
+(function (root, factory) {             
+	/*global define*/
+	
+	
+	
+	
+	
+	
+	
+
+
 	if (typeof define === 'function' && define.amd) {
+		
 		define(['jquery','backbone'], factory);
 	} else if (typeof module !== 'undefined' && module.exports) {
+		
 		module.exports = factory(require('jquery'));
 	} else {
+		
 		factory(jQuery);
 	}	
 }(this, function ($) {    
 
+
+/* Global Variables */ 
+
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
+
 
 var Flags = Object.freeze({
 	Type: {view:"v",component:"c",layout:"l"},
@@ -44,6 +61,7 @@ var Flags = Object.freeze({
 });
 
 
+/* Global Functions */
 function GL_RegisterListenerCallback(obj,self,id,moreData){
 
 }
@@ -247,8 +265,8 @@ ApplicationManager.prototype = {
 		return this._application_manager._file_contents[alias];
 	},
 
-	templateParser: function(htmlString,replacements){
-		return ApplicationManager_templateParser(htmlString,replacements,this);
+	templateParser: function(htmlString,replacements,opts){
+		return ApplicationManager_templateParser(htmlString,replacements,opts,this);
 	},
 
 	setFileContents: function(alias,content){
@@ -279,13 +297,6 @@ function SessionManager(){
 
 }
 SessionManager.prototype = {};
-
-
-
-
- 
- 
- 
  
 
 function StateManager(){
@@ -528,22 +539,6 @@ ApplicationPlugin.prototype = {
 
 			adminTheme = comp;
 		}
-
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-				
-		
-		
-
 		
 
 
@@ -559,9 +554,6 @@ ApplicationPlugin.prototype = {
 
 /* Components */
 
- 
- 
- 
  
  
 function ComponentManager(type,context){
@@ -704,7 +696,7 @@ ComponentManager.prototype = {};
 * @class
 * @constructor
 */
-function Pages(){
+function Pages(){ 
 	_.extend(this, new AppFactoryManager('Pages'));
 	this._props_ = {
 		_container_id: "app-factory-container",
@@ -713,7 +705,9 @@ function Pages(){
 	};
 	var containerDiv = document.createElement('div');
 	containerDiv.id = this._props_._container_id;
-	document.body.appendChild(containerDiv);
+
+	
+	
 
 	
 	
@@ -926,17 +920,17 @@ ViewManager.prototype = {
 	newSubView: function(opts){
 		var self = this;
 		var opt = self._props_._options;
-		/*
-		if(opt.routable==true){
-			if(Utils.isNull(opts.route)){
-				opts.route = opts.id;
-			}
-			var v = buildBody(opts,self);
-			if(!Utils.isNull(v) && v.TYPE && v.TYPE == "v"){
+		
+		
+		
+		
+		
+		
+		
 
-			}
-		}
-		*/
+		
+		
+		
 		if(opts.id){
 			for (var i = 0; i < self._props_._views_objects.length; i++) {
 				if(opts.id == self._props_._views_objects[i].id){
@@ -1099,6 +1093,10 @@ ComponentFactory.prototype = {
 		return new NavigationComponent(obj);
 	},
 
+	navbar: function(opts){
+		return new NavbarComponent(opts);
+	},
+
 
 	nav: function(opts){
 		return new NavComponent(opts);
@@ -1197,6 +1195,94 @@ function ImageComponent(opts){
 ImageComponent.prototype = {
 
 };
+
+
+
+
+function NavbarComponent(opts){
+
+
+
+
+var el = Brick.stack().nav({
+	className: 'navbar navbar-expand-lg navbar-light bg-light',
+	nest: Brick.stack().button({
+		className: 'navbar-toggler',
+		type: 'button',
+		'data-toggle':'collapse',
+		'data-target':'navbarTogglerDemo01',
+		"aria-controls":"navbarTogglerDemo01",
+		"aria-expanded":"false", 
+		"aria-label":"Toggle navigation",
+		nest: Brick.stack().span({
+			className: 'navbar-toggler-icon'
+		})
+		.div({
+			id:'navbarTogglerDemo01',
+			className:'collapse navbar-collapse',
+			nest: Brick.stack().a({
+				className:'navbar-brand',
+				href:'#',
+				innerHTML: 'Hidden brand'
+			})
+			.ul({
+				className:'navbar-nav mr-auto mt-2 mt-lg-0',
+				nest: Brick.stack().array([
+				{_el: 'h1', innerHTML:'Plugin 1', href:'#'},
+				{_el: 'h2', innerHTML:'Plugin 2', href:'#'},
+				{_el: 'h3', innerHTML:'Plugin 3', href:'#'},
+				{_el: 'h4', innerHTML:'Plugin 4', href:'#'},
+				{_el: 'h5', innerHTML:'Plugin 5', href:'#'}
+			])
+			}).build()
+		}).build()
+	}).build()
+
+}).build();
+
+
+var r = `
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+    <a class="navbar-brand" href="#">Hidden brand</a>
+    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#">Disabled</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
+
+
+`;	
+
+
+}
+NavbarComponent.prototype = {
+
+
+
+
+
+
+};
+
+
+
 
 
 
@@ -1341,7 +1427,8 @@ function NavComponent(opts){
 	var navClasses = "nav "+self._props_._position_class + " " +classNames;
 	self._props_._elements._ul = createElement({
 		el:'ul',
-		className: navClasses
+		className: navClasses,
+		style: (opts.style) ? opts.style : ""
 	});
 
 
@@ -1360,7 +1447,7 @@ NavComponent.prototype = {
 	* @param {Object} - nav options
 	*/
 	add: function(opts){
-
+		
 		var self = this;
 		var isNull = Utils.isNull;
 		var createElement = Utils.createElement;
@@ -1388,8 +1475,18 @@ NavComponent.prototype = {
 			self._props_._active_item = id;
 		}
 		
+
+		var style = (opts.style) ? opts.style : "";
+		var className = (opts.className) ? opts.className : "";
+
 		var li = createElement({el:'li',className:'nav-item'});
-		var a = createElement({el:'a',id:id,className:'nav-link',href:'#',innerHTML:label});
+		var a = createElement({el:'a',
+			style:style,
+			id:id,
+			className:'nav-link '+className,
+			href:'#',
+			innerHTML:label
+		});
 		li.appendChild(a);
 		self._props_._elements._ul.appendChild(li);
  
@@ -1457,12 +1554,12 @@ NavComponent.prototype = {
 
 
 
-/** @exports DialogComponent
-* @classdesc Creates a dialog component
-* @class
-* @constructor
-* @tutorial 04-building_forms
-*/
+
+
+
+
+
+
 function ModalComponent(opts){
 	opts = (Utils.isNull(opts)) ? {} : opts;
 	_.extend(this,
@@ -1478,9 +1575,13 @@ function ModalComponent(opts){
 
 	this._props_._container_id = this._props_._id;
 
-	$('body').append(Utils.createElement({
-		id: this._props_._container_id
-	}));
+	
+	
+	
+	
+	
+	
+
 
 	this.getHtml = function(){
 		return this._props_._dialog;
@@ -1616,103 +1717,6 @@ function ModalComponent_setContent(opts,self){
 		
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1928,20 +1932,6 @@ ListComponent.prototype = {
 			});
 
 		},self);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	}
 
@@ -2404,37 +2394,12 @@ function ButtonComponent(opts){
 		className = (opts.classes==undefined) ? "" : opts.classes;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-
 	var button = document.createElement('button');
 	button.id = id;
 	button.style = style;
 	button.className = className;
 	button.innerHTML = label;
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
 	if(!Utils.isNull(opts.listener)){
 		_Utils_registerListenerCallbackForSelf("click",selector,opts.listener,self);
 	}
@@ -2453,11 +2418,107 @@ ButtonComponent.prototype = {
 
 
 
-/** @exports ContainerComponent
-* @classdesc A top-level component that.
-* @class
-* @constructor
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
 function ContainerComponent(obj){
 	_.extend(this, 
 		new AppFactoryManager('ContainerComponent'), 
@@ -2481,66 +2542,54 @@ function ContainerComponent(obj){
 	_Utils.registerListenerCallback(obj,this);
 
 	self._props_._active = true;
-	var _loader_id = "load_"+Utils.randomGenerator(16,false);
-	var _spinner_id = "spinner_"+Utils.randomGenerator(16,false);
-	var cont1 = Utils.createElement({id: _loader_id});
-	var cont2 = Utils.createElement({id: _spinner_id});
-	cont1.appendChild(cont2);
-	self._props_._loader_el = cont1;
-	self._props_._loader_id = _loader_id;
-	self._props_._spinner_id = _spinner_id;
-	self._props_._loader_container_class = "appfactory-container-loader";
-	self._props_._loader_spinner_class = "appfactory-container-loader-spinner";
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 	
 	var createElement = Utils.createElement;
 	var obj = self._props_._obj;
 	var bodies = [];
-	self._props_._container = document.createElement('div');
-	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";
-	if(!Utils.isNull(obj)){
-		if(!Utils.isNull(obj.classes)){
-			self._props_._container.className = obj.classes;
-		}else if(!Utils.isNull(obj.className)){
-			self._props_._container.className = obj.className;
-		}
-		if(!Utils.isNull(obj.style)){
-			self._props_._container.style = obj.style;
-		}
-	}
 
-	
 	var firstdivid = "j"+Utils.randomGenerator(12,false);
 	self._props_._component_element_container_id = firstdivid;
+
+	self._props_._container = document.createElement('div');
+	self._props_._container.id = firstdivid;
+	if(!Utils.isNull(obj.classes)){
+		self._props_._container.className = obj.classes;
+	}else if(!Utils.isNull(obj.className)){
+		self._props_._container.className = obj.className;
+	}
+	if(!Utils.isNull(obj.style)){
+		self._props_._container.style = obj.style;
+	}
+
+
 	var firstdiv = createElement({id:firstdivid});
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	var b = buildBody(obj,self);
-	firstdiv.appendChild(b);
+	
 
-	self._props_._container.appendChild(firstdiv);
-
+	self._props_._container.appendChild(b);
 
 	
 	
-
-	var seconddivid = "j"+Utils.randomGenerator(12,false);
-	var seconddiv = createElement({id:seconddivid});
 	var span = Utils.createElement('span',{id:self.getId()});
-	seconddiv.appendChild(self._props_._loader_el);
-	seconddiv.appendChild(span);
-	self._props_._container.appendChild(seconddiv);
+	
+	
+	self._props_._container.appendChild(span);
 
+
+	
 	var fragment = document.createDocumentFragment();
 	fragment.appendChild(self._props_._container);
 	self._props_._elements._fragment = fragment;
@@ -2552,25 +2601,31 @@ function ContainerComponent(obj){
 
 
 }
-
-
-function ContainerComponent222(obj){
-	_.extend(this, 
-		new AppFactoryManager('ContainerComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
-	applicationManager.register(this);
-	var self = this;
-	obj = (obj) ? obj :{};
-
-	var b = buildBody(obj,this);
-
-
-
-
-}
 ContainerComponent.prototype = {
+
+
+	/**
+	* Add event listener to this container. There can be
+	* more than one listener added to the container. If
+	* the element has already been added to the DOM then
+	* the listener will be ignored
+	* 
+	* @param {Object} event type | listener function
+	* @param {Function} function
+	*
+	*/
+	addListener: function(eventType,listener){
+		var obj = {};
+		if(typeof eventType === 'function'){
+			obj.listener = eventType;
+		}else{
+			obj.listener = {
+				type: eventType,
+				func: listener
+			};
+		}
+		_Utils.registerListenerCallback(obj,this)
+	},
 
 
 	/**
@@ -2583,13 +2638,15 @@ ContainerComponent.prototype = {
 	* component is only added once, so if this component is removed from 
 	* the DOM and re-added then the added component will not be attached.
 	*/ 
-	addComponent: function(component,empty,attachOnce){
+	addComponent: function(component,empty,attachOnce,callback){
 		
 		var self = this;
+
 		var isEmpty = (!Utils.isNull(empty)) ? empty : true;
 		attachOnce = (!Utils.isNull(attachOnce)) ? attachOnce : false;
 
 		var setComponent;
+
 
 		if(Array.isArray(component)){
 			var params = [];
@@ -2609,28 +2666,19 @@ ContainerComponent.prototype = {
 		if( document.getElementById(self.getId()) ){
 			addToDOM(setComponent);
 		}
-			if(attachOnce){
-				self.onAttachOnceListener(function(){
-					addToDOM(setComponent);
-				});
-			}else{ 
-				self.onAttachListener(function(){
-					addToDOM(setComponent);
-				});
-			}
-		
+		if(attachOnce){
+			self.onAttachOnceListener(function(){
+				addToDOM(setComponent);
+			});
+		}else{ 
+			self.onAttachListener(function(){
+				addToDOM(setComponent);
+			});
+		}
 		function addToDOM(setComponent1){
 
-			
-			
-
-			
-			
 
 			if(Utils.isNull(setComponent1)) return;
-
-
-
 
 			var id = self._props_._component_element_container_id;
 			if(isEmpty==true){
@@ -2648,32 +2696,30 @@ ContainerComponent.prototype = {
 			
 		}
 
-	},
+	}
+	
+	
+	
+	
+	
 
+	
+	
+	
 
-	/**
-	* 
-	*
-	* @return {Boolean} - The current state of the component.
-	*/
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-	getActive: function(){
-		return self._props_._active;
-	},
-
-	/**
-	* A ContainerComponent can activate a loading screen for this this container
-	* setting the state to true will show a loading icon with a half transparent black
-	* background.
-	*
-	* @param {ComponentManager} component
-	* @param {Boolean} stillSet - Set the state of the component even if not appended to the 
-	* 	DOM. 
-	*/
-
-	setActive: function(active,stillSet){
-		ContainerComponent_setActive(active,stillSet,this);
-	},
+	
+	
+	
 
 };
 
@@ -2706,9 +2752,8 @@ EventManager.prototype = {
 
 
 
-/**
-* Brick 
-*
+/** 
+* @exports AFBrick
 */
 var Brick = {
 
@@ -2719,446 +2764,6 @@ var Brick = {
 	*/
 	createElement: function(type,opts){
 		return Utils.createElement(type,opts);
-	},
-
-	/**
-	* Create div 
-	* @param {Object}
-	* @return {HTMLElement} this
-	*/
-	div: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('div',obj);
-		return e;
-	},
-
-	/**
-	* Create span
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	span: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('span',obj);
-		return e;
-	},
-
-	/**
-	* Create ul
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	ul: function(obj){},
-
-	/**
-	* Create li
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	li: function(obj){},
-
-	/**
-	* Create p
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	p: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('p',obj);
-		return e;
-	},
-
-	/**
-	* Create h1
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	h1: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('h1',obj);
-		return e;
-	},
-
-	/**
-	* Create h2
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	h2: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('h2',obj);
-		return e;
-	},
-
-	/**
-	* Create h3
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	h3: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('h3',obj);
-		return e;
-	},
-
-	/**
-	* Create h4
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	h4: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('h4',obj);
-		return e;
-	},
-
-	/**
-	* Create h5
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	h5: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('h5',obj);
-		return e;
-	},
-
-	/**
-	* Create h6
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	h6: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('h6',obj);
-	},
-
-	/**
-	* Create article
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	article: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('article',obj);
-	},
-
-	/**
-	* Create section
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	section: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('section',obj);
-	},
-
-	/**
-	* Create footer
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	footer: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('footer',obj);
-	},
-
-	/**
-	* Create nav
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	nav: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('nav',obj);
-	},
-
-	/**
-	* Create blockquote
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	blockquote: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('blockquote',obj);
-	},
-
-	/**
-	* Create ol
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	ol: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('ol',obj);
-	},
-
-	/**
-	* Create pre
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	pre: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('pre',obj);
-	},
-
-	/**
-	* Create a
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	a: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('a',obj);
-	},
-
-	/**
-	* Create abbr
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	abbr: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('abbr',obj);
-	},
-
-	/**
-	* Create br
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	br: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('br',obj);
-	},
-
-	/**
-	* Create area
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	area: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('area',obj);
-	},
-
-	/**
-	* Create audio
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	audio: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('audio',obj);
-	},
-
-	/**
-	* Create video
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	video: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('video',obj);
-	},	
-
-	/**
-	* Create table
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	table: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('table',obj);
-	},
-
-	/**
-	* Create tbody
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	tbody: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('tbody',obj);
-	},
-
-	/**
-	* Create tfoot
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	tfoot: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('tfoot',obj);
-	},
-
-	/**
-	* Create td
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	td: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('td',obj);
-	},
-
-	/**
-	* Create th
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	th: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('th',obj);
-	},
-
-	/**
-	* Create tr
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	tr: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('tr',obj);
-	},
-
-	/**
-	* Create button
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	button: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('button',obj);
-	},
-
-	/**
-	* Create form
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	form: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('form',obj);
-	},
-
-	/**
-	* Create input
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	input: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('textarea',obj);
-		return e;
-	},
-
-	/**
-	* Create label
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	label: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		var e = Utils.createElement('label',obj);
-		return e;
-	},
-
-	/**
-	* Create textarea
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	textarea: function(obj){
-		var e = Utils.createElement('textarea',obj);
-		return e;
-	},
-
-	/**
-	* Create option
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	option: function(obj){
-		if(typeof obj === "string"){
-			obj = {innerHTML: obj };
-		}
-		return Utils.createElement('option',obj);
-	},
-
-	/**
-	* Create img
-	* @param {Object}
-	* @return {HTMLElement} 
-	*/
-	img: function(obj){
-		var e = Utils.createElement('img',obj);
-		return e;
 	},
 
 	/**
@@ -3214,8 +2819,6 @@ BrickComponent.prototype = {
 	*/
 	array: function(type,arrayObjs){
 
-		console.log(arrayObjs);
-
 		if(typeof type === 'string'){
 			for (var i = 0; i < arrayObjs.length; i++) {
 				arrayObjs[i]['_el'] = type;
@@ -3247,6 +2850,30 @@ BrickComponent.prototype = {
 		return BrickComponent_make(element,opts,this);
 	},
 
+	/** 
+	* Build this BrickComponent.
+	* 
+	* @return {Component}
+	*/
+	build: function(){
+
+		var self = this;
+
+		var elements = self._props_._elements;
+
+		var fragment = document.createDocumentFragment();
+		for (var i = 0; i < elements.length; i++) {
+			fragment.appendChild(elements[i])
+		}
+
+		self._props_._fragment = fragment;
+
+		return this;
+	},
+
+
+
+
 	
 	/**
 	*
@@ -3270,6 +2897,16 @@ BrickComponent.prototype = {
 	*/
 	i:function(opts){
 		return BrickComponent_make("i",opts,this);
+	},
+
+
+	/**
+	* Create p
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	p: function(opts){
+		return BrickComponent_make("p",opts,this);
 	},
 
 	/**
@@ -3335,6 +2972,14 @@ BrickComponent.prototype = {
 	*
 	* @return {BrickComponent}
 	*/
+	nav: function(opts){
+		return BrickComponent_make("nav",opts,this);
+	},
+
+	/**
+	*
+	* @return {BrickComponent}
+	*/
 	span: function(opts){
 		return BrickComponent_make("span",opts,this);
 	},
@@ -3387,36 +3032,177 @@ BrickComponent.prototype = {
 		return BrickComponent_make("section", opts, this);
 	},
 
+	/**
+	*
+	* @return {BrickComponent}
+	*/
 	img: function(opts){
 		return BrickComponent_make("img", opts, this);
 	},
 
-	/** 
-	* Build this BrickComponent.
-	* 
-	* @return {Component}
+
+	/**
+	* Create table
+	* @param {Object}
+	* @return {BrickComponent} 
 	*/
-	build: function(){
+	table: function(opts){
+		return BrickComponent_make("table", opts, this);
+	},
 
-		var self = this;
+	/**
+	* Create tbody
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	tbody: function(opts){
+		return BrickComponent_make("tbody", opts, this);
+	},
 
-		var elements = self._props_._elements;
+	/**
+	* Create tfoot
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	tfoot: function(opts){
+		return BrickComponent_make("tfoot", opts, this);
+	},
 
-		var fragment = document.createDocumentFragment();
-		for (var i = 0; i < elements.length; i++) {
-			fragment.appendChild(elements[i])
-		}
+	/**
+	* Create td
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	td: function(opts){
+		return BrickComponent_make("td", opts, this);
+	},
 
-		self._props_._fragment = fragment;
+	/**
+	* Create th
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	th: function(opts){
+		return BrickComponent_make("th", opts, this);
+	},
 
-		return this;
+	/**
+	* Create tr
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	tr: function(opts){
+		return BrickComponent_make("tr", opts, this);
 	},
 
 
-	end: function(){
-		this.build();
-		return this;
+	/**
+	* Create article
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	article: function(opts){
+		return BrickComponent_make("article", opts, this);
+	},
+
+
+	/**
+	* Create footer
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	footer: function(opts){
+		return BrickComponent_make("footer", opts, this);
+	},
+
+
+	/**
+	* Create blockquote
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	blockquote: function(opts){
+		return BrickComponent_make("blockquote", opts, this);
+	},
+
+
+	/**
+	* Create pre
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	pre: function(opts){
+		return BrickComponent_make("pre", opts, this);
+	},
+
+
+	/**
+	* Create abbr
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	abbr: function(opts){
+		return BrickComponent_make("abbr", opts, this);
+	},
+
+	/**
+	* Create br
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	br: function(opts){
+		return BrickComponent_make("br", opts, this);
+	},
+
+	/**
+	* Create area
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	area: function(opts){
+		return BrickComponent_make("area", opts, this);
+	},
+
+	/**
+	* Create audio
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	audio: function(opts){
+		return BrickComponent_make("audio", opts, this);
+	},
+
+	/**
+	* Create video
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	video: function(opts){
+		return BrickComponent_make("video", opts, this);
+	},
+
+	/**
+	* Create label
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	label: function(opts){
+		return BrickComponent_make("label", opts, this);
+	},
+
+
+	/**
+	* Create option
+	* @param {Object}
+	* @return {HTMLElement} 
+	*/
+	option: function(opts){
+		return BrickComponent_make("option", opts, this);
 	}
+
+
+
+
 
 };
 function BrickComponent_make(element,opts,self){
@@ -3437,6 +3223,11 @@ function BrickComponent_make(element,opts,self){
 
 		el = Utils.createElement(element,opts);
 
+		if(opts.body){
+			var b = buildBody(opts.body,self);
+			el.appendChild(b);
+		}
+
 		if(nestedElement.TYPE){
 			el.appendChild(nestedElement.getHtml());
 		}else if(typeof nestedElement === "object"){
@@ -3452,6 +3243,13 @@ function BrickComponent_make(element,opts,self){
 		}
 
 		el = Utils.createElement(element,opts);
+
+		if(opts.body){
+			var b = buildBody(opts.body,self);
+			el.appendChild(b);
+		}
+
+
 	}
 	self._props_._elements.push(el);
 
@@ -6168,17 +5966,27 @@ function ApplicationManager_start_handleDeAttachEvents(comp){
 	}
 
 }
-function ApplicationManager_templateParser(htmlString,replacements,self){
+function ApplicationManager_templateParser(htmlString,replacements,opts,self){
 	
 	
 	var res = htmlString;
-	var regex = /\$(.*?)\$/g;
+	
+
+	if(replacements.length!=2) return htmlString;
+
+	if(opts==null || opts==undefined) opts = {};
+
+	var regex = /{{(.*?)}}/g;
+
+	if(opts.delimiterRegex){
+		regex = opts.delimiterRegex;
+	}
+
 	var matched = regex.exec(htmlString);
+	console.log(matched)
 	while(matched != null){
-		for(var i in replacements){
-			if(matched[1]==i){
-				res = res.replace(matched[0],replacements[i]);
-			}
+		if(matched[1]==replacements[0]){
+			res = res.replace(matched[0],replacements[1]);
 		}
 		matched = regex.exec(htmlString);
 	}
@@ -6649,7 +6457,14 @@ function ViewManager_render(id,params,opts,self){
 	if(mOpts){ 
 		self._props_._active_view = mOpts;
 		var _options = {};
-		if(params && typeof mOpts.body==='string'){
+		if(typeof mOpts.body == 'function'){
+			self._props_._containers.addComponent(
+				new ContainerComponent(),
+				replace
+			);
+			mOpts.body();
+			return;
+		}else if(params && typeof mOpts.body==='string'){
 			_options.body = [mOpts.body,params];
 		}else{
 			_options.body = mOpts.body;
@@ -9684,7 +9499,7 @@ function Utils_createELement(type,options){
 		return document.createElement('div');
 	}
 	var inputTypes = ["input","checkbox","radio","submit","file"];
-	var ownTypes = ["el","selector","_el","_selector"];
+	var ownTypes = ["el","selector","_el","_selector","body"];
 	var oneParam = ["disabled","selected"];
 	if(typeof type !== 'string'){
 		options = type;
@@ -10757,6 +10572,10 @@ function buildBody(object,self){
 			object._create_element_from_this_object!=null && 
 			object._create_element_from_this_object==true){
 
+			if(object.body){
+				object._body = object.body;
+				delete object.body;
+			}
 			var el = Utils_createELement(object._type,object);
 
 			return el;
@@ -11017,6 +10836,7 @@ function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventD
 	});
 }
 
+
 var _registered_listeneres_ = [];
 function _Utils_registerListenerCallback(obj,self){
 	if(!Utils.isNull(obj.listener)){ obj.callback = obj.listener; }
@@ -11047,6 +10867,7 @@ function _Utils_registerListenerCallback(obj,self){
 					});
 				}
 			}else{
+				
 				var eventType = (Utils.isNull(obj.callback.type)) ? "click" : obj.callback.type;
 				var preventDefault = (Utils.isNull(obj.callback.preventDefault)) ? false : obj.callback.preventDefault;
 				var stopPropagation = (Utils.isNull(obj.callback.stopPropagation)) ? false : obj.callback.stopPropagation;
@@ -11465,12 +11286,23 @@ ApplicationContextManager.prototype = {
 };
 
 
+var _main_includes = {};
+
+/** 
+* @exports AFInclude
+*/
+function AFInclude(prop){
+	return _main_includes[prop];
+}
+
+window.AFInclude = AFInclude;
 
 function initializeApplication(isClient,activePlugin,self){
 
 	window.AppDialog = componentFactory.dialog();
 	window.AppFactoryDialog = componentFactory.dialog();
 	window.Brick = Brick;
+	window.AFBrick = Brick;
 
 	if(isClient==false){
 		
@@ -11493,55 +11325,104 @@ function initializeApplication(isClient,activePlugin,self){
 	var client_active_plugin = client_plugin_config.split("|")[0];
 	var client_active_theme = client_plugin_config.split("|")[1];
 
-	var url = "plugins/"+client_active_plugin+"/plugin.config.json";
-	$.getJSON( url, function( pluginconfig ) {
 
-		var Utils = app.Utils;   
-		var Plugin = app.getPlugin(); 
-		var Manager = app.getManager(); 
-		var Pages = app.getPages();
-		var View = app.getView();
-		var Layout = app.getLayout();
-		var Factory = app.getComp();
+	if(config_appfac['includes']){
+		for(prop in config_appfac['includes']){
+			_main_includes[prop] = self.Factory.container();
+		}
+	}
 
-		var generatedPluginConfigs = Plugin.getRegisteredPlugins();
+	_start_app();
 
-		var aciveTheme = null;
+	setTimeout(function(){
+		if(config_appfac['includes']){
+			for(prop in config_appfac['includes']){
+				var filepath = config_appfac['includes'][prop];
+				_callRequest(filepath,function(result){
 
-		for (var i = 0; i < activePlugin['client-themes'].length; i++) {
-			if(client_active_theme.trim() == activePlugin['client-themes'][i].directory.trim()){
-				activeTheme = activePlugin['client-themes'][i];
-				break;
+					
+
+					_main_includes[prop].addComponent(result);
+				});
 			}
-		}
+		}	
+	},500);
 
-		var html = activeTheme.component(app);
 
-		if(html!=undefined){
-			$('body').append(html);
-		}
+	function _start_app(){
 
-		var clientactivetheme = null;
-		var clientthemes = pluginconfig['client-themes'];
+		var url = "plugins/"+client_active_plugin+"/plugin.config.json";
+		$.getJSON( url, function( pluginconfig ) {
 
-		for (var i = 0; i < clientthemes.length; i++) {
-			if(clientthemes[i].directory==client_active_theme){
-				clientactivetheme = clientthemes[i];
-				break;
+
+			var Utils = app.Utils;   
+			var Plugin = app.getPlugin(); 
+			var Manager = app.getManager(); 
+			var Pages = app.getPages();
+			var View = app.getView();
+			var Layout = app.getLayout();
+			var Factory = app.getComp();
+
+			var generatedPluginConfigs = Plugin.getRegisteredPlugins();
+
+			var aciveTheme = null;
+
+			for (var i = 0; i < activePlugin['client-themes'].length; i++) {
+				if(client_active_theme.trim() == activePlugin['client-themes'][i].directory.trim()){
+					activeTheme = activePlugin['client-themes'][i];
+					break;
+				}
 			}
-		}
 
-		if(clientactivetheme!=null){
-			for (var i = 0; i < clientactivetheme.head.length; i++) {
-				$('head').append(clientactivetheme.head[i]);
+			var html = activeTheme.component(app);
+
+			if(html!=undefined){
+				$('body').append(html);
 			}
-		}
 
-	});
+			var clientactivetheme = null;
+			var clientthemes = pluginconfig['client-themes'];
+
+			for (var i = 0; i < clientthemes.length; i++) {
+				if(clientthemes[i].directory==client_active_theme){
+					clientactivetheme = clientthemes[i];
+					break;
+				}
+			}
+
+			if(clientactivetheme!=null){
+				
+				for (var i = 0; i < clientactivetheme.head.length; i++) {
+					$('head').append(clientactivetheme.head[i]);
+				}
+
+				
+				if(clientactivetheme.sass){
+					if(clientactivetheme.sass.link!=undefined){
+						$('head').append(clientactivetheme.sass.link);
+					}				
+				}
+			}
+
+		});
+
+	}
 
 }
 
+function _callRequest(filePath,callback){
 
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+			callback(xhttp.responseText,xhttp);
+	    }
+	};
+	xhttp.open("GET", filePath, true);
+	xhttp.send();
+
+
+}
 
 
 function a1(configFile){

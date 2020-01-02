@@ -5,15 +5,15 @@
         "prod": false,
         "production_url": "",
         "development_url": "",
-        "client-active-theme": "default|default",
-        "admin-active-theme": "default|default",
+        "client-active-theme": "app|default",
+        "admin-active-theme": "app|default",
         "plugins": {
-            "default": {
-                "name": "Default",
-                "directory": "default",
+            "app": {
+                "name": "App",
+                "directory": "app",
                 "start": "init",
-                "admin-interface": true,
-                "client-interface": true
+                "admin-active": true,
+                "client-active": true
             },
             "under_construction": {
                 "name": "Under Construction",
@@ -56,6 +56,7 @@
             "<script data-main=\"js/main.js\" src=\"../../libs/scripts/requirejs/require.js\"></script>"
         ]
     },
+    "includes":{},
     "requirejs-config": {
         "waitSeconds": 35,
         "shim": {},
@@ -69,29 +70,13 @@
             "backbone": "libs/scripts/backbone/backbone",
             "bootstrap": "libs/scripts/bootstrap/bootstrap.bundle",
             "jquery": "libs/scripts/jquery/jquery",
-            "jqueryui": "libs/scripts/jquery-ui-1.12.1/jquery-ui",
-            "backbone-mutators": "libs/scripts/backbone/extensions/backbone.mutators",
-            "backbone-memento": "libs/scripts/backbone/extensions/backbone.memento",
-            "socketio": "libs/scripts/socket.io-client/dist/socket.io",
-            "eve": "libs/scripts/raphael/eve.0.3.4",
-            "raphael.core": "libs/scripts/raphael/raphael.2.1.0.core",
-            "raphael.svg": "libs/scripts/raphael/raphael.2.1.0.svg",
-            "raphael.vml": "libs/scripts/raphael/raphael.2.1.0.vml",
-            "raphael": "libs/scripts/raphael/raphael.2.1.0.amd",
             "debug-addIndicators": "libs/scripts/scrollmagic/uncompressed/plugins/debug.addIndicators",
             "scrollmagic": "libs/scripts/scrollmagic/uncompressed/ScrollMagic",
             "animation-gsap": "libs/scripts/scrollmagic/uncompressed/plugins/animation.gsap",
             "tweenmax": "libs/scripts/scrollmagic/greensock/TweenMax.min",
             "TweenLite": "libs/scripts/scrollmagic/greensock/TweenLite.min",
             "timelinemax": "libs/scrollmagic/greensock/TimelineMax.min",
-            "TimelineLite": "libs/scrollmagic/greensock/TimelineLite.min",
-            "moment": "libs/moment/moment",
-            "interact": "libs/interact/interact",
-            "webrtc": "libs/webrtc/adapter",
-            "download": "libs/downloadjs/download",
-            "parse": "libs/parse/parse.min",
-            "socket-io": "libs/socket-io-file/socket.io-file-client",
-            "scrollTo": "libs/plugins/jquery.scrollTo.min"
+            "TimelineLite": "libs/scrollmagic/greensock/TimelineLite.min"
         }
     }
 }
