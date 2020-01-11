@@ -18,7 +18,7 @@
             "directory": "default",
             "start": "theme_interface",
             "head": [
-                "<link rel=\"stylesheet\" type=\"text/css\" class=\"default\" href=\"plugins/default/client/themes/default/styles/css/styles.css\">"
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"plugins/app/client/themes/default/styles/css/styles.css\">"
             ]
         }
     ]
