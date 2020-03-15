@@ -9,7 +9,7 @@
 * 
 * 
 *
-*    
+*     
 *
 * 
 *
@@ -26,18 +26,9 @@
 */
 (function (root, factory) {             
 	/*global define*/
-	
-	
-	
-	
-	
-	
-	
-
-
 	if (typeof define === 'function' && define.amd) {
 		
-		define(['jquery','backbone'], factory);
+		define(['jquery','backbone','bootstrap'], factory);
 	} else if (typeof module !== 'undefined' && module.exports) {
 		
 		module.exports = factory(require('jquery'));
@@ -46,6 +37,7 @@
 		factory(jQuery);
 	}	
 }(this, function ($) {    
+
 
 
 /* Global Variables */ 
@@ -113,7 +105,8 @@ function ApplicationManager(applicationContextManager,stateManager,sessionManage
 		_files: {},
 		_basePath: "",
 		_file_contents: {}
-	}
+	};
+	this._obj_components = null;
 
 }
 ApplicationManager.prototype = {
@@ -125,17 +118,38 @@ ApplicationManager.prototype = {
 	* Starts the application life cycle. Must be called before 
 	* running any application code.
 	*/
-	init: function(callback,param){
+	init: function(pages){
+		
 		var self = this;
-		if(typeof callback === "function"){
-			ApplicationManager_start(callback,self);
-		}else if(typeof callback === "boolean" && callback==true){
-			ApplicationManager_start(param,self);
-			pages.init();
-			pages.render();
-		}else if(Utils.isNull(callback)){
-			ApplicationManager_start(function(){},self);
+
+		
+		
+
+		$('body').append(self.getRootElement());
+		
+		ApplicationManager_start_runInterval(self);
+
+		if(Array.isArray(pages)){
+			
+			
+		}else{
+			pages.func(pages.obj,pages.self);
 		}
+
+		stateManager.buildRoutes();
+
+		stateManager.start();
+		
+		
+		
+		var hash = gl_applicationContextManager.getHash();
+		if(hash!=undefined && hash!=null){
+			stateManager.go(hash,true);
+		}else{
+			stateManager.go("",true);
+		}
+		
+		
 	},  
 
 	/**
@@ -154,6 +168,10 @@ ApplicationManager.prototype = {
 	},
 
 	retrieve: function(id,flag){
+		if(id.charAt(0)=='@'){
+			id = id.substr(1);
+		}
+
 		if(flag == Flags.Component){
 			return _g();
 		}else if(Flags.Method){
@@ -180,7 +198,7 @@ ApplicationManager.prototype = {
 	getAll: function(){
 		return this._application_manager._any;
 	},
-
+	
 	/**
 	* Store an object to be retrieved later anywhere with in the app
 	*
@@ -257,7 +275,7 @@ ApplicationManager.prototype = {
 		return component;
 	},
 
-	setComponent: function(tag){
+	setComponent: function(tag){ 
 		this._application_manager._componentElements[tag];
 	},
 
@@ -285,19 +303,12 @@ ApplicationManager.prototype = {
 
 
 
-
-
- 
- 
- 
- 
-
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
 
 }
 SessionManager.prototype = {};
- 
+
 
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
@@ -316,6 +327,16 @@ function StateManager(){
 }
 
 StateManager.prototype = {
+
+
+	/**
+	*
+	*/
+	getHash: function(){
+		return window.location.hash;
+	},
+
+
 	mapRoute: function(route,layout){
 
 		
@@ -369,7 +390,7 @@ StateManager.prototype = {
 	/**
 	* 
 	*/
-	go: function(path,trigger,body){
+	go: function(path,trigger){
 		
 		if(Utils.isNull(trigger)){
 			trigger = true;
@@ -388,7 +409,7 @@ StateManager.prototype = {
 	* 
 	*/
 	buildRoutes: function(){
-		return StateManager_buidRoutes(this);
+		return StateManager_buidRoutes(this); 
 	},
 
 	getRouterConfig: function(){
@@ -400,20 +421,13 @@ StateManager.prototype = {
 	*/
 	getRouter: function(){
 		return this._state_manager._router;
+	},
+
+	start: function(){
+		startRouterApplication(this);
 	}
 };
 
-
-
-
- 
- 
- 
- 
- 
- 
- 
- 
 
 function ApplicationExtensions(){
 	this._props_ = {};
@@ -451,13 +465,6 @@ ApplicationExtensions.prototype = {
 	}
 
 };
-
-
-
-
- 
- 
- 
  
 
 function ApplicationPlugin(){
@@ -500,10 +507,6 @@ ApplicationPlugin.prototype = {
 	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
-		
-		
-		
-
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
 
@@ -539,8 +542,6 @@ ApplicationPlugin.prototype = {
 
 			adminTheme = comp;
 		}
-		
-
 
 		return {
 			admin: adminTheme,
@@ -554,8 +555,6 @@ ApplicationPlugin.prototype = {
 
 /* Components */
 
- 
- 
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
 	context.TYPE = type;
@@ -686,11 +685,6 @@ ComponentManager.prototype = {};
 
 
 
-
-
-
-
-
 /** @exports Pages
 * @classdesc handles the routing and mapping between component and routes 
 * @class
@@ -706,13 +700,8 @@ function Pages(){
 	var containerDiv = document.createElement('div');
 	containerDiv.id = this._props_._container_id;
 
-	
-	
-
-	
-	
-
 }
+
 
 Pages.prototype = {
 
@@ -721,7 +710,12 @@ Pages.prototype = {
 	*
 	*/
 	newPageView: function(obj){
-		Pages_newPageView(obj,this);
+		
+		return {
+			func: Pages_newPageView,
+			obj: obj,
+			self: this
+		};
 	}, 
 
 	/**
@@ -817,8 +811,6 @@ function ViewManager(opt){
 	ViewsHolder.push(self);
 
 	
-
-	
 	self.getHtml = function(){
 
 		
@@ -868,18 +860,8 @@ ViewManager.prototype = {
 	
 	
 
-	
-	
-	
-	
-	
-
 	render: function(id,params,opts){
 		ViewManager_render(id,params,opts,this);
-
-		
-		
-		
 		
 	},
 
@@ -910,9 +892,6 @@ ViewManager.prototype = {
 	getView: function(id){
 		return MultiView_getView(id,this);
 	},
-
-
-		
 		
 	/**
 	* Add new view to this ViewManager
@@ -920,16 +899,6 @@ ViewManager.prototype = {
 	newSubView: function(opts){
 		var self = this;
 		var opt = self._props_._options;
-		
-		
-		
-		
-		
-		
-		
-
-		
-		
 		
 		if(opts.id){
 			for (var i = 0; i < self._props_._views_objects.length; i++) {
@@ -956,13 +925,7 @@ ViewManager.prototype = {
 		return this._props_._is_routable;
 	}
 
-
-
 };
-
-
-
-
 
 
 
@@ -1201,81 +1164,337 @@ ImageComponent.prototype = {
 
 function NavbarComponent(opts){
 
+	opts = (Utils.isNull(opts)) ? {} : opts;
+	_.extend(this,
+		new AppFactoryManager('NavbarComponent'), 
+		new ComponentManager(Flags.Type.component,this), 
+		new EventManager(this)
+	);
+
+	applicationManager.register(this);
+	applicationManager.setComponent(this);
+
+
+	var self = this;
 
 
 
-var el = Brick.stack().nav({
-	className: 'navbar navbar-expand-lg navbar-light bg-light',
-	nest: Brick.stack().button({
-		className: 'navbar-toggler',
-		type: 'button',
-		'data-toggle':'collapse',
-		'data-target':'navbarTogglerDemo01',
-		"aria-controls":"navbarTogglerDemo01",
-		"aria-expanded":"false", 
-		"aria-label":"Toggle navigation",
-		nest: Brick.stack().span({
-			className: 'navbar-toggler-icon'
-		})
-		.div({
-			id:'navbarTogglerDemo01',
-			className:'collapse navbar-collapse',
-			nest: Brick.stack().a({
-				className:'navbar-brand',
-				href:'#',
-				innerHTML: 'Hidden brand'
-			})
-			.ul({
-				className:'navbar-nav mr-auto mt-2 mt-lg-0',
-				nest: Brick.stack().array([
-				{_el: 'h1', innerHTML:'Plugin 1', href:'#'},
-				{_el: 'h2', innerHTML:'Plugin 2', href:'#'},
-				{_el: 'h3', innerHTML:'Plugin 3', href:'#'},
-				{_el: 'h4', innerHTML:'Plugin 4', href:'#'},
-				{_el: 'h5', innerHTML:'Plugin 5', href:'#'}
-			])
-			}).build()
-		}).build()
-	}).build()
-
-}).build();
 
 
-var r = `
+	var createElement = Utils.createElement;
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-    <a class="navbar-brand" href="#">Hidden brand</a>
-    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-  </div>
-</nav>
+	self._props_._route = (opts.route!=undefined) ? opts.route : false;
+
+	self._props_._view = new ViewManager();
+
+	var navbarClasses = "navbar";
+	var navbarAddedClasses = (opts.navClassName!=undefined) ? opts.navClassName : "";
+	navbarClasses = navbarClasses +" "+navbarAddedClasses;
+
+	var fixed = (opts.fixed!=undefined) ? opts.fixed : "";
+	if(fixed.toLowerCase()=="top"){
+		fixed = "fixed-top";
+	}else if(fixed.toLowerCase()=="bottom"){
+		fixed = "fixed-bottom";
+	}else if(fixed.toLowerCase()=="sticky"){
+		fixed = "sticky-top";
+	}
+	navbarClasses = navbarClasses +" "+fixed;
 
 
-`;	
+	var navbarDIVContainer = createElement({
+		"id": this.getId()
+	});
+
+	self._props_._view_mapper = {};
+
+	
+	self._props_._navbar = createElement({
+		el:'nav',
+		id: (opts.id!=undefined) ? opts.id : "",
+		className: navbarClasses,
+		style: (opts.style) ? opts.style : ""
+	});
+
+	navbarDIVContainer.appendChild(self._props_._navbar);
+
+	var navbarId = "navbar"+Utils.randomGenerator(16,false);
+
+	var hamburgerButtonAttributes = (opts.hamburgerButtonAttributes!=undefined) 
+		? opts.hamburgerButtonAttributes : {};
+
+
+	var collapseBtn = createElement({ "el":'button' });
+
+	if(hamburgerButtonAttributes.overwrite==undefined || hamburgerButtonAttributes.overwrite==false){
+		collapseBtn.setAttribute("class", "navbar-toggler");
+		collapseBtn.setAttribute("data-toggle", "collapse",);
+		collapseBtn.setAttribute("data-target", "#"+navbarId,);
+		collapseBtn.setAttribute("aria-controls", navbarId,);
+		collapseBtn.setAttribute("aria-expanded", "false",);
+		collapseBtn.setAttribute("aria-label", "Toggle navigation");
+		
+	}
+	for(prop in hamburgerButtonAttributes){
+		if(prop!="overwrite"){
+			collapseBtn.setAttribute(prop, hamburgerButtonAttributes[prop]);
+		}
+		if(prop=="data-target"){
+			navbarId = hamburgerButtonAttributes[prop];
+		}
+	}
+
+	var btnId = "gp"+Utils.randomGenerator(16,false);
+
+	var hamburgerButtonSpanClassName = (opts.hamburgerButtonSpanClassName!=undefined) 
+		? opts.hamburgerButtonSpanClassName : "navbar-toggler-icon";
+
+	var buttonSpan = createElement({
+		"id": btnId,
+		"el":'span',
+		"className": hamburgerButtonSpanClassName
+	});
+	collapseBtn.appendChild(buttonSpan);
+
+	self._props_._mainDiv = createElement({
+		"el":'div',
+		"id": navbarId,
+		"className": "collapse navbar-collapse"
+	});
+
+
+
+	var brandLink = createElement({el:"div"});
+	if(opts.brand!=undefined){
+		if(typeof opts.brand === "string"){
+			brandLink = _createBrandLink(opts.brand);
+		}else{
+			if (opts.brand.href!=undefined) {
+				console.log(1)
+				brandLink = _createBrandLink(opts.brand.label);
+			}else if(opts.brand.href==null){
+				brandLink = createElement({el:"label"});
+				var innerHTML = (opts.brand.label!=undefined) ? opts.brand.label : "";
+				brandLink.innerHTML = innerHTML;
+			}else{
+				console.log(2)
+				brandLink = _createBrandLink(opts.brand.label);
+			}
+		}
+	}
+
+	function _createBrandLink(_label){
+		var _brandLink = createElement({
+			"el":'a',
+			"href": "#",
+			"className": "navbar-brand",
+			"innerHTML": (_label!=undefined) ? _label : ""
+		});
+		return _brandLink;
+	}
+
+
+
+
+
+	
+
+	var hamburgerMenuPosition = (opts.hamburgerMenuPosition!=undefined) ? opts.hamburgerMenuPosition : "left";
+
+	if(hamburgerMenuPosition.toLowerCase()=="right"){
+		self._props_._navbar.appendChild(brandLink);
+		self._props_._navbar.appendChild(collapseBtn);
+	}else if(hamburgerMenuPosition.toLowerCase()=="left"){
+		self._props_._navbar.appendChild(collapseBtn);
+		self._props_._navbar.appendChild(brandLink);
+	}
+
+
+
+
+	var ulClassName = (opts.ulClassName!=undefined) ? opts.ulClassName : "";
+
+	
+	var hamburgerLinkPosition = (opts.hamburgerLinkPosition!=undefined) ? opts.hamburgerLinkPosition : "";
+	if(hamburgerLinkPosition.toLowerCase()=="left"){
+		hamburgerLinkPosition = "";
+	}else if(hamburgerLinkPosition.toLowerCase()=="right"){
+		hamburgerLinkPosition = "text-right pr-2";
+	}
+
+
+	self._props_._ul = createElement({
+		"el":'ul',
+		"className": "navbar-nav "+ulClassName+" "+hamburgerLinkPosition
+	});
+
+	self._props_._mainDiv.appendChild(self._props_._ul);
+
+	self._props_._navbar.appendChild(self._props_._mainDiv);
+
+
+	self._props_._frag = document.createDocumentFragment();
+
+	
+	self._props_._frag.appendChild(navbarDIVContainer);
+	self._props_._frag.appendChild(self._props_._view.getHtml());
+
+	this.getHtml = function(){
+		return self._props_._frag.cloneNode(true);
+		
+		
+	};
+
+	_Utils_registerListenerCallbackForSelf('run','',function(){
+
+		setTimeout(function(){
+
+			$("#"+btnId).click(function(e){
+				e.preventDefault();
+				if($("#"+navbarId).hasClass('collapse')){
+					$("#"+navbarId).removeClass('collapse');
+				}else{
+					$("#"+navbarId).addClass('collapse');
+				}
+			});
+
+		},1000);
+	},self);
 
 
 }
 NavbarComponent.prototype = {
 
+	show: function(id){
+
+		var self = this;
+
+		
+		
+		
+		setTimeout(function(){
+
+		var map = null;
+		for(prop in self._props_._view_mapper){
+			if(self._props_._view_mapper[prop]==id){
+				map = prop;
+				break;
+			}
+		}
+
+		var current = self._props_._active_item;
+
+		if(current == map) return;
+		if(current!=""){
+			$("."+current).removeClass('active');
+		}
+		$("."+map).addClass('active');
+		self._props_._active_item = map;
 
 
+		self._props_._view.render(id);
+		if(self._props_._route && map!=null){
+			stateManager.go(id,false);
+		}
+
+		},100);
+
+
+		return this;
+
+	},
+
+
+	add: function(opts){
+
+		opts = (opts!=undefined) ? opts : {};
+
+		var isNull = Utils.isNull;
+
+		var label = "";
+		var init = false;
+		var body = new ContainerComponent();
+		if(!isNull(opts.label)){
+			label = opts.label;
+		}
+		if(!isNull(opts.init)){
+			init = opts.init;
+		}
+		if(!isNull(opts.body)){
+			body = opts.body;
+		}
+
+		var createElement = Utils.createElement;
+
+		var active = (opts.init!=undefined && opts.init==true) ? "active" : "";
+
+		var self = this;
+
+		var id = "gp"+Utils.randomGenerator(16,false);
+
+		var li1 = createElement({
+			"el":'li',
+			"className": id+" nav-item "+active
+		});
+		var linkLI = createElement({
+			"el":'a',
+			"href": "#",
+			"id": id,
+			"className": "nav-link",
+			"innerHTML": label
+		});
+		li1.appendChild(linkLI);
+		self._props_._ul.appendChild(li1);
+
+		var viewId = (opts.id!=undefined) ? opts.id : "gp"+Utils.randomGenerator(16,false);
+		self._props_._view.newSubView({
+			init: init,
+			id: viewId,
+			body: body
+		});
+
+		if(opts.init!=undefined && opts.init==true)
+			self._props_._active_item = id;
+
+		if(!isNull(opts.id)){
+			self._props_._view_mapper[id] = viewId;
+		}
+
+		
+		_Utils_registerListenerCallbackForSelf('run','',function(){
+
+			setTimeout(function(){
+
+				$("#"+id).click(function(e){
+					e.preventDefault();
+
+					
+
+
+					var current = self._props_._active_item;
+
+					if(current == id) return;
+					if(current!=""){
+						$("."+current).removeClass('active');
+					}
+					$("."+id).addClass('active');
+					self._props_._active_item = id;
+					self._props_._view.render(viewId);
+
+					if(self._props_._route)
+						stateManager.go(viewId,false);
+
+				});
+
+			},1000);
+		},self);
+
+
+	},
+
+	build: function(){
+
+	}
 
 
 
@@ -1326,15 +1545,9 @@ function NavComponent(opts){
 		_fragment: frag,
 		_layout: null
 	};
+	self._props_._view_mapper = {};
+	self._props_._route = (opts.route) ? opts.route : false;
 
-	
-	
-	
-	
-	
-	
-	
-	
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -1441,6 +1654,19 @@ function NavComponent(opts){
 }
 NavComponent.prototype = {
 
+
+	show: function(id){
+
+		var viewId = null;
+		for(prop in this._props_._view_mapper){
+			if(id==prop){
+				viewId = this._props_._view_mapper[prop];
+				break;
+			}
+		}
+		NavComponent_initialize_tab_click(this,viewId);
+	},
+
 	/**
 	* Adds a navigation item to this component.
 	*
@@ -1465,14 +1691,15 @@ NavComponent.prototype = {
 			body = opts.body;
 		}
 
-		var id = Utils.randomGenerator(16,false);
+		var id = "gp"+Utils.randomGenerator(16,false);
 		self._props_._elements._view.newSubView({
 			init: init,
 			id: id,
 			body: body
 		});
-		if(init==true){
-			self._props_._active_item = id;
+
+		if(!isNull(opts.id)){
+			self._props_._view_mapper[opts.id] = id;
 		}
 		
 
@@ -1487,6 +1714,13 @@ NavComponent.prototype = {
 			href:'#',
 			innerHTML:label
 		});
+
+		if(init==true){
+			self._props_._active_item = id;
+			a.className = a.className+" active";
+		}
+
+
 		li.appendChild(a);
 		self._props_._elements._ul.appendChild(li);
  
@@ -1496,19 +1730,21 @@ NavComponent.prototype = {
 
 				$("#"+id).click(function(e){
 					e.preventDefault();
-					var current = self._props_._active_item;
 
-					
-					
-					
+					if(self._props_._route){
+						var viewId = null;
+						for(prop in self._props_._view_mapper){
+							if(id==self._props_._view_mapper[prop]){
+								viewId = prop;
+								break;
+							}
+						}
 
-					if(current == id) return;
-					if(current!=""){
-						$("#"+current).removeClass('active');
+						stateManager.go(viewId,false);						
 					}
-					$("#"+id).addClass('active');
-					self._props_._active_item = id;
-					self._props_._elements._view.render(id);
+
+					NavComponent_initialize_tab_click(self,id);
+
 				});
 
 			},1000);
@@ -1527,14 +1763,6 @@ NavComponent.prototype = {
 		var self = this;
 		
 		
-		
-		
-		
-		
-		
-		
-
-		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
 		
@@ -1547,17 +1775,18 @@ NavComponent.prototype = {
 	}
 
 };
+function NavComponent_initialize_tab_click(self,id){
+	var current = self._props_._active_item;
 
-
-
-
-
-
-
-
-
-
-
+	if(current == id) return;
+	if(current!=""){
+		$("#"+current).removeClass('active');
+	}
+	$("#"+id).addClass('active');
+	self._props_._active_item = id;
+	self._props_._elements._view.render(id);
+	
+}
 
 
 function ModalComponent(opts){
@@ -1578,9 +1807,9 @@ function ModalComponent(opts){
 	
 	
 	
-	
-	
-	
+	$('body').append(Utils.createElement({
+		id: this._props_._container_id
+	}));
 
 
 	this.getHtml = function(){
@@ -1613,11 +1842,6 @@ ModalComponent.prototype = {
 		ModalComponent_setContent(opts,this);
 	}
 }
-
-
-
-
-
 
 
 function ModalComponent_setContent(opts,self){
@@ -2114,24 +2338,6 @@ FormValidationDefaults.prototype = {
 function FormComponent(obj){
 	
 	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	obj = (Utils.isNull(obj)) ? {} : obj;
 
 
@@ -2215,7 +2421,17 @@ FormComponent.prototype = {
 	*
 	*/
 	stopRemembering: function(){
+		
+		
 		sessionStorage.setItem(this._props_._tag,JSON.stringify({}));
+		var form_data = this._props_._form_data;
+		for(var i in form_data){
+			var form = form_data[i];
+			var formElement = form.formElement;
+			var str = formElement.selector.substr(1);
+			sessionStorage.setItem(str,JSON.stringify({}));
+			
+		}
 	},
 
 	/**
@@ -2416,124 +2632,19 @@ ButtonComponent.prototype = {
 
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-function ContainerComponent(obj){
-	_.extend(this, 
-		new AppFactoryManager('ContainerComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
+function inhertFrom(self,type,flag){
+	_.extend(self, 
+		new AppFactoryManager(type), 
+		new ComponentManager(flag,self), 
+		new EventManager(self)
 	);
-	applicationManager.register(this);
+	applicationManager.register(self);
+}
+function ContainerComponent(obj){
 	var self = this;
+	inhertFrom(this,'ContainerComponent',Flags.Type.component);
+	
 	obj = (obj) ? obj :{};
-	
-	self._props_._componentName = "ContainerComponent";
-	
-	if(Utils.isNull(obj.body)){
-		obj.body = "<div></div>";
-	}
 	if(Utils.isNull(obj.template)){
 		obj.template = {};
 	}
@@ -2542,28 +2653,15 @@ function ContainerComponent(obj){
 	_Utils.registerListenerCallback(obj,this);
 
 	self._props_._active = true;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
 	var createElement = Utils.createElement;
 	var obj = self._props_._obj;
 	var bodies = [];
 
-	var firstdivid = "j"+Utils.randomGenerator(12,false);
-	self._props_._component_element_container_id = firstdivid;
-
+	var myspan = document.createElement('span');
+	myspan.id = self.getId();
 	self._props_._container = document.createElement('div');
-	self._props_._container.id = firstdivid;
+	self._props_._container.id = (obj.id!=undefined) ? obj.id : ""; 
+	self._props_._container.appendChild(myspan);
 	if(!Utils.isNull(obj.classes)){
 		self._props_._container.className = obj.classes;
 	}else if(!Utils.isNull(obj.className)){
@@ -2573,27 +2671,17 @@ function ContainerComponent(obj){
 		self._props_._container.style = obj.style;
 	}
 
-
-	var firstdiv = createElement({id:firstdivid});
-
-	var b = buildBody(obj,self);
-	
-
-	self._props_._container.appendChild(b);
-
-	
-	
-	var span = Utils.createElement('span',{id:self.getId()});
-	
-	
-	self._props_._container.appendChild(span);
-
+	if(obj.body!=undefined && obj.body!=null){
+		var b = buildBody(obj,self);
+		self._props_._container.appendChild(b);
+	}
 
 	
 	var fragment = document.createDocumentFragment();
 	fragment.appendChild(self._props_._container);
 	self._props_._elements._fragment = fragment;
 
+	
 	
 	this.getHtml = function(route){
 		return self._props_._elements._fragment.cloneNode(true);
@@ -2602,6 +2690,11 @@ function ContainerComponent(obj){
 
 }
 ContainerComponent.prototype = {
+
+
+	getContainerId: function(){
+		return this._props_._container.id;
+	},
 
 
 	/**
@@ -2647,14 +2740,32 @@ ContainerComponent.prototype = {
 
 		var setComponent;
 
+		
+		if(typeof component === 'string'){
 
-		if(Array.isArray(component)){
+			var obj123 = {  
+				"params": {},
+				"app": gl_applicationContextManager
+			};
+
+			var p = gl_applicationContextManager.Manager.retrieve(component);
+			if(p==undefined){
+				console.error('Method Not found: '+component);
+			}else{
+				setComponent = p(obj123);
+			}
+
+		}else if(Array.isArray(component)){
 			var params = [];
 			for(var i=1; i<component.length; i++){
 				params.push(component[i]);
 			}
+			var obj123 = {  
+				"params": params,
+				"app": gl_applicationContextManager
+			};
 
-			setComponent = gl_applicationContextManager.Manager().getMethod(component[0])(params);
+			setComponent = gl_applicationContextManager.Manager.retrieve(component[0])(obj123);
 			
 			if(Utils.isNull(setComponent)){
 				console.error("Component does Not exist: "+component[0])
@@ -2662,6 +2773,11 @@ ContainerComponent.prototype = {
 		}else{
 			setComponent = component;
 		}
+
+
+		
+		
+
 
 		if( document.getElementById(self.getId()) ){
 			addToDOM(setComponent);
@@ -2677,15 +2793,12 @@ ContainerComponent.prototype = {
 		}
 		function addToDOM(setComponent1){
 
-
 			if(Utils.isNull(setComponent1)) return;
 
-			var id = self._props_._component_element_container_id;
+			var id = self.getId();
 			if(isEmpty==true){
 				$("#"+id).empty();
 			}
-			
-
 			
 			if(setComponent1.TYPE){
 				$("#"+id).append(setComponent1.getHtml());
@@ -2693,33 +2806,8 @@ ContainerComponent.prototype = {
 			}else{
 				$("#"+id).append(setComponent1);
 			}
-			
 		}
-
 	}
-	
-	
-	
-	
-	
-
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
 
 };
 
@@ -5903,11 +5991,14 @@ function ApplicationManager_start_runInterval(self){
 				
 
 				
+
+				
 				
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === false){
 					
 					
 					components[i].component.initializeListeners();
+					
 					
 					CONNECTED_COMPONENTS.push(components[i].id);
 					var comp = components[i].component._props_._dom_events;
@@ -5929,7 +6020,7 @@ function ApplicationManager_start_runInterval(self){
 			}
 		}
 		
-	}, 100);
+	}, 42);
 
 }
 function ApplicationManager_start_handleAttachEvents(comp,component){
@@ -6032,11 +6123,14 @@ function StateManager_buidRoutes(self){
 	router['routes'] = routes;
 	self._state_manager._routerConfig = router;
 
+}
+
+function startRouterApplication(self){
 	var Router = Backbone.Router.extend(self._state_manager._routerConfig);
 	self._state_manager._router = new Router();
 	Backbone.history.start();
 
-	return router;
+	
 }
 
 
@@ -6191,6 +6285,7 @@ function AppComponent_initializeListeners(self,myComponent){
 	
 	
 	
+
 	if(self._props_._isEventsActive == true) return;
 	self._props_._isEventsActive = true;
 	for(var i=0;i<self._props_._events.length;i++){
@@ -6310,11 +6405,13 @@ function Pages_newPageView(obj,self){
 	}else{	
 		obj.init = false;
 	}
-
+	
 	function setupRoutes(){
 		for (var i in obj.routes) {
 			var route = baseRoute;
-			if(i != "") route = baseRoute+"/"+i;
+			if(i != ""){
+				route = i;
+			} 
 			var layout = obj.routes[i];
 			if(typeof layout === "string"){
 				
@@ -6323,6 +6420,8 @@ function Pages_newPageView(obj,self){
 
 			}else if(typeof layout === "object"){
 				_setRouteWithMethod(route,layout.layout,layout.transition);
+			}else if(typeof layout === "function"){
+				_setRouteWithMethod(route,layout);
 			}
 		}
 	}
@@ -6351,6 +6450,10 @@ function Pages_newPageView(obj,self){
 				return params1;
 			}();
 			var _registeredLayout = function(){
+
+				if(typeof layout === "function"){
+					return layout;
+				}
 				var lay = layout.split(" ");
 				var registeredLayout = "";
 				for (var i = 0; i < lay.length; i++) {
@@ -6366,36 +6469,58 @@ function Pages_newPageView(obj,self){
 			var obj = {  
 				"route": route,
 				"routes": _allRoutes,
-				"params": _params
+				"params": _params,
+				"app": gl_applicationContextManager
 			};
+			
+
 			pages.setRoute(obj); 
 
-
-
 			
+			if(typeof _registeredLayout === "function"){
+				var r = _registeredLayout(obj);
+				if(r!=undefined) {
+					$(applicationManager.getRootElement()).empty();
+					$(applicationManager.getRootElement()).append(r.getHtml());
+				}
+				return;
+			}
 
-			var layoutComponent = applicationManager.retrieve(_registeredLayout,Flags.Method)(obj);
-			$(applicationManager.getRootElement()).empty();
-			$(applicationManager.getRootElement()).append(layoutComponent.getHtml());
+
+			try{
+
+				var layoutComponent = applicationManager.retrieve(_registeredLayout,Flags.Method)(obj);
+				if(layoutComponent){
+					
+					$(applicationManager.getRootElement()).empty();
+					$(applicationManager.getRootElement()).append(layoutComponent.getHtml());
+				}
 				
-			
+					
+				
 
-			setTimeout(function(){
-				var lay = layout.split(" ");
-				for (var i = 0; i < lay.length; i++) {
-					if(lay[i].includes("=")){
-						var c = lay[i].split("=");
-						var comp = buildBody(c[1],layoutComponent);
-						if(!Utils.isNull(comp)){
-							if(comp.TYPE){
-								$(c[0]).append(comp.getHtml());
-							}else{
-								$(c[0]).append(comp);
+				setTimeout(function(){
+					var lay = layout.split(" ");
+					for (var i = 0; i < lay.length; i++) {
+						if(lay[i].includes("=")){
+							var c = lay[i].split("=");
+							var comp = buildBody(c[1],layoutComponent);
+							if(!Utils.isNull(comp)){
+								if(comp.TYPE){
+									$(c[0]).append(comp.getHtml());
+								}else{
+									$(c[0]).append(comp);
+								}
 							}
 						}
 					}
-				}
-			},100);
+				},100);
+
+			}catch(e){
+				console.error('Method not registered: '+_registeredLayout);
+				console.error(e);
+			}
+
 			
 		
 		});
@@ -6458,17 +6583,18 @@ function ViewManager_render(id,params,opts,self){
 		self._props_._active_view = mOpts;
 		var _options = {};
 		if(typeof mOpts.body == 'function'){
-			self._props_._containers.addComponent(
-				new ContainerComponent(),
-				replace
-			);
-			mOpts.body();
+
+			var n = mOpts.body();
+
+			self._props_._containers.addComponent(n,replace);
+			_options.body = n;
 			return;
 		}else if(params && typeof mOpts.body==='string'){
 			_options.body = [mOpts.body,params];
 		}else{
 			_options.body = mOpts.body;
 		}
+		
 		var mBody = buildBody(_options,self);
 		self._props_._containers.addComponent(mBody,replace);
 		if(mOpts.routable==true){
@@ -6573,6 +6699,7 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 
 /* 0000 - FormComponent */
 function FormComponent_constructor(obj,self){
+	
 
 	
 	
@@ -6636,7 +6763,7 @@ function FormComponent_constructor(obj,self){
 	self._props_._tag = tag;
 	self._props_._prevent_remember = false;
 
-
+	
 	
 	var hasBeenClicked = false;
 	function run2(){
@@ -6977,7 +7104,7 @@ function FormComponent_onSubmit(opts,callback,self){
 
 function FormComponent_addInput(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
-	var layout_classes = (opts.layout==undefined) ? "" : opts.layout;
+	var layout_classes = "";
 	var statusId = Utils.randomGenerator(12,false);
 	var layoutContainer = Utils.createElement({ className: 'form-group '+layout_classes });
 	var label = Utils.createElement('label',{ for: formElement.id, innerHTML: formElement.label });
@@ -7018,6 +7145,9 @@ function FormComponent_addInput(opts,self){
 	var form_handler = self._props_._form_handler;
 	var event_trigger_submit = self._props_._triggers.submit;
 	var event_trigger_reset = self._props_._triggers.reset;
+	
+	
+	
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 		self._props_._form_data[tag].status = 2;
 		initializeValidationAndValues();
@@ -7027,14 +7157,19 @@ function FormComponent_addInput(opts,self){
 		self._props_._form_data[tag].status = 0;
 	});
 	_Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
+		
+		
+		
+		
 		initializeValidationAndValues();
 	},self,true);
 
 	_Utils_registerListenerCallbackForSelf("run","",function(b){
-		
 		if(formElement.remember){
+			
+			
 			var value = self._props_._getRemeber(tag);
-			if(!Utils.isNull(value)){
+			if(!Utils.isNull(value) && value.trim()!="none"){
 				$(formElement.selector).val(value);
 			}
 		}
@@ -7053,11 +7188,11 @@ function FormComponent_addInput(opts,self){
 			return;
 		}
 		if(!Utils.isNull(validation.required)){
-			if(validation.required.require){
+			
 				var _isvalid = requiredValidation(val,validation);
 				self._props_._form_data[tag]['isValid'] = _isvalid;
 				if(!_isvalid) return;
-			}
+			
 		}
 		if(!Utils.isNull(validation.min)){
 			var _isvalid = minValidation(val,validation);
@@ -7194,7 +7329,7 @@ function FormComponent_addInput(opts,self){
 						}else{
 							_isvalid = true;
 							runSuccess();
-						}
+						}  
 					}
 				}
 				function runSuccess(){
@@ -7551,16 +7686,12 @@ function FormComponent_addInput(opts,self){
 			}
 		}
 
-
-
-
-
 		return _isvalid;
 	}
 	function requiredValidation(val,validation){
 		var _isvalid = true;
-		if(val.length==0){
-			_isvalid = false;
+		if(val==undefined || val.length==0){
+			_isvalid = false;  
 			_add_error_(validation.required.error);
 		}else{
 			_isvalid = true;
@@ -10597,6 +10728,7 @@ function buildBody(object,self){
 	
 	
 	var mBody;
+	
 	object = object;
 	if(Array.isArray(body)){
 		if(typeof body[0] === "string" && body[0].charAt(0) == "@"){
@@ -10619,6 +10751,10 @@ function buildBody(object,self){
 	}else 
 	if(typeof body === "object"){
 		return _build_from_object(body,self,null,object);
+	}else 
+	if(typeof body === "function"){
+
+		return body();
 	}
 
 	function _build_from_object(body){
@@ -10636,8 +10772,8 @@ function buildBody(object,self){
 		if(body.charAt(0) === "@"){
 			var view = _build_view(body,params,self,object);
 			if(Utils.isNull(view)){ 
-				console.error("Manager.register() function did not return a component: "+body);
-				return new ContainerComponent(); 
+				
+				return null;
 			}
 			if(view.TYPE){
 				return view.getHtml();
@@ -10715,10 +10851,19 @@ function convertIntoAppFactoryObject(body){
 	return mBody;
 }
 function _build_view(body,params,self,obj){
-	var paramValues = {
-		parent: self,
-		params: params,
-		object: obj
+
+	
+	
+	
+	
+	
+	
+	var paramValues = {  
+		"view": obj, 
+		
+		
+		"params": params,
+		"app": gl_applicationContextManager
 	};
 	var method = body.slice(1);
 	var v = applicationManager.getMethod(method)(paramValues);
@@ -11067,6 +11212,8 @@ function ApplicationContextManager(config,plugins,baseUrl){
 		_ViewManager: ViewManager
 	};
 
+	this._props_._handle_hash = "";
+
 	this._props_._application_config = config;
 
 	this.Pages = this._props_._Pages;
@@ -11096,6 +11243,13 @@ function ApplicationContextManager(config,plugins,baseUrl){
 }
 ApplicationContextManager.prototype = {
 
+	setHash: function(hash){
+		this._props_._handle_hash = hash;
+	},
+
+	getHash: function(){
+		return this._props_._handle_hash;
+	},
 
 	setExtensions: function(extension){
 		this._props_._segmented_plugins = extension;
@@ -11290,6 +11444,7 @@ var _main_includes = {};
 
 /** 
 * @exports AFInclude
+* @classdesc A component that handles.
 */
 function AFInclude(prop){
 	return _main_includes[prop];
@@ -11325,7 +11480,6 @@ function initializeApplication(isClient,activePlugin,self){
 	var client_active_plugin = client_plugin_config.split("|")[0];
 	var client_active_theme = client_plugin_config.split("|")[1];
 
-
 	if(config_appfac['includes']){
 		for(prop in config_appfac['includes']){
 			_main_includes[prop] = self.Factory.container();
@@ -11338,15 +11492,21 @@ function initializeApplication(isClient,activePlugin,self){
 		if(config_appfac['includes']){
 			for(prop in config_appfac['includes']){
 				var filepath = config_appfac['includes'][prop];
-				_callRequest(filepath,function(result){
-
-					
-
-					_main_includes[prop].addComponent(result);
-				});
+				_xyzABC(filepath,prop);
 			}
 		}	
 	},500);
+
+	function _xyzABC(filepath,prop){
+		_callRequest(filepath,function(result){
+			
+			
+			_xyz123(prop,result)
+		});
+	}
+	function _xyz123(prop,result){
+		_main_includes[prop].addComponent(result);
+	}
 
 
 	function _start_app(){
@@ -11374,6 +11534,7 @@ function initializeApplication(isClient,activePlugin,self){
 				}
 			}
 
+			
 			var html = activeTheme.component(app);
 
 			if(html!=undefined){
@@ -11526,6 +11687,15 @@ function GetClientPath(app,path,plugin,theme){
 	return "js/plugins/"+_plugin+"/client/themes/"+_theme+"/"+path;
 }
 
+
+window.AFIsApp = function(obj){
+	if(obj.app!=undefined && obj.app!=null){
+		return obj.app;
+	}else{
+		return obj;
+	}
+}
+
 window.AFLoadDependencies = LoadDependencies;
 
 window.AFLoadActivePlugin = LoadActivePlugin;
@@ -11536,58 +11706,9 @@ window.AFLoadConfiguration = LoadConfiguration;
 
 window.AFGetClientPath = GetClientPath;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
 
 window.ApplicationContextManager = ApplicationContextManager;
-
-
 
 window.ApplicationExtensions = ApplicationExtensions;
 
@@ -11595,12 +11716,3 @@ return ApplicationContextManager;
 
 
 })); 
-
-
-
-
-
-
-
-
-
