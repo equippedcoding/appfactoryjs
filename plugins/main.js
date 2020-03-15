@@ -6,10 +6,8 @@ xhttp.onreadystatechange = function() {
 		require.config(config['requirejs-config']);
 		requirejs(['appfactory','plugins/app/init'],function(appfactory,activePlugin){
 			var app = new ApplicationContextManager(config);
-			window.onload = function(){
-				app.setHash(window.location.hash);
-				app.initializeApplication(true,activePlugin);
-			};
+			app.setHash(window.location.hash);
+			app.initializeApplication(true,activePlugin);
 		});
     }
 };
