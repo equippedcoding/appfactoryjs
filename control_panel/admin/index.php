@@ -1,7 +1,18 @@
 <?php
 
-//require_once "../../php/core/init.php";
+//error_reporting(E_ALL);
+error_reporting(E_USER_ERROR);
 
+require 'testing.php';
+
+if($appfac_testing==false){
+	if(!file_exists("includes/config/master_config.php")){
+		header("Location: init_config.php"); 
+		exit();
+	}
+
+	require_once "includes/config/master_config.php";
+}
 
 
 $myfile = fopen("../../config.appfac.js", "r") or die("Unable to open file!");
@@ -9,23 +20,47 @@ $f = fread($myfile,filesize("../../config.appfac.js"));
 
 fclose($myfile);
 
-$htmlJSON = json_decode($f,true);
+$htmlJSON = json_decode($f,true); 
+
+function replace_link($path, $p1){
+	// $p1 = "rel=\"stylesheet\" type=\"text/css\" href=\"{libs/styles/bootstrap4/bootstrap.css}\"";
+
+	preg_match('#\{(.*?)\}#', $p1, $match);
+	if(count($match)>0){
+		$str = $match[1];
+		$p2 = preg_replace('/{.*}/U', $path.$str, $p1);
+		return $p2;
+	}else{
+		return $p1;
+	}
+}
+
+$INDEX = "admin";
+$PATH = "";
 $application = $htmlJSON["application"];
 
-if($application["prod"]){
-	if(!file_exists("includes/core/config/master_config.php")){
-		header("Location: init_config.php"); 
-		exit();
-	}
-	require_once "includes/core/init_index.php";
+$userStatic = false;
+if(array_key_exists("use-static", $application)){
+	$userStatic = $htmlJSON["application"]["use-static"];
+}
+
+$indexAll = $htmlJSON["indexes"]["all"];
+$indexConfig = $htmlJSON["indexes"][$INDEX];
+
+if($userStatic){
+	require_once("static-index.html");
 }else{
-
-	$indexConfig = $htmlJSON["index-admin-config"];
-
 	$doctype = "";
 
+	if(array_key_exists("path", $indexConfig)){
+		$PATH = $indexConfig["path"];
+	}
+	
 	if(array_key_exists("doctype", $indexConfig)){
 		$doctype = $indexConfig["doctype"];
+	}
+	if(array_key_exists("doctype", $indexAll)){
+		$doctype = $indexAll["doctype"];
 	}
 
 	$head = array();
@@ -35,6 +70,9 @@ if($application["prod"]){
 			$head = array();
 		}
 	}
+	if(array_key_exists("head", $indexAll)){
+		$head = array_merge($head,$indexAll["head"]);	
+	}
 
 	$meta = array();
 	if(array_key_exists("meta", $indexConfig)){
@@ -42,6 +80,9 @@ if($application["prod"]){
 		if(!is_array($meta)){
 			$meta = array();
 		}
+	}
+	if(array_key_exists("meta", $indexAll)){
+		$meta = array_merge($meta,$indexAll["meta"]);
 	}
 
 	$body = array();
@@ -51,6 +92,10 @@ if($application["prod"]){
 			$body = array();
 		}
 	}
+	if(array_key_exists("body", $indexAll)){
+		$body = array_merge($body,$indexAll["body"]);
+	}
+
 
 	$scripts = array();
 	if(array_key_exists("scripts", $indexConfig)){
@@ -60,11 +105,18 @@ if($application["prod"]){
 			$scripts = array();
 		}
 	}
+	if(array_key_exists("scripts", $indexAll)){
+		$scripts = array_merge($scripts,$indexAll["scripts"]);
+	}
 
 	$title = "";
+	if(array_key_exists("title", $indexAll)){
+		$title = $indexAll["title"];
+	}
 	if(array_key_exists("title", $indexConfig)){
 		$title = $indexConfig["title"];
 	}
+
 
 	$html = '';
 	$html .= $doctype;
@@ -74,27 +126,26 @@ if($application["prod"]){
 		$html .= $meta[$i];
 	}
 	for($i=0; $i < count($head); $i++ ){
-		$html .= $head[$i];
+		$html .= replace_link($PATH,$head[$i]);
 	}
 	$html .= '<title>'. $title .'</title>';
 	$html .= '</head>';
 	$html .= '<body>';
 	for($i=0; $i < count($body); $i++ ){
-		$html .= $body[$i];
+		$html .= replace_link($PATH,$body[$i]);
 	}
 
 	foreach ($scripts as $key => $value) {
-		$html .= $scripts[$key];
+		$html .= replace_link($PATH,$scripts[$key]);
 	}
 
 	$html .= '</body>';
 	$html .= '</html>';
 
+	//ob_clean();
+	//ob_end_flush();
 
 	echo $html;
-
-
-
 }
 
 ?>

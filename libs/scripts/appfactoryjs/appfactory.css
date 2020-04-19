@@ -1,3 +1,18 @@
+
+
+
+
+.app-display-none {
+  display: none;
+}
+.app-diplay-block {
+  display: block;
+}
+.app-display-inline {
+  display: inline;
+}
+
+
 /* Fixed sidenav, full height */
 .appfac_sidenav {
   height: 100%;

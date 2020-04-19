@@ -26,6 +26,15 @@
 */
 (function (root, factory) {             
 	/*global define*/
+	
+	
+	
+	
+	
+	
+	
+
+
 	if (typeof define === 'function' && define.amd) {
 		
 		define(['jquery','backbone','bootstrap'], factory);
@@ -39,12 +48,10 @@
 }(this, function ($) {    
 
 
-
 /* Global Variables */ 
 
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
-
 
 var Flags = Object.freeze({
 	Type: {view:"v",component:"c",layout:"l"},
@@ -79,8 +86,6 @@ function AppFactoryManager(type){
 
 }
 AppFactoryManager.prototype = {};
-
-
 
 /** @exports ApplicationManager
 * @classdesc The ApplicationManager runs the application life cycle.
@@ -122,9 +127,6 @@ ApplicationManager.prototype = {
 		
 		var self = this;
 
-		
-		
-
 		$('body').append(self.getRootElement());
 		
 		ApplicationManager_start_runInterval(self);
@@ -148,7 +150,6 @@ ApplicationManager.prototype = {
 		}else{
 			stateManager.go("",true);
 		}
-		
 		
 	},  
 
@@ -302,13 +303,11 @@ ApplicationManager.prototype = {
 };
 
 
-
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
 
 }
 SessionManager.prototype = {};
-
 
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
@@ -428,7 +427,6 @@ StateManager.prototype = {
 	}
 };
 
-
 function ApplicationExtensions(){
 	this._props_ = {};
 }
@@ -465,7 +463,6 @@ ApplicationExtensions.prototype = {
 	}
 
 };
- 
 
 function ApplicationPlugin(){
 	this.plugins = [];
@@ -504,13 +501,10 @@ ApplicationPlugin.prototype = {
 		return client;
 	},
 
-	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
-
-		
 
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
@@ -543,6 +537,7 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
+
 		return {
 			admin: adminTheme,
 			client: client,
@@ -555,6 +550,7 @@ ApplicationPlugin.prototype = {
 
 /* Components */
 
+ 
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
 	context.TYPE = type;
@@ -684,7 +680,6 @@ function ComponentManager(type,context){
 ComponentManager.prototype = {};
 
 
-
 /** @exports Pages
 * @classdesc handles the routing and mapping between component and routes 
 * @class
@@ -807,6 +802,8 @@ function ViewManager(opt){
 	self._props_._active_view = null;
 	self._props_._views_objects = [];
 	self._props_._options = opt;
+	self._props_._current_view = null;
+	self._props_._view_order = [];
 
 	ViewsHolder.push(self);
 
@@ -828,6 +825,7 @@ function ViewManager(opt){
 		if(obj){
 			var trigger = false;
 			self._props_._active_view = obj;
+			self._props_._current_view = obj.id;
 			var container = buildBody(obj,self);
 			self._props_._containers.addComponent(container,true);
 			if(opt.routable){
@@ -857,12 +855,42 @@ ViewManager.prototype = {
 	* @param {Boolean} (optional) If this ViewManager is router capable then this
 	* will trigger it route.
 	*/
-	
-	
-
 	render: function(id,params,opts){
 		ViewManager_render(id,params,opts,this);
-		
+	},
+
+
+	/**
+	*	Convience method to render an index with in a view.
+	*
+	* @param {Number|String} - The index of the view or the string id of the view
+	@ @param {Object} - (optional) Options to give to the view renderer 
+	*
+	*/
+	goTo: function(index,opts){
+		ViewManager_goTo(index,opts,this);
+	},
+
+	
+
+	/**
+	*	Go back 1 view
+	*
+	* @param {Object} - (optional) Options to pass to the view renderer
+	*
+	*/
+	back: function(opts){
+		ViewManager_back(opts,this);
+	},
+
+	/**
+	*	Go forward 1 view
+	*
+	* @param {Object} - (optional) Options to pass to the view renderer
+	*
+	*/
+	next: function(opts){
+		ViewManager_next(opts,this);
 	},
 
 	/**
@@ -892,6 +920,9 @@ ViewManager.prototype = {
 	getView: function(id){
 		return MultiView_getView(id,this);
 	},
+
+
+		
 		
 	/**
 	* Add new view to this ViewManager
@@ -900,14 +931,19 @@ ViewManager.prototype = {
 		var self = this;
 		var opt = self._props_._options;
 		
-		if(opts.id){
-			for (var i = 0; i < self._props_._views_objects.length; i++) {
-				if(opts.id == self._props_._views_objects[i].id){
-					console.error("Theres already a View Component with the id: "+opts.id);
-					break;
-				}
+		if(opts.id==undefined){
+			opts.id = 'p'+Utils.randomGenerator(12);
+			console.log("View Component does not contain an id"); 
+		}
+
+		for (var i = 0; i < self._props_._views_objects.length; i++) {
+			if(opts.id == self._props_._views_objects[i].id){
+				console.error("Theres already a View Component with the id: "+opts.id);
+				break;
 			}
-		}else{ console.error("View Component does not contain an id"); }
+		}
+
+		self._props_._view_order.push(opts.id);
 
 		self._props_._views_objects.push(opts); 
 		if(opts.init!=undefined && opts.init==true){
@@ -925,8 +961,9 @@ ViewManager.prototype = {
 		return this._props_._is_routable;
 	}
 
-};
 
+
+};
 
 
 /** @exports LayoutManager
@@ -951,9 +988,6 @@ LayoutManager.prototype = {
 	}
 };
 
-
-
-
 /** @exports AppLayout
 * @classdesc The layout component that is returned by the LayoutManager.newLayout().
 * @class
@@ -971,8 +1005,13 @@ function AppLayout(obj){
 	AppLayout_constructor(obj,this);
 
 	this.getHtml = function(){
+		if(self._props_._isBuilt==false){
+			console.error('Layout has not been built.')
+		}
 		return AppComponent_getHtml_layout_fragment(self);
 	};
+
+	this._props_._isBuilt = false;
 
 }
 AppLayout.prototype = {
@@ -1006,8 +1045,6 @@ AppLayout.prototype = {
 		return this;
 	}
 };
-
-
 
 
 /** @exports ComponentFactory
@@ -1117,8 +1154,6 @@ ComponentFactory.prototype = {
 };
 
 
-
-
 function ImageComponent(opts){
 
 	opts = (Utils.isNull(opts)) ? {} : opts;
@@ -1159,9 +1194,6 @@ ImageComponent.prototype = {
 
 };
 
-
-
-
 function NavbarComponent(opts){
 
 	opts = (Utils.isNull(opts)) ? {} : opts;
@@ -1176,10 +1208,6 @@ function NavbarComponent(opts){
 
 
 	var self = this;
-
-
-
-
 
 	var createElement = Utils.createElement;
 
@@ -1262,8 +1290,6 @@ function NavbarComponent(opts){
 		"className": "collapse navbar-collapse"
 	});
 
-
-
 	var brandLink = createElement({el:"div"});
 	if(opts.brand!=undefined){
 		if(typeof opts.brand === "string"){
@@ -1294,11 +1320,6 @@ function NavbarComponent(opts){
 	}
 
 
-
-
-
-	
-
 	var hamburgerMenuPosition = (opts.hamburgerMenuPosition!=undefined) ? opts.hamburgerMenuPosition : "left";
 
 	if(hamburgerMenuPosition.toLowerCase()=="right"){
@@ -1308,10 +1329,6 @@ function NavbarComponent(opts){
 		self._props_._navbar.appendChild(collapseBtn);
 		self._props_._navbar.appendChild(brandLink);
 	}
-
-
-
-
 	var ulClassName = (opts.ulClassName!=undefined) ? opts.ulClassName : "";
 
 	
@@ -1368,10 +1385,6 @@ NavbarComponent.prototype = {
 	show: function(id){
 
 		var self = this;
-
-		
-		
-		
 		setTimeout(function(){
 
 		var map = null;
@@ -1495,20 +1508,7 @@ NavbarComponent.prototype = {
 	build: function(){
 
 	}
-
-
-
 };
-
-
-
-
-
-
- 
- 
- 
- 
 
 function NavComponent(opts){
 	opts = (Utils.isNull(opts)) ? {} : opts;
@@ -1524,12 +1524,6 @@ function NavComponent(opts){
 	applicationManager.register(this);
 	
 	applicationManager.setComponent(this);
-
-	
-	
-	
-	
-
 
 	var view = new ViewManager();
 	var frag = document.createDocumentFragment();
@@ -1547,7 +1541,6 @@ function NavComponent(opts){
 	};
 	self._props_._view_mapper = {};
 	self._props_._route = (opts.route) ? opts.route : false;
-
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -1763,6 +1756,14 @@ NavComponent.prototype = {
 		var self = this;
 		
 		
+		
+		
+		
+		
+		
+		
+
+		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
 		
@@ -1889,13 +1890,6 @@ function ModalComponent_setContent(opts,self){
 			innerHTML: opts.title
 		});		
 
-		
-		
-		
-		
-		
-		
-
 		var exitBtn = Utils.convertStringToHTMLNode(`
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -1941,8 +1935,6 @@ function ModalComponent_setContent(opts,self){
 		
 	}
 }
-
-
 
 
 /** @exports ListComponent
@@ -2161,9 +2153,6 @@ ListComponent.prototype = {
 
 };
 
-
-
-
 function FormEventsHandler(obj,formElement,self){
 	FormEventsHandler_constructor(obj,formElement,self,this);
 }
@@ -2179,7 +2168,6 @@ function FormComponentDefaults(obj,self){
 	if(Utils.isNull(obj)){
 		obj = {};
 	}
-
 	var id,
 		selector = "#_id_"+Utils.randomGenerator(12,false),
 		tag,
@@ -2198,6 +2186,8 @@ function FormComponentDefaults(obj,self){
 			name = tag;
 		}
 	}
+
+	this.paramName = (obj.paramName==undefined) ? this.id : obj.paramName;
 
 	var href = "#";
 	if(!Utils.isNull(obj.href)){
@@ -2222,7 +2212,7 @@ function FormComponentDefaults(obj,self){
 	if(obj.tag!=undefined){
 		tag = obj.tag;
 	}else{
-		tag = Utils.randomGenerator(12,false)
+		tag = this.paramName;
 	}
 
 	if(id==undefined){
@@ -2244,7 +2234,6 @@ function FormComponentDefaults(obj,self){
 	this.style = (obj.style==undefined) ? "" : obj.style;
 	this.className = (obj.className==undefined) ? "" : obj.className;
 	this.placeholder = (obj.placeholder==undefined) ? "" : obj.placeholder;
-	this.paramName = (obj.paramName==undefined) ? this.id : obj.paramName;
 	this.type = (obj.type==undefined) ? "" : obj.type;
 	this.name = (obj.name==undefined) ? "" : obj.name;
 	this.label = (obj.label==undefined) ? "" : obj.label;
@@ -2350,15 +2339,16 @@ function FormComponent(obj){
 
 	var self = this;
 
+	applicationManager.setComponent(this);
+
 	FormComponent_constructor(obj,this);
 
 	var tag = obj.tag;
 
 	this.getHtml = function(){
-		return this._props_._elements._container;
+		return self._props_._elements._container;
 	};
 
-	applicationManager.setComponent(this);
 	
 	this._props_._setRemeber = function(_tagId,_value){
 
@@ -2391,13 +2381,56 @@ function FormComponent(obj){
 		sessionStorage.setItem(tag,JSON.stringify({}));
 	};
 
-}
 
+
+}
 FormComponent.prototype = {
 
-	
-	showElement: function(){},
-	hideElement: function(){},
+
+	/**
+	* Begin a section
+	*
+	* @param {String} section_id
+	* @param {Object} options
+	*/
+	beginSection: function(section_id,opts){
+		var self = this;
+		
+		
+		if(self._props_._form_sections._section_has_ended==false){
+			console.error("Form Section has no end. Must endSection() before begining a new section.");
+			return;			
+		}
+		self._props_._form_sections._section_has_ended = false;
+		self._props_._form_sections._current_section_id = section_id;
+		self._props_._form_sections._section_opts[section_id] = opts;
+	},
+
+	/**
+	* End a section
+	*
+	* @param {function} callback
+	*/
+	endSection: function(callback){
+		var self = this;
+		var formSection = new FormSection();
+		if(callback){
+			formSection = callback(formSection);
+			if(formSection==undefined){
+				console.log('FormSection was not returned')
+				formSection = new FormSection();
+			}
+		}
+
+		var section_id = self._props_._form_sections._current_section_id;
+
+		formSection._props_._formComponent = self;
+		formSection._props_._section_id = section_id;
+		
+		self._props_._form_sections._sections[section_id] = formSection;
+		self._props_._form_sections._current_section_id = null;
+		self._props_._form_sections._section_has_ended = true;
+	},
 
 	/** 
 	* Clear form fields.
@@ -2510,8 +2543,8 @@ FormComponent.prototype = {
 	* Builds the form. Must be called before form can be used.
 	*
 	*/
-	build: function(pages){
-		FormComponent_build(pages,this);
+	build: function(){
+		FormComponent_build(this);
 	},
 
 	/**
@@ -2535,6 +2568,180 @@ FormComponent.prototype = {
 };
 
 
+/** @exports FormSection
+* @classdesc Creates a form section
+* @class
+* @constructor
+*/
+function FormSection(){
+
+	var self = this;
+
+	this._props_ = {
+		_view: new ViewManager()
+	};
+
+	this._props_._newSubView = function(opts){
+		this._props_._view.newSubView(opts);
+	};
+
+	this._props_._listeners = {};
+
+	this._props_._listeners._back = function(){
+
+	};
+
+	
+	
+	
+	
+
+	self._props_._buttons = [];
+
+	self._props_._layout = null;
+
+	self._props_._formComponent = null;
+
+	self._props_._section_id = null;
+
+	self._props_._insertValues = function(){  
+		if(self.values!=null && self.values!=undefined){
+			var form = self._props_._formComponent;
+			var section_id = self.getSectionId();
+			var ids = form._props_._form_sections._form_ids[section_id];
+			if(ids!=undefined){
+				for (var i = 0; i < ids.length; i++) {
+					if(self.values[ids[i][1]]!=undefined){
+						gl_setFromValue('input','#'+ids[i][1],self.values[ids[i][1]]);
+					}
+				}
+			}
+		}
+	};
+
+}
+
+
+FormSection.prototype = {
+
+	/**
+	* Type of section this is
+	* normal (default)
+	* page 
+	*
+	*
+	*/
+	type: 'normal', 
+
+	/**
+	* Remember values
+	*
+	*/
+	remember: true,
+	backBtn: null,
+	nextBtn: null,
+	values: null,
+
+	/**
+	* Show this section, only for normal sections 
+	*
+	*
+	*/
+	show: function(){
+		var self = this;
+		var form = self._props_._formComponent;
+		var section_id = self.getSectionId();
+		var container_selectors = form._props_._form_sections._container_selectors[section_id];
+		$('.'+container_selectors[1]).removeClass('app-display-none');
+		$('.'+container_selectors[1]).addClass('app-display-block');
+	},
+
+	/**
+	* Hide this section, only for normal sections.
+	*
+	*
+	*/
+	hide: function(){
+		var self = this;
+		var form = self._props_._formComponent;
+		var section_id = self.getSectionId();
+		var container_selectors = form._props_._form_sections._container_selectors[section_id];
+		$('.'+container_selectors[1]).removeClass('app-display-block');
+		$('.'+container_selectors[1]).addClass('app-display-none');
+	},
+
+	/**
+	* Set the layout of this section.
+	*
+	*
+	*/
+	setLayout: function(layout){
+		this._props_._layout = layout;
+	},
+
+	/**
+	* Get this sections values.
+	*
+	*/
+	getValues: function(){
+		var self = this;
+		var form = self._props_._formComponent;
+		var section_id = self.getSectionId();
+		var ids = form._props_._form_sections._form_ids[section_id];
+
+		var v = {};
+		if(ids!=undefined){
+			for (var i = 0; i < ids.length; i++) {
+				v[ids[i][1]] = gl_getFormElementValue(ids[i][0],'#'+ids[i][1]);
+			}
+		}
+		self.values = v;
+		return v;
+	},
+
+	/**
+	* Get this section Id
+	*
+	*/
+	getSectionId: function(){
+		return this._props_._section_id;
+	},
+
+	/**
+	* Create buttons for normal section
+	*
+	*/
+	setButtons: function(buttons){
+		if(!Array.isArray(buttons)){
+			console.error("must be an array of component buttons");
+			return;
+		}
+		this._props_._buttons = buttons;
+	},
+
+	getButtons: function(){
+		return this._props_._buttons;
+	},
+
+	goTo: function(to){
+
+	},
+
+	button: function(opts){
+		return new ButtonComponent({
+			label: (opts.label) ? opts.label : '',
+			id: (opts.id) ? opts.id : '',
+			className: (opts.className) ? opts.className : '',
+			style: (opts.style) ? opts.style : '',
+			listener: function(e){
+				e.event.preventDefault();
+				if(opts.listener) 
+					opts.listener(e);
+			}
+		});
+	},
+
+}
 
 /** @exports FileUploader
 * @classdesc Creates a file upload component
@@ -2578,8 +2785,6 @@ FileUploaderComponent.prototype = {
 		this._props_._errorcallback = callback;
 	}
 };
-
-
 
 /** @exports ButtonComponent
 * @classdesc .
@@ -2717,7 +2922,7 @@ ContainerComponent.prototype = {
 				func: listener
 			};
 		}
-		_Utils.registerListenerCallback(obj,this)
+		_Utils.registerListenerCallback(obj,this);
 	},
 
 
@@ -2731,12 +2936,27 @@ ContainerComponent.prototype = {
 	* component is only added once, so if this component is removed from 
 	* the DOM and re-added then the added component will not be attached.
 	*/ 
-	addComponent: function(component,empty,attachOnce,callback){
+	addComponent: function(component,empty){
 		
 		var self = this;
 
-		var isEmpty = (!Utils.isNull(empty)) ? empty : true;
-		attachOnce = (!Utils.isNull(attachOnce)) ? attachOnce : false;
+		var delay = undefined;
+		var attachOnce = false;
+		var callback = undefined;
+		var isEmpty = true;
+		if(typeof empty === "boolean"){
+			isEmpty = empty;
+		}else if(typeof empty === 'object'){
+
+			var object = empty;
+			delay = object.delay;
+			attachOnce = object.delay;
+			callback = object.delay;
+			isEmpty = (!Utils.isNull(empty.empty)) ? empty : true;
+
+		}else if(empty == undefined){
+
+		}
 
 		var setComponent;
 
@@ -2775,10 +2995,6 @@ ContainerComponent.prototype = {
 		}
 
 
-		
-		
-
-
 		if( document.getElementById(self.getId()) ){
 			addToDOM(setComponent);
 		}
@@ -2793,21 +3009,36 @@ ContainerComponent.prototype = {
 		}
 		function addToDOM(setComponent1){
 
-			if(Utils.isNull(setComponent1)) return;
-
-			var id = self.getId();
-			if(isEmpty==true){
-				$("#"+id).empty();
-			}
-			
-			if(setComponent1.TYPE){
-				$("#"+id).append(setComponent1.getHtml());
-				setComponent1.initializeListeners();
+			if(delay!=undefined){
+				setTimeout(function(){
+					_addtodom();
+				},delay);
 			}else{
-				$("#"+id).append(setComponent1);
+				_addtodom();
+			}
+
+			function _addtodom(){
+
+				if(Utils.isNull(setComponent1)) return;
+
+				var id = self.getId();
+				if(isEmpty==true){
+					$("#"+id).empty();
+				}
+				
+				if(setComponent1.TYPE){
+					$("#"+id).append(setComponent1.getHtml());
+					setTimeout(function(){
+						setComponent1.initializeListeners();
+					},2000);
+					
+				}else{
+					$("#"+id).append(setComponent1);
+				}
 			}
 		}
 	}
+	
 
 };
 
@@ -3288,10 +3519,6 @@ BrickComponent.prototype = {
 		return BrickComponent_make("option", opts, this);
 	}
 
-
-
-
-
 };
 function BrickComponent_make(element,opts,self){
 
@@ -3344,17 +3571,6 @@ function BrickComponent_make(element,opts,self){
 
 	return self;
 }
-
-
-
-
-
-
-
- 
- 
- 
- 
 
 function NavigationComponent(obj){
 	_.extend(this, 
@@ -3426,7 +3642,6 @@ NavigationComponent.prototype = {
 		}
 	},
 
-
 	removeSubView: function(id){
 		for(var i=0; i<this._props_._obj['pages'].length; i++){
 			var tag = this._props_._obj['pages'][i].id;
@@ -3475,13 +3690,6 @@ NavigationComponent.prototype = {
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
 				
-					
-				
-				
-				
-				
-				
-				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
 					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
@@ -3489,12 +3697,9 @@ NavigationComponent.prototype = {
 					});
 				
 
-
 			}
 		}
 
-		
-		
 
 	},
 
@@ -3532,27 +3737,12 @@ NavigationComponent.prototype = {
 
 
 function _navigation1(self,view){
-
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
- 
-	
 	
 
 	var defaultBody;
 
 	var container = Utils.createElement({});
 
-	
-	
 	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
 
@@ -3560,10 +3750,6 @@ function _navigation1(self,view){
 	self._props_._container_main.appendChild(view.getHtml());
 	self._props_._container.appendChild(self._props_._container_main);
 
-	
- 
-	
-	
 
 	var container_nav = Utils.createElement({ id:"mySidenav", className: "appfactory-sidenav" });
 
@@ -3727,11 +3913,7 @@ function _side_navigation(self){
 
 	self._props_._body_id = self._props_._elements._body.id;
 
-	
-
 	self._props_._elements._container.className = "side_nav "+containerClasses;
-	
-
 
 	self._props_._collection = new ViewCollectionController("#"
 		+self._props_._elements._body.id);
@@ -3898,19 +4080,9 @@ TableComponent.prototype = {
 		}
 
 
-
-
-		
-
 		return container;
-
 		
-
-		
-
 	}
-
-
 
 };
 
@@ -4079,17 +4251,6 @@ TableHandler.prototype = {
 };
 
 
-
-
- 
- 
- 
- 
- 
- 
- 
- 
-
 function TableComponent245 (obj){
 	
 	var isNull = Utils.isNull;
@@ -4134,17 +4295,6 @@ function TableComponent245 (obj){
 	_thead.className = "uieb-table-thead";
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
 
-	
-	
-	
-	
-	
-	
-	
-
-
-
-	
 	var _columnNames = [];
 	var _columnNameHeader = document.createElement('tr');
 	var _column_ = [];
@@ -4270,16 +4420,6 @@ function TableComponent245 (obj){
 	ap.id = this.ID;
 	this._props_._elements._fragment.appendChild(ap);
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	this._props_._extensionObject.push(this._props_._modalDialog);
 	
 
@@ -4302,13 +4442,6 @@ TableComponent245.prototype = {
 
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
-		
-		
-		
-		
-		
-		
-		
 		
 		if(isNull(columnIndex)){
 			return this._props_._tableStructure._column;
@@ -4389,8 +4522,6 @@ TableComponent245.prototype = {
 		return d;
 	},
 
-	
-
 	/**
 	*  cellId:String - The DOM id of the cell
 	*  connectId:String - The id/string that is in the cell
@@ -4460,14 +4591,6 @@ TableComponent245.prototype = {
 	updateRow: function(cellId,newValue,updateOnDOM){
 		var isNull = Utils.isNull;
 		
-			
-			
-			
-			
-			
-
-
-		
 		var self = this;
 		var found = false;  
 		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
@@ -4518,30 +4641,9 @@ TableComponent245.prototype = {
 	*/
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
-
-		
-			
-			
-				
-			
-			
-			
-			
-			
-			
-			
-			
-		
-			
-		console.log(obj);
-
-		
-
 		
 		var file_rows = obj.content.split("\n");
 		
-		
-
 		if(file_rows.length==0){
 			var cust = new ContainerComponent({
 				styles: "margin-bottom:10%;",
@@ -4577,19 +4679,11 @@ TableComponent245.prototype = {
 			cellRequestForConnectedData: obj.cellRequestForConnectedData
 		});
 
-		
-	
-
 		var columnsData = [];
 		
 		for(var i=1; i<file_rows.length; i++){
 			var row = file_rows[i].split("\t");
 			
-			
-			
-
-
-
 			for (var p = 0; p < row.length; p++) {
 				columnsData[p] = {
 					html: row[p]
@@ -4618,32 +4712,6 @@ TableComponent245.prototype = {
 
 	}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-	
-
-
-
-
-
-
-
 
 
 function TableComponent__add_col(obj,self,containerId){
@@ -4721,56 +4789,17 @@ function TableComponent__add_col(obj,self,containerId){
 						table.initializeListeners();
 					}
 
-
-
-
-
-					
-					
-					
-					
-					
-
-					
-					
-					
-					
-					
-
-					
-					
-
-					
 				});
 
-				
 			}
 		}
 	});
 	
-	
-	
-	
-	
-	
-
-
-	
-
 }
 function TableComponent__column_adjustment(self,obj,e){
 	var isNull = Utils.isNull;
 
-	
-	
-	
-
-	
-	
-
 	var tableEditMenu = new ContainerComponent();
-
-
 
 	var id = "table-columns-dialog-"+Utils.randomGenerator(22,false);
 	
@@ -4791,14 +4820,6 @@ function TableComponent__column_adjustment(self,obj,e){
 		id: id,
 		body: cont
 	});
-
-
-	
-	
-	
-	
-	
-	
 
 }
 function _x1(self,cont,tableEditMenu){
@@ -4822,11 +4843,6 @@ function _x1(self,cont,tableEditMenu){
 			}
 		});
 	}
-
-	
-	
-	
-	
 
 	var cust = comp.container({
 		body: buttons
@@ -4884,111 +4900,12 @@ function _editTableByGroup(button,self){
 			type: 'run',
 			func: function(){
 				
-				
-				
-				
-				
-
-				
-				
-
-					
-
-				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-
-				
-
-
-				
-				
-				
-				
-
-				
-
-				
-
-
-					
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-
-					
-
-
-				
-				
-				
-				
-				
-				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-										
-				
-				
-
-				
-
-				
-								
-
-
-				
-				
-				
-
-				
-
-				
 
 			}
 		}
 	});
 
 	
-
-
-
-	
-
-	
-
-
-
-
 	cust.addComponent('<h4>'+button+'</h4>');
 
 
@@ -5023,8 +4940,6 @@ function TableComponent__add_row(self){
 		_form += '<input type="text" id="'+_form_row_ids[i]+'" /><br>';
 	}
 
-	
-
 	var r = "add-row-"+Utils.randomGenerator(7,false);
 	_form += "<button id='"+r+"'>Add Row</button>";
 
@@ -5035,56 +4950,16 @@ function TableComponent__add_row(self){
 			type: 'run',
 			func: function(){
 				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
 				
 			}
 		}
 	});
 	
-	
-	
-	
-	
-	
-	
 }
 function TableComponent_row(obj,self){
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	var isNull = Utils.isNull;
 
-
-	
 	var _row_names = [];
 	var rowCount = self._props_._row_count++;
 	var row_items = [];
@@ -5171,71 +5046,6 @@ function TableComponent_row(obj,self){
 			data.e.stopPropagation();
 			data.e.preventDefault();
 
-
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-
-			
-			
-			
-			
-			
-			
-			
-				
-			
-
-			
-			
-			
-			
-
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-
-			
-			
-			
-			
-			
-									
-			
-								
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-				
 		},self,true);
 	}
 	
@@ -5254,9 +5064,7 @@ function TableComponent_row(obj,self){
 		
 	}
 
-	
 	_Utils_registerListenerCallbackForSelf("click",_tr.id,function(data){
-
 
 		if(!self._props_._updatable) return;
 		var col_names = self._props_._tableStructure._columnNames;
@@ -5269,8 +5077,6 @@ function TableComponent_row(obj,self){
 		}
 
 		form += "<br><button id='change-table-row-"+rowCount+"'>Update</button>";
-
-		
 
 		var c = new ContainerComponent({ 
 			body: form,
@@ -5292,23 +5098,12 @@ function TableComponent_row(obj,self){
 							var cellId = self.getRowCellData()[_tr.id][indx].cellId;
 							self.updateCell(cellId,val,true);
 						}
-
-						
-
-						
-
-						
-
-						
+	
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
-		
-		
-		
-		
 		
 		
 	},self,true);
@@ -5326,50 +5121,11 @@ function TableComponent_row(obj,self){
 		self._props_._elements._tbody.appendChild(_tr);
 	}
 
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-		
-	
-	
-
-
-	
-	
- 
- 
- 
-    	
-
 }
 
 function TableComponent_getTableAsString(delemeter,self){
 
 	var isNull = Utils.isNull;
-
-	
-			
-			
-			
-			
-			
-
-
-		
-
 
 	if(isNull(delemeter)){
 		delemeter = "\t";
@@ -5397,87 +5153,9 @@ function TableComponent_getTableAsString(delemeter,self){
 	}
 
 	return str;
-
-	
-
-	
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
- 
- 
- 
 
 function CMSUsers(){
 
@@ -5887,18 +5565,8 @@ var Utils = {
 
 	}
 
-
-
-
 };
 
-
-
-/* _Utils */
-
-/**
-*
-*/
 var _registered_listeneres_ = [];
 var _Utils = {
 	registerListenerCallbackForSelf: function(type,selector,func,self,preventDefault,stopPropagation){
@@ -5910,30 +5578,6 @@ var _Utils = {
 	}
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
 	ApplicationManager_start_createDiv(self);
 	try{
@@ -5991,20 +5635,22 @@ function ApplicationManager_start_runInterval(self){
 				
 
 				
-
-				
 				
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === false){
 					
 					
-					components[i].component.initializeListeners();
+					var index = i;
 					
+						components[index].component.initializeListeners();
 					
-					CONNECTED_COMPONENTS.push(components[i].id);
-					var comp = components[i].component._props_._dom_events;
 
 					
-					ApplicationManager_start_handleAttachEvents(comp,components[i].component);
+					CONNECTED_COMPONENTS.push(components[index].id);
+					var comp = components[index].component._props_._dom_events;
+
+					
+					ApplicationManager_start_handleAttachEvents(comp,components[index].component);
+					
 				}
 			}else{
 				components[i].component.deInitializeListener();
@@ -6134,23 +5780,8 @@ function startRouterApplication(self){
 }
 
 
-
-
-
-
-
-
-/* 0000 - ComponentManager */
 function AppComponent_getHtml(self,route){
-
 	return document.createElement('div');
-	
-	
-	
-	
-	
-	
-	
 }
 
 function AppComponent_getHtml_view_fragment(self,route){
@@ -6303,6 +5934,7 @@ function AppComponent_initializeListeners(self,myComponent){
 			});
 		}else{
 			
+			
 			$(eventObj.selector).on(eventObj.type,function(e){
 				if(!Utils.isNull(eventObj.preventDefault) && eventObj.preventDefault==true){
 					e.preventDefault();
@@ -6364,12 +5996,6 @@ function ContainerComponent_setActive(active,stillSet,self){
 	}
 }
 
-
-
-
-
-
-/* 0000 - Pages */
 function Pages_init(self){
 	var obj = self._props_._initial_view
 	var hash = window.location.hash.substring(1);
@@ -6383,12 +6009,6 @@ function Pages_init(self){
 }
 function Pages_newPageView(obj,self){
 
-	
-	
-	
-	
-	
-	
 
 	var baseRoute = "";
 	if(!Utils.isNull(obj.baseRoute)){
@@ -6597,9 +6217,60 @@ function ViewManager_render(id,params,opts,self){
 		
 		var mBody = buildBody(_options,self);
 		self._props_._containers.addComponent(mBody,replace);
+		self._props_._current_view = id;
 		if(mOpts.routable==true){
 			var route = getNewRoute(id,self);
 			stateManager.go(route,trigger);
+		}
+	}
+}
+function ViewManager_next(opts,self){
+	var current = self._props_._current_view;
+	var index = -1;
+	var canGo = false;
+	var next_current = '';
+	var length = self._props_._view_order.length;
+	for (var i = 0; i < length; i++) {
+		if(self._props_._view_order[i] == current){
+			index = (i+1);
+			if(index<length){
+				canGo = true;
+			}
+			break;
+		}
+	}
+	if(canGo){
+		var view = self._props_._view_order[index];
+		self.render(view,opts);
+	}
+}
+function ViewManager_back(opts,self){
+	var current = self._props_._current_view;
+	var index = -1;
+	var canGo = false;
+	var next_current = '';
+	var length = self._props_._view_order.length;
+	for (var i = 0; i < length; i++) {
+		if(self._props_._view_order[i] == current){
+			index = (i-1);
+			if(index>=0){
+				canGo = true;
+			}
+			break;
+		}
+	}
+	if(canGo){
+		var view = self._props_._view_order[index];
+		self.render(view,opts);
+	}
+}
+function ViewManager_goTo(index,opts,self){
+	if(typeof index === 'string'){
+		self.render(index,opts);
+	}else if(typeof index === 'number'){
+		if((self._props_._view_order.length-1) >= index){
+			var view = self._props_._view_order[index];
+			self.render(view,opts);
 		}
 	}
 }
@@ -6693,28 +6364,8 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 }
 
 
-
-
-
-
 /* 0000 - FormComponent */
 function FormComponent_constructor(obj,self){
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 
 	var formhandler = new ContainerComponent();
@@ -6741,7 +6392,18 @@ function FormComponent_constructor(obj,self){
 	
 	
 
-	self._props_._defaultValue = (obj.defaultValue==undefined) ? "none" : obj.defaultValue;
+	
+
+	self._props_._sections = {};
+	self._props_._form_sections = {};
+	self._props_._form_sections._current_section_id = null;
+	self._props_._form_sections._section_has_ended = true;
+	self._props_._form_sections._sections = {};
+	self._props_._form_sections._form_ids = {};
+	self._props_._form_sections._section_opts = {};
+	self._props_._form_sections._container_selectors = {};
+
+	self._props_._defaultValue = (obj.defaultValue==undefined) ? gl_DEFAULT_FORM_VALUE : obj.defaultValue;
 
 	self._props_._runs = {};
 	self._props_._runs._intervals = (obj.intervals==undefined) ? 1000 : obj.intervals;
@@ -6786,6 +6448,7 @@ function FormComponent_constructor(obj,self){
 		return areAllValuesIn;
 	}
 	function run(){
+		
 		if(hasBeenClicked){
 			return;
 		}
@@ -6797,19 +6460,23 @@ function FormComponent_constructor(obj,self){
 		var interval = setInterval(function(){
 			afterCount++;
 			if(afterCount>clearAfterCount){
+				
 				clearFormSubmitInerval();
 			}
 			if(!allIn){
+				
 				allIn = run2();
 			}else{
+				
 				clearFormSubmitInerval();
 			}
 
 			if(self._props_._runs._count>=self._props_._runs._times){
-				clearFormSubmitInerval();
+				
+				
 			}
 			self._props_._runs._count++;
-		},100);
+		},200);
 
 		function clearFormSubmitInerval(){
 			hasBeenClicked = false;
@@ -6833,6 +6500,7 @@ function FormComponent_constructor(obj,self){
 		var triggers = self._props_._form_data;
 
 		for(var i in self._props_._form_data){
+			var paramname = triggers[i].paramName;
 			var status = triggers[i].status;
 			
 			
@@ -6856,49 +6524,312 @@ function FormComponent_update(tag,value,self){
 	}
 }
 function FormComponent_getFormElements(self){
+	
 	var data = self._props_._form_data;
 	var elements = [];
 	for(var i in data){
+		_setup_form_elements(i);
+	}
+	function _setup_form_elements(index){
+		var obj = data[index];
 		var layout_default = {row: true,col: {md:12}}
-		if(!Utils.isNull(data[i].layout)){
-			layout_default = data[i].layout;
+		if(!Utils.isNull(obj.layout)){
+			layout_default = obj.layout;
 		}
 		var layout = layout_default;
-		elements.push({element:data[i].component,layout:layout});
+		elements.push({
+			element: obj.component,
+			layout: layout,
+			section: obj.section,
+			data: obj
+		});
 	}
 	return elements;
 }
 
 
-function FormComponent_build(pages,self){
-	if(!Utils.isNull(pages)){
-		handleFormPageBuild(pages,self);
-	}else{
+function FormComponent_build(self){
+	
+	
+	
 		handleFormNormalBuild(self);
-	}
-}
-function handleFormNormalBuild(self){
-	var elements = self.getFormElements();
-	var layout = layoutManager.newLayout();
-		layout.row();
-	for( var i=0; i<elements.length; i++ ){
-		var layRow = elements[i].layout.row;
-		var layCol = elements[i].layout.col;
-		var comp = elements[i].element;
-		if(!Utils.isNull(layRow) && layRow==true){
-			layout.row();
-		}
-		layout.col(layCol,[comp]);
-	}
-	layout.row();
-	layout.col({md:12},[self._props_._submit_button]);
-	layout.build();
-	
-	self._props_._form.appendChild(layout.getHtml());
-	
 	
 }
 
+
+function objectLength(obj){
+	var len = 0;
+	for(prop in obj){
+		len++;
+	}
+	return len;
+}
+
+function __FormSectionHandler(){
+	this.elements = null;
+	this.layout = null;
+	this.all_elements = null;
+	this.formSectionView = null;
+
+}
+__FormSectionHandler.prototype = {
+
+};
+
+function handleFormNormalBuild(self){
+	var formSectionHandler = new __FormSectionHandler();
+
+	formSectionHandler.elements = self.getFormElements();
+	formSectionHandler.all_elements = f_create_all_elements(formSectionHandler.elements,self);
+	formSectionHandler.formSectionViewIDs = [];
+	formSectionHandler.layout = layoutManager.newLayout().row();
+
+	for (var i = 0; i < formSectionHandler.all_elements.length; i++) {
+		if(Array.isArray(formSectionHandler.all_elements[i])){
+			
+			f_handle_formSection(formSectionHandler,i,self);
+		}else{
+			var layRow = formSectionHandler.all_elements[i].layout.row;
+			var layCol = formSectionHandler.all_elements[i].layout.col;
+			var comp = formSectionHandler.all_elements[i].element;
+
+			if(!Utils.isNull(layRow) && layRow==true){
+				formSectionHandler.layout.row();
+			}
+			formSectionHandler.layout.col(layCol,comp);
+		}
+	}
+
+	if(formSectionHandler.formSectionView!=null){
+		console.log(formSectionHandler.formSectionView);
+		formSectionHandler.layout.row();
+		formSectionHandler.layout.col({md:12},formSectionHandler.formSectionView);
+		self._props_._form_sections._view_ids = formSectionHandler.formSectionViewIDs;
+	}
+
+	formSectionHandler.layout.row();
+	formSectionHandler.layout.col({md:12},[self._props_._submit_button]);
+	formSectionHandler.layout.build();
+	self._props_._form.appendChild(formSectionHandler.layout.getHtml());
+
+}
+function f_create_all_elements(elements,self){
+	var all_elements = [];
+	var group_sections = {};
+	var last_sec_id = null;
+	for (var i = 0; i < elements.length; i++) {
+		if(elements[i].section!=null){
+			var sec_id = elements[i].section;
+			if(last_sec_id!=null && last_sec_id!=sec_id){
+				all_elements.push(group_sections[last_sec_id])
+			}
+			last_sec_id = sec_id;
+			if(group_sections[sec_id]==undefined){
+				group_sections[sec_id] = [];
+				formSection = self._props_._form_sections._sections[sec_id];
+				group_sections[sec_id].push(formSection);
+			}
+			group_sections[sec_id].push(elements[i]);
+			if(i == (elements.length-1)){
+				all_elements.push(group_sections[last_sec_id]);
+			}
+		}else{
+			if(last_sec_id!=null){
+				all_elements.push(group_sections[last_sec_id]);
+			}
+			last_sec_id = null;
+			all_elements.push(elements[i]);
+		}
+	}
+	return all_elements;
+}
+
+function f_handle_formSection(formSectionHandler,index,self){
+	var _formSectionsObjects = [];
+	var form_view = formSectionHandler.all_elements[index];
+	var formSection = form_view[0];
+
+	if(formSection.type=='normal'){
+		var form_section_layout = layoutManager.newLayout().row();
+
+		for (var n = 1; n < form_view.length; n++) {
+
+			var layRow = form_view[n].layout.row;
+			var layCol = form_view[n].layout.col;
+			var comp = form_view[n].element;
+
+			if(layRow==true){
+				form_section_layout.row();
+			}
+
+			form_section_layout.col(layCol,comp);
+
+		}
+		if(formSection.getButtons().length>0){
+			var buttons = formSection.getButtons();
+			for (var i = 0; i < buttons.length; i++) {
+				if(formSection._props_._layout!=null){
+					var def = {md:12};
+					if(formSection._props_._layout[i]!=undefined){
+						def = formSection._props_._layout[i]
+					}
+					form_section_layout.col(def,buttons[i]);
+				}else{
+					form_section_layout.col(def,buttons[i]);
+				}
+				
+			}
+		}
+
+		form_section_layout.build();
+
+		var section_opts = self._props_._form_sections._section_opts[formSection.getSectionId()];
+		var mysec_class = 'p'+Utils.randomGenerator('12');
+		var mysec_id = 'p'+Utils.randomGenerator('12');
+		if(section_opts!=undefined){
+			if(section_opts['id']!=undefined){
+				mysec_id = section_opts['id'];
+			}
+			if(section_opts['className']!=undefined){
+				mysec_class = section_opts['className'];
+			}					
+		}
+		self._props_._form_sections._container_selectors[formSection.getSectionId()] = [mysec_id,mysec_class];
+		var section_container = new ContainerComponent({
+			id: mysec_id,
+			className: mysec_class,
+			body: form_section_layout
+		});
+
+		formSectionHandler.layout.col(layCol,section_container);
+
+	}else if(formSection.type=='page'){
+		
+		if(formSectionHandler.formSectionView==null){
+			formSectionHandler.formSectionView = new ViewManager();
+		}
+
+		var form_handler = self._props_._form_handler;
+		var event_trigger_submit = self._props_._triggers.submit;
+		var event_trigger_reset = self._props_._triggers.reset;
+	
+		var form_section_layout = layoutManager.newLayout().row();
+		
+		for (var n = 1; n < form_view.length; n++) {
+			var layRow = form_view[n].layout.row;
+			var layCol = form_view[n].layout.col;
+			var comp = form_view[n].element;
+
+			if(!Utils.isNull(layRow) && layRow==true){
+				formSectionHandler.layout.row();
+			}
+			form_section_layout.col(layCol,comp);
+			_tothegame(comp,form_view,n);
+		}	
+
+		
+		function _tothegame(comp,form_view,n){
+			comp.listenTo(form_handler, event_trigger_submit, function(msg) {
+				
+				var myid = form_view[n].data.formElement.id;
+				if(document.getElementById(form_view[n].data.formElement.id) != undefined){	
+					_handle_current_view_values(function(values){
+						
+						var val = gl_getFormElementValue('input','#'+myid);
+						values[myid] = val;
+						return val;
+					});
+				}
+			});
+		}
+
+		function _get_current_view_for_section(cv){
+			var _this_form_section = null;
+			for (var i = 0; i < _formSectionsObjects.length; i++) {
+				if(_formSectionsObjects[i][0]==cv){
+					_this_form_section = _formSectionsObjects[i][1];
+					break;
+				}
+			}
+			return _this_form_section;
+		}
+		function _handle_current_view_values(addValuesCallback){
+			var cv = formSectionHandler.formSectionView.getCurrentView();
+			var _this_form_section = _get_current_view_for_section(cv);
+			if(_this_form_section!=null){
+				var v = _this_form_section.getValues();
+				if(addValuesCallback!=undefined){
+					hold_section_values[cv] = addValuesCallback(v);
+				}else{
+					hold_section_values[cv] = v; 
+				}
+			}
+		}
+
+		var hold_section_values = {};
+
+		form_section_layout.row();
+
+		if(formSection.backBtn!=null){
+			var backBtn = formSection.backBtn;
+			var btn1 = new ButtonComponent({
+				label: (backBtn.label!=undefined) ? backBtn.label : 'Back',
+				id: (backBtn.id!=undefined) ? backBtn.id : '',
+				style: (backBtn.style!=undefined) ? backBtn.style : '',
+				className: (backBtn.className!=undefined) ? backBtn.className : '',
+				listener: function(e){
+					e.event.preventDefault();
+					_handle_current_view_values();
+					if(backBtn.listener!=undefined && typeof backBtn.listener=='function'){
+						backBtn.listener(e);
+					}
+					formSectionHandler.formSectionView.back();
+				}
+			});
+			form_section_layout.col({md:6},btn1);
+		}
+
+		if(formSection.nextBtn!=null){
+			var nextBtn = formSection.nextBtn;
+			var btn2 = new ButtonComponent({
+				label:(nextBtn.label!=undefined) ? nextBtn.label : 'Next',
+				id: (formSection.nextBtn.id!=undefined) ? nextBtn.id : '',
+				style: (formSection.nextBtn.style!=undefined) ? nextBtn.style : '',
+				className: (nextBtn.className!=undefined) ? nextBtn.className : '',
+				listener: function(e){
+					e.event.preventDefault();
+					_handle_current_view_values();
+					if(nextBtn.listener!=undefined && typeof nextBtn.listener=='function'){
+						nextBtn.listener(e);
+					}
+					formSectionHandler.formSectionView.next();
+				}
+			});
+			form_section_layout.col({md:6},btn2);
+		}
+		
+		form_section_layout.build();
+
+		form_section_view_id = "p"+Utils.randomGenerator(12);
+
+		_formSectionsObjects.push([form_section_view_id,form_view[0]]);
+
+		var form_section_container = new ContainerComponent({body: form_section_layout});
+		
+		form_section_container.addListener(function(obj){
+			if(formSection.remember){
+				formSection._props_._insertValues();
+			}
+		});
+
+		formSectionHandler.formSectionView.newSubView({
+			id: form_section_view_id,
+			init: (formSectionHandler.formSectionViewIDs.length==0) ? true : false,
+			body: form_section_container
+		});
+		formSectionHandler.formSectionViewIDs.push(form_section_view_id);
+	}
+}
 
 
 function handleFormPageBuild(pages,self){
@@ -7082,27 +7013,32 @@ function FormComponent_onSubmit(opts,callback,self){
 		opts = {};
 	}
 	var label = (opts.label==undefined) ? "" : opts.label
-	var id = (opts.id==undefined) ? Utils.randomGenerator(16,false) : opts.id;
+	var id = (opts.id==undefined) ? "onSubmit-"+Utils.randomGenerator(16,false) : opts.id;
 	var className = (opts.className==undefined) ? "" : opts.className;
 	var style = (opts.style==undefined) ? "" : opts.style;
 
 	self._props_._submit_button_id = id;
 
+	
 	self._props_._submit_button = new ButtonComponent({
 		label: label,
 		style: style,
 		className: className,
 		callback: function(obj){
 			obj.event.preventDefault();
+			
 			self._props_._form_handler.trigger(self._props_._triggers.submit);
+			
+				
+			
 		}
 	});
 
 	self._props_._submit_button_id = self._props_._submit_button.getId();
 }
 
-
 function FormComponent_addInput(opts,self){
+
 	var formElement = new FormComponentDefaults(opts,self);
 	var layout_classes = "";
 	var statusId = Utils.randomGenerator(12,false);
@@ -7117,11 +7053,18 @@ function FormComponent_addInput(opts,self){
 	layoutContainer.appendChild(label);
 	layoutContainer.appendChild(input);
 	layoutContainer.appendChild(status);
-	var default_value = (!Utils.isNull(opts.defaultValue)) ? opts.defaultValue : "";
+	var default_value = (!Utils.isNull(opts.defaultValue)) ? opts.defaultValue : gl_DEFAULT_FORM_VALUE;
 	if(default_value!=""){
 		self._props_._values[formElement.paramName] = default_value;
-		input.value = default_value;
+		
 	}
+
+	var _current_section_id = self._props_._form_sections._current_section_id;
+	if(self._props_._form_sections._form_ids[_current_section_id]==undefined){
+		self._props_._form_sections._form_ids[_current_section_id] = [];
+	}
+	self._props_._form_sections._form_ids[_current_section_id].push(['input',formElement.paramName]);
+
 	
 	var compContainer = new ContainerComponent({body:layoutContainer});
 	var tag = formElement.tag;
@@ -7130,8 +7073,9 @@ function FormComponent_addInput(opts,self){
 		component: compContainer,
 		paramName: formElement.paramName,
 		type: 'input',
-		layout: opts.layout,
+		layout: opts.layout, 
 		formElement: formElement,
+		section: _current_section_id,
 		
 		
 		
@@ -7145,26 +7089,24 @@ function FormComponent_addInput(opts,self){
 	var form_handler = self._props_._form_handler;
 	var event_trigger_submit = self._props_._triggers.submit;
 	var event_trigger_reset = self._props_._triggers.reset;
+
 	
 	
 	
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
-		self._props_._form_data[tag].status = 2;
-		initializeValidationAndValues();
-		self._props_._form_data[tag].status = 1;
+		gl_handle_event_trigger_onSubmit('input',self,_current_section_id,tag);
 	});
 	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
-		self._props_._form_data[tag].status = 0;
+		gl_event_trigger_reset('input',self,tag);
 	});
-	_Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
-		
-		
-		
-		
-		initializeValidationAndValues();
-	},self,true);
+	compContainer.addListener(function(e){
+		$(formElement.selector).focusout(function(e){
+			initializeValidationAndValues();
+		});
+	});
 
 	_Utils_registerListenerCallbackForSelf("run","",function(b){
+
 		if(formElement.remember){
 			
 			
@@ -7177,8 +7119,43 @@ function FormComponent_addInput(opts,self){
 
 	function initializeValidationAndValues(){
 		var validation = validation_set_defaults(opts.validation);
-		var val = $(formElement.selector).val();
-		var value = val!="" ? val : formElement.defaultValue;
+		var val;
+		if(self._props_._form_data[tag].section!=null){
+			var section_id = self._props_._form_data[tag].section;
+			var form_sec = self._props_._form_sections._sections[section_id];
+			if(form_sec.type=='page'){
+				
+				var values = form_sec.values;
+				for(prop in values){
+					if(formElement.selector.substring(1)==prop){
+						val = values[prop];
+						break;
+					}
+				}
+				if(val==undefined){
+					val = gl_getFormElementValue('input',formElement.selector);
+				}
+			}else{
+				val = gl_getFormElementValue('input',formElement.selector);
+			}
+		}else{
+			val = gl_getFormElementValue('input',formElement.selector);
+		}
+
+		var value = "";
+
+		if(val!="" && val!=undefined){
+			value = val;
+		}else{
+			if(formElement.defaultValue!=gl_DEFAULT_FORM_VALUE){
+				value = formElement.defaultValue;
+			}else if(self._props_._defaultValue!=gl_DEFAULT_FORM_VALUE){
+				value = self._props_._defaultValue;
+			}else{
+				value = gl_DEFAULT_FORM_VALUE;
+			}
+		}
+
 		self._props_._values[formElement.paramName] = value;
 		if(formElement.remember){
 			self._props_._setRemeber(formElement.tag,value);
@@ -7397,6 +7374,8 @@ function FormComponent_addInput(opts,self){
 		}
 	}
 
+	self._props_._initializeValidationAndValues = initializeValidationAndValues;
+
 	
 	function charactersValidation(val,validation){
 		var  letters = [
@@ -7587,23 +7566,6 @@ function FormComponent_addInput(opts,self){
 			return _is_num;			
 		}
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 		function runSetupDefualts(){
 
@@ -7914,15 +7876,7 @@ function FormComponent_addSelection(opts,self){
 		getSelectionValue();
 	}
 
-
-
-
-
-
-
-
 }
-
 
 function FormComponent_addTextarea(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
@@ -7936,6 +7890,7 @@ function FormComponent_addTextarea(opts,self){
 		innerHTML: formElement.label
 	});
 
+	
 	var rows = 4;
 	var cols = 50;
 	if(opts.rows){
@@ -7985,6 +7940,7 @@ function FormComponent_addTextarea(opts,self){
 		component: compContainer,
 		type: 'selection',
 		formElement: formElement,
+		layout: opts.layout, 
 		status: 0,
 		statusId: statusId,
 		isValid: true
@@ -8222,27 +8178,6 @@ function FormComponent_addRadioButtonGroup(opts,self){
 		};
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 function FormComponent_addCheckBoxGroup(opts,self){
 
@@ -8304,9 +8239,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
 		self._props_._form_data[tag].status = 0;
 	});
-	
-	
-	
 
 	function initializeValidationAndValues(){
 		var validation = new FormValidationDefaults(opts.validation);
@@ -8323,51 +8255,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 			}
 		}
 	}
-
-
-	
-
-	
-	
-	
-	
-	
-	
-
-	
-
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
 	
 	self._props_._form_data[tag] = {
 		paramName: formElement.paramName,
@@ -8378,24 +8265,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		statusId: statusId,
 		isValid: true
 	};
-	
-	
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 function FormComponent_datePicker(obj,self){
@@ -8653,10 +8522,6 @@ function FormComponent_datePicker(obj,self){
 		  if(previousDay) {
 		    daySelect.value = previousDay;
 
-		    
-		    
-		    
-		    
 		    if(daySelect.value === "") {
 		      daySelect.value = previousDay - 1;
 		    }
@@ -8746,9 +8611,6 @@ function FormComponent_addFileUpload(opts,self){
 		}
 		return p;
 	}
-
-	
-
 
 	var containerDefaults = new ComponentDefaults(opts,self);
 	var formDefaults = new ComponentDefaults(opts.form,self);
@@ -9253,14 +9115,8 @@ function charactersValidation(val,validation){
 		}
 	}
 
-
-
-
-
 	return _isvalid;
 }
-
-
 
 
 /* 0000 - FormEventsHandler */
@@ -9322,13 +9178,6 @@ function FormEventsHandler_constructor(obj,formElement,self){
 		
 	}
 }
-
-
-
-
-
-
-
 
 /* 0000 - ModalComponent */
 
@@ -9738,7 +9587,7 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 	}else{
 		var s = str.split("");
 		for(var i=0;i<Utils.specialChars.length;i++){
-			var special_character = Support.Utils.specialChars[i];
+			var special_character = Utils.specialChars[i];
 			var includes = str.includes(special_character);
 			if(includes){
 				if(canBegin!=undefined && !canBegin){
@@ -9751,18 +9600,6 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 						return true;
 					}
 				}
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
 
 				for(var v=0;v<s.length;v++){
 					if(s[v]==special_character){
@@ -9789,11 +9626,6 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 		}
 		return _isException;
 	}
-
-
-	
-	
-	
 
 	return contains;
 
@@ -9892,15 +9724,6 @@ function Utils_detectEngine(){
 		isBlink: isBlink
 	};
 }
-
-
-
-
-
-
-/* 0000 - AppLayout */
-
-
 
 function AppLayout_constructor(obj,self){
 
@@ -10007,7 +9830,6 @@ function isBuildBody(body){
 		isbody = true;
 	}
 
-
 	return isbody;
 
 }
@@ -10035,11 +9857,7 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 
 function AppLayout_build(self){
 	
-	
-	
-	
-	
-	
+	self._props_._isBuilt = true;
 	self._props_._elements._fragment = document.createDocumentFragment();
 	var layout = self._props_._layout_container;
 
@@ -10115,11 +9933,6 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 	var nodes = [];
 
 	var divRow = null;
-
-	
-	
-	
-	
 
 	for(var i=0;i<arrayOfItems.length;i++){
 		if(typeof arrayOfItems[i]=="string"){
@@ -10256,9 +10069,6 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		_view_._props_._container.appendChild(v.getHtml());
 		topDiv.appendChild(_view_._props_._container.cloneNode(true));
 
-		
-
-
 		function _getComponentType(obj){
 			if(Utils.isNull(obj.body)){
 				var blankComponent = componentManager.container({
@@ -10359,8 +10169,6 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 }
 function _getLayoutColumnClasses(columns){
 
-	
-	
 
 	/*
 
@@ -10390,7 +10198,14 @@ function _getLayoutColumnClasses(columns){
 
 	for(col in columns){
 
-		if(col=="xs" || col=="sm" || col=="md" || col=="lg" || col=="xl"){
+
+		if(col=="col"){
+			if(colClasses==""){
+				colClasses = " col-"+columns[col];
+			}else{
+				colClasses = colClasses+" col-"+columns[col];
+			}	
+		}else if(col=="xs" || col=="sm" || col=="md" || col=="lg" || col=="xl"){
 			if(colClasses==""){
 				colClasses = colClasses+" "+colClasses+"col-"+col+"-"+columns[col]+" ";
 			}else{
@@ -10461,8 +10276,6 @@ function _sortClassesDisplay(col,columns,colClasses){
 	
 	function _addTogether(columns,col,start,end){
 		
-		
-		
 		if(Array.isArray(columns[col])){
 			var p = "";
 			for(var i=0; i<columns[col].length; i++){
@@ -10528,6 +10341,14 @@ function _sortClassesOffset(col,columns,colClasses){
 			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
 			
 		}
+	}else{
+		if(colClasses==""){
+			colClasses = "offset-"+columns[col]+" ";
+			
+		}else{
+			colClasses = " offset-"+columns[col]+" ";
+			
+		}
 	}
 	return colClasses;
 
@@ -10587,8 +10408,6 @@ function _getFragementForViewLayout(self){
 	}
 
 	return frag;
-
-
 }
 function _layoutMake(obj,arrayOfItems){
 	var propTypeof = typeof obj;
@@ -10643,14 +10462,6 @@ function _layoutMake(obj,arrayOfItems){
 							el.innerHTML = tmpBody
 						}
 						
-						
-						
-						
-						
-						
-						
-						
-						
 
 						isObj = false;
 					}
@@ -10660,39 +10471,13 @@ function _layoutMake(obj,arrayOfItems){
 
 				}
 			}
-
-
 		}
 
 		fragment.appendChild(el);
 
 		return fragment;
 	}
-
-
-	
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function buildBody(object,self){
 	var body = null;
@@ -10852,12 +10637,6 @@ function convertIntoAppFactoryObject(body){
 }
 function _build_view(body,params,self,obj){
 
-	
-	
-	
-	
-	
-	
 	var paramValues = {  
 		"view": obj, 
 		
@@ -10932,24 +10711,6 @@ function getView(body,obj,self){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
@@ -10963,11 +10724,6 @@ function isEventRegistered(selector,self){
 	}
 	return alreadyRegistered;
 }
-
-
-
-
-
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
 	stopPropagation = (Utils.isNull(stopPropagation)) ? false : stopPropagation;
@@ -11031,61 +10787,6 @@ function _Utils_registerListenerCallback(obj,self){
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function setBaseURL(self,url){
@@ -11163,6 +10864,46 @@ var gl_applicationContextManager = null;
 var gl_app_plugins = [];
 var gl_app_configuration = null;
 
+var gl_DEFAULT_FORM_VALUE = "_none_";
+
+
+
+function gl_getFormElementValue(type,selector){
+	if(type=='input'){
+		var val = $(selector).val();
+		return val;
+	}else {
+		return '';
+	}
+}
+function gl_setFromValue(type,selector,value){
+	if(type=='input'){
+		$(selector).val(value);
+	}
+	
+}
+function gl_handle_event_trigger_onSubmit(type,self,_current_section_id,tag){
+	self._props_._form_data[tag].status = 2;
+	if(type=='input'){
+		
+		
+		if(_current_section_id==null || _current_section_id==undefined || _current_section_id==false){
+			self._props_._initializeValidationAndValues();
+			self._props_._form_data[tag].status = 1;
+		}else{
+			
+			setTimeout(function(){
+				self._props_._initializeValidationAndValues();
+				self._props_._form_data[tag].status = 1;
+			},1500);
+		}
+	}
+}
+function gl_event_trigger_reset(type,self,tag){
+	if(type=='input'){
+		self._props_._form_data[tag].status = 0;
+	}
+}
 
 /**
 * Register plugin
@@ -11459,11 +11200,6 @@ function initializeApplication(isClient,activePlugin,self){
 	window.Brick = Brick;
 	window.AFBrick = Brick;
 
-	if(isClient==false){
-		
-		return;
-	}
-
 	var config_appfac = self._props_._application_config;
 	var plugins = self._props_._application_plugins;
 	var baseUrl = self._props_._baseUrl;
@@ -11471,6 +11207,14 @@ function initializeApplication(isClient,activePlugin,self){
 	if(self._props_._application_config['application']['prod']==false){
 		console.log(config_appfac);
 	}
+
+	if(isClient==false){
+		
+		
+		return;
+	}
+
+
 
 	var app = self;
 
@@ -11569,6 +11313,49 @@ function initializeApplication(isClient,activePlugin,self){
 
 	}
 
+	function _start_admin_app(){
+
+		console.log(config_appfac);
+
+		var admin_plugin_config = config_appfac['application']['client-active-theme'];
+		var admin_active_plugin = admin_plugin_config.split("|")[0];
+		var admin_active_theme = admin_plugin_config.split("|")[1];
+
+
+
+		var url = "../../plugins/"+admin_active_plugin+"/plugin.config.json";
+		$.getJSON( url, function( pluginconfig ) {
+
+
+			console.log(pluginconfig);
+
+			var clientactivetheme = null;
+			var clientthemes = pluginconfig['admin-themes'];
+
+			for (var i = 0; i < clientthemes.length; i++) {
+				if(clientthemes[i].directory==admin_active_theme){
+					clientactivetheme = clientthemes[i];
+					break;
+				}
+			}
+
+			if(clientactivetheme!=null){
+				
+				for (var i = 0; i < clientactivetheme.head.length; i++) {
+					$('head').append(clientactivetheme.head[i]);
+				}
+
+				
+				if(clientactivetheme.sass){
+					if(clientactivetheme.sass.link!=undefined){
+						$('head').append(clientactivetheme.sass.link);
+					}				
+				}
+			}
+
+		});
+
+	}
 }
 
 function _callRequest(filePath,callback){
@@ -11581,8 +11368,6 @@ function _callRequest(filePath,callback){
 	};
 	xhttp.open("GET", filePath, true);
 	xhttp.send();
-
-
 }
 
 
@@ -11596,12 +11381,8 @@ function a1(configFile){
 } 
 
 
-
 function LoadDependencies(baseUrl,classes,views,dependencies){ 
-	
-	
-	
-	
+
 
 	if(baseUrl.includes("/client")){
 		for(var i=0; i < classes.length; i++){
@@ -11716,3 +11497,4 @@ return ApplicationContextManager;
 
 
 })); 
+

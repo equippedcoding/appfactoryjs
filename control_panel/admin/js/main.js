@@ -227,7 +227,104 @@ function run(config){
 			return view;
 		});
 
-		Manager.register('homeLayout',function(routes){
+
+
+		var containerInit = app.Factory.container();
+
+		Manager.register('appfac_testing',function(obj){
+			var URL = "request.php";
+			$.post(URL,{appfac_testing:true},function(resp){
+				setTimeout(function(){
+				if(resp==1){
+					containerInit.addComponent('@home:init');
+				}else{
+					containerInit.addComponent("@signin");
+				}
+			},500);
+			});
+
+			return containerInit;
+		});
+
+		Manager.register('container:init',function(obj){
+			containerInit.addComponent("@signin");
+			return containerInit;
+		});
+
+		Manager.register('signin',function(obj){
+
+			var label = Brick.stack().h4("Please Sign In").build();
+
+			var errLabelComp = app.Factory.container();
+
+			var form = app.Factory.form('form_one');
+
+			form.addInput({
+				//all: "myinput",
+				label: "Username",
+				tag: "username",
+				selector: '#username',
+				paramName: 'username',
+				type: "text"
+			});
+			form.addInput({
+				//all: "myinput",
+				label: "Password",
+				tag: "password",
+				selector: '#password',
+				paramName: 'password',
+				type: "password"
+			});
+
+
+			form.onSubmit({
+				//id: "",
+				label: "Sign In",
+				style: "width: 100%;",
+				className: "btn btn-success",
+				return: 'array'
+			},function(obj){
+				console.log(obj);
+
+				var URL = "request.php";
+
+				$.post(URL,{signin:true},function(resp){
+					if(resp==1){
+						var errLabel = Brick.stack().p('').build();
+						errLabelComp.addComponent(errLabel);
+						containerInit.addComponent('@home:init');
+					}else{
+						var errLabel = Brick.stack().p({
+							style: "color: red;",
+							innerHTML: "Username/Password wrong"
+						}).build();
+						errLabelComp.addComponent(errLabel);
+					}
+				});
+
+				
+			});
+
+			form.build();
+
+			var layout = app.Layout.newLayout() 
+				.row()
+				.col({md:6, offset_md:3},label)
+				.row()
+				.col({md:6, offset_md:3},errLabelComp)
+				.row()
+				.col({md:6, offset_md:3},form)
+				.build();
+
+			var con = app.Factory.container({
+				className: "container",
+				body: layout
+			});
+
+			return con;
+		});
+
+		Manager.register('home:init',function(routes){
 			var pluginObjArray = [];
 			for (var p in plugins) {
 				pluginObjArray.push({
@@ -357,29 +454,40 @@ function run(config){
 			return navContainer;
 		});
 
+		var pages = app.Pages.newPageView({
+			init: true,
+			routes: {
+				'':'appfac_testing'	
+			}
+		});
 
-		Manager.init(true,function(){
-			// AppPages.loadPages("../js/includes/components/html",{
-			// 	'header':'header.html'
-			// });
-			Pages.newPageView({
-				baseRoute: 'home',
-				init: true,
-				routes: {
-					'':'homeLayout component main:menu',
-					':id':'homeLayout component main:menu',
-					'route2/:data': {
-						'layout':'homeLayout layoutOne component',
-						'transition': {
-							to: '',
-							from: ''
-						}
-					}
-				}
-			});
-			//AppPages.init();
-			//AppPages.render('home');
-		},true);
+
+		// start application life cycle with routing 
+		app.Manager.init(pages);
+
+
+		// Manager.init(true,function(){
+		// 	// AppPages.loadPages("../js/includes/components/html",{
+		// 	// 	'header':'header.html'
+		// 	// });
+		// 	Pages.newPageView({ 
+		// 		baseRoute: 'home',
+		// 		init: true,
+		// 		routes: {
+		// 			'':'homeLayout component main:menu',
+		// 			':id':'homeLayout component main:menu',
+		// 			'route2/:data': {
+		// 				'layout':'homeLayout layoutOne component',
+		// 				'transition': {
+		// 					to: '',
+		// 					from: ''
+		// 				}
+		// 			}
+		// 		}
+		// 	});
+		// 	//AppPages.init();
+		// 	//AppPages.render('home');
+		// },true);
 	});
 
 //});// End of jQuery Get call

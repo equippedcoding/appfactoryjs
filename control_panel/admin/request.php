@@ -1,6 +1,8 @@
 <?php  
 
 
+require 'testing.php';
+
 function generateRandomString($length = 10) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $charactersLength = strlen($characters);
@@ -11,6 +13,24 @@ function generateRandomString($length = 10) {
     return $randomString;
 }
 
+
+
+if(isset($_POST['appfac_testing'])){
+	if($appfac_testing==true){
+		echo 1;
+	}else{
+		echo 0;
+	}
+}
+
+if(isset($_POST['signin'])){
+
+	if($testing==true){
+		echo 1;
+	}else{
+		echo 1;
+	}
+}
 
 
 
