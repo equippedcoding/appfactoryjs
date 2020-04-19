@@ -12,8 +12,6 @@ fclose($myfile);
 $htmlJSON = json_decode($f,true); 
 
 function replace_link($path, $p1){
-	// $p1 = "rel=\"stylesheet\" type=\"text/css\" href=\"{libs/styles/bootstrap4/bootstrap.css}\"";
-
 	preg_match('#\{(.*?)\}#', $p1, $match);
 	if(count($match)>0){
 		$str = $match[1];
@@ -40,8 +38,10 @@ if($userStatic){
 }else{
 	$doctype = "";
 
-	if(array_key_exists("path", $indexConfig)){
-		$PATH = $indexConfig["path"];
+	if(array_key_exists("settings", $indexConfig)){
+		if(array_key_exists('path', $indexConfig['settings'])){
+			$PATH = $indexConfig['settings']["path"];
+		}
 	}
 	
 	if(array_key_exists("doctype", $indexConfig)){
