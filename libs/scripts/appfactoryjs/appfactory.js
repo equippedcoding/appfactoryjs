@@ -26,20 +26,12 @@
 */
 (function (root, factory) {             
 	/*global define*/
-	
-	
-	
-	
-	
-	
-	
-
 
 	if (typeof define === 'function' && define.amd) {
-		
 		define(['jquery','backbone','bootstrap'], factory);
 	} else if (typeof module !== 'undefined' && module.exports) {
-		
+		require('bootstrap');
+		require('backbone');
 		module.exports = factory(require('jquery'));
 	} else {
 		

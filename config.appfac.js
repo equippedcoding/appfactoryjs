@@ -42,7 +42,7 @@
         "index": {
             "settings": {
                 "path": "",
-                "init": false
+                "init": true
             },
             "title": "",
             "meta": [],
