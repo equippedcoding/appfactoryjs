@@ -2,8 +2,6 @@
 //error_reporting(E_ALL);
 error_reporting(E_USER_ERROR);
 
-
-
 $myfile = fopen("config.appfac.js", "r") or die("Unable to open file!");
 $f = fread($myfile,filesize("config.appfac.js"));
 

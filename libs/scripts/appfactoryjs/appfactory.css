@@ -13,6 +13,54 @@
 }
 
 
+.appfac-main-navbar {
+  border-bottom: 1px solid;
+  box-shadow: 5px 10px 8px #888888;
+  margin-bottom: 3%;
+}
+
+
+.appfac-loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  position: absolute;
+  animation: spin 2s linear infinite;
+
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.appfac-dimmed {
+  position: relative;
+}
+
+.appfac-dimmed:after {
+  content: " ";
+  z-index: 10;
+  display: block;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+
+
+
+
+
 /* Fixed sidenav, full height */
 .appfac_sidenav {
   height: 100%;
@@ -52,6 +100,16 @@
   margin-left: 200px; /* Same as the width of the sidenav */
   font-size: 20px; /* Increased text to enable scrolling */
   padding: 0px 10px;
+}
+
+
+.appfac-navbar-active {
+  /*background-color: pink;*/
+  /*border-radius: 7px;*/
+  color: white;
+
+  background-color: white;
+  border-bottom: 2px solid black;
 }
 
 /* Add an active class to the active dropdown button */

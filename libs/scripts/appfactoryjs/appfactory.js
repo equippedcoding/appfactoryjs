@@ -9,7 +9,7 @@
 * 
 * 
 *
-*     
+*      
 *
 * 
 *
@@ -28,19 +28,16 @@
 	/*global define*/
 
 	if (typeof define === 'function' && define.amd) {
+		
 		define(['jquery','backbone','bootstrap'], factory);
 	} else if (typeof module !== 'undefined' && module.exports) {
-		require('bootstrap');
-		require('backbone');
+		
 		module.exports = factory(require('jquery'));
 	} else {
 		
 		factory(jQuery);
 	}	
 }(this, function ($) {    
-
-
-/* Global Variables */ 
 
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
@@ -51,8 +48,6 @@ var Flags = Object.freeze({
 	Method: "meth"
 });
 
-
-/* Global Functions */
 function GL_RegisterListenerCallback(obj,self,id,moreData){
 
 }
@@ -101,7 +96,8 @@ function ApplicationManager(applicationContextManager,stateManager,sessionManage
 		_root_element: rootElement,
 		_files: {},
 		_basePath: "",
-		_file_contents: {}
+		_file_contents: {},
+		_any_id: {}
 	};
 	this._obj_components = null;
 
@@ -142,13 +138,12 @@ ApplicationManager.prototype = {
 		}else{
 			stateManager.go("",true);
 		}
-		
 	},  
 
 	/**
 	* Register a method to be called later with in the app
 	*/
-	register: function(id,method){
+	register: function(id,method,anyId){
 		if(!Utils.isNull(method)){
 			this._application_manager._methods[id] = method;
 		}else{
@@ -156,6 +151,14 @@ ApplicationManager.prototype = {
 				this._application_manager._components.push({id: id.getId(), component: id});
 			}else{
 				console.error("Element not registered, Must be a component");
+			}
+		}
+		
+		if(anyId!=undefined){
+			if(typeof anyId === 'boolean'){
+				if(anyId==true) this._application_manager._any_id[id] = id; 
+			}else if(typeof anyId === 'string'){
+				this._application_manager._any_id[id] = anyId; 
 			}
 		}
 	},
@@ -195,6 +198,8 @@ ApplicationManager.prototype = {
 	/**
 	* Store an object to be retrieved later anywhere with in the app
 	*
+	* @param {string} id
+	* @param {object} any - Any object that needs to be stored for later
 	*/
 	setAny: function(id,any){
 		this._application_manager._any[id] = any;
@@ -203,6 +208,8 @@ ApplicationManager.prototype = {
 	/**
 	* Get object set by setAny 
 	*
+	* @param {string} id - Identifier of object stored
+	* @return {object} - returns the object stored
 	*/
 	getAny: function(id){
 		var any = this._application_manager._any[id];
@@ -221,9 +228,18 @@ ApplicationManager.prototype = {
 		if(Utils.isNull(method)){
 			console.error("Method: "+id+" does not exist");
 		}
-		var component = method(params);
+		var paramValues = {
+			"params": params,
+			"app": gl_applicationContextManager
+		};
+		var component = method(paramValues);
 		if(Utils.isNull(component)){
 			console.error("Component: "+id+" is null");
+		}
+
+		var anyid = this._application_manager._any_id[id];
+		if(anyid!=undefined){
+			this.setAny(anyid,component);
 		}
 		return component;
 	},
@@ -293,7 +309,7 @@ ApplicationManager.prototype = {
 
 
 };
-
+ 
 
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
@@ -419,6 +435,7 @@ StateManager.prototype = {
 	}
 };
 
+
 function ApplicationExtensions(){
 	this._props_ = {};
 }
@@ -493,11 +510,11 @@ ApplicationPlugin.prototype = {
 		return client;
 	},
 
+	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
-
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
 
@@ -529,7 +546,6 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
-
 		return {
 			admin: adminTheme,
 			client: client,
@@ -538,10 +554,6 @@ ApplicationPlugin.prototype = {
 	}
 
 };
-
-
-/* Components */
-
  
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
@@ -557,9 +569,6 @@ function ComponentManager(type,context){
 
 		_isEventsActive: false,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
-
-		
-		
 		
 		_args: null,
 		_object_config: null,
@@ -766,9 +775,6 @@ var ViewsHolder = [];
 */
 function ViewManager(opt){
 	
-
-	
-	
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
 		new ComponentManager(Flags.Type.component,this),
@@ -827,8 +833,6 @@ function ViewManager(opt){
 		}
 
 		return self._props_._containers.getHtml();
-
-		
 	};
 }
 ViewManager.prototype = {
@@ -914,14 +918,13 @@ ViewManager.prototype = {
 	},
 
 
-		
-		
 	/**
 	* Add new view to this ViewManager
 	*/
 	newSubView: function(opts){
 		var self = this;
 		var opt = self._props_._options;
+		
 		
 		if(opts.id==undefined){
 			opts.id = 'p'+Utils.randomGenerator(12);
@@ -953,8 +956,6 @@ ViewManager.prototype = {
 		return this._props_._is_routable;
 	}
 
-
-
 };
 
 
@@ -979,6 +980,7 @@ LayoutManager.prototype = {
 		return new AppLayout(obj,this.Application);
 	}
 };
+
 
 /** @exports AppLayout
 * @classdesc The layout component that is returned by the LayoutManager.newLayout().
@@ -1037,7 +1039,6 @@ AppLayout.prototype = {
 		return this;
 	}
 };
-
 
 /** @exports ComponentFactory
 * @classdesc A top-level component that handles all other components except ViewManager component and AppLayout component.
@@ -1146,21 +1147,17 @@ ComponentFactory.prototype = {
 };
 
 
+
+
 function ImageComponent(opts){
 
-	opts = (Utils.isNull(opts)) ? {} : opts;
-	_.extend(this,
-		new AppFactoryManager('ImageComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
+
+	gl_HandleAll(this,opts,'ImageComponent');
+
 
 	var createElement = Utils.createElement;
 	var isNull = Utils.isNull;
 	var self = this;
-	applicationManager.register(this);
-	
-	applicationManager.setComponent(this);
 
 	
 
@@ -1186,20 +1183,15 @@ ImageComponent.prototype = {
 
 };
 
+
+
+
 function NavbarComponent(opts){
 
-	opts = (Utils.isNull(opts)) ? {} : opts;
-	_.extend(this,
-		new AppFactoryManager('NavbarComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
-
-	applicationManager.register(this);
-	applicationManager.setComponent(this);
-
+	gl_HandleAll(this,opts,'NavbarComponent');
 
 	var self = this;
+
 
 	var createElement = Utils.createElement;
 
@@ -1282,20 +1274,20 @@ function NavbarComponent(opts){
 		"className": "collapse navbar-collapse"
 	});
 
-	var brandLink = createElement({el:"div"});
+
+	self._props_._brandLinkId = "brand_id_"+Utils.randomGenerator(12,false);
+	var brandLink = createElement({el:"div",id:self._props_._brandLinkId});
 	if(opts.brand!=undefined){
 		if(typeof opts.brand === "string"){
 			brandLink = _createBrandLink(opts.brand);
 		}else{
 			if (opts.brand.href!=undefined) {
-				console.log(1)
 				brandLink = _createBrandLink(opts.brand.label);
 			}else if(opts.brand.href==null){
 				brandLink = createElement({el:"label"});
 				var innerHTML = (opts.brand.label!=undefined) ? opts.brand.label : "";
 				brandLink.innerHTML = innerHTML;
 			}else{
-				console.log(2)
 				brandLink = _createBrandLink(opts.brand.label);
 			}
 		}
@@ -1306,6 +1298,7 @@ function NavbarComponent(opts){
 			"el":'a',
 			"href": "#",
 			"className": "navbar-brand",
+			"id": self._props_._brandLinkId,
 			"innerHTML": (_label!=undefined) ? _label : ""
 		});
 		return _brandLink;
@@ -1321,6 +1314,7 @@ function NavbarComponent(opts){
 		self._props_._navbar.appendChild(collapseBtn);
 		self._props_._navbar.appendChild(brandLink);
 	}
+
 	var ulClassName = (opts.ulClassName!=undefined) ? opts.ulClassName : "";
 
 	
@@ -1358,6 +1352,10 @@ function NavbarComponent(opts){
 
 		setTimeout(function(){
 
+			$("#"+self._props_._brandLinkId).click(function(e){
+				e.preventDefault();
+			});
+
 			$("#"+btnId).click(function(e){
 				e.preventDefault();
 				if($("#"+navbarId).hasClass('collapse')){
@@ -1374,9 +1372,21 @@ function NavbarComponent(opts){
 }
 NavbarComponent.prototype = {
 
+	/**
+	* Change the brand text
+	*
+	*/
+	setBrand: function(text){
+		$("#"+this._props_._brandLinkId).html(text);
+	},
+
 	show: function(id){
 
 		var self = this;
+
+		
+		
+		
 		setTimeout(function(){
 
 		var map = null;
@@ -1421,6 +1431,8 @@ NavbarComponent.prototype = {
 		var body = new ContainerComponent();
 		if(!isNull(opts.label)){
 			label = opts.label;
+		}else{
+			label = "";
 		}
 		if(!isNull(opts.init)){
 			init = opts.init;
@@ -1428,10 +1440,18 @@ NavbarComponent.prototype = {
 		if(!isNull(opts.body)){
 			body = opts.body;
 		}
+		var isButton = false;
+		if(!isNull(opts.listener)){
+			isButton = true;
+		}
 
 		var createElement = Utils.createElement;
 
-		var active = (opts.init!=undefined && opts.init==true) ? "active" : "";
+		var active = (opts.init!=undefined && opts.init==true) ? "appfac-navbar-active" : "";
+
+		if(label=="") {
+			active = "";
+		}
 
 		var self = this;
 
@@ -1452,11 +1472,17 @@ NavbarComponent.prototype = {
 		self._props_._ul.appendChild(li1);
 
 		var viewId = (opts.id!=undefined) ? opts.id : "gp"+Utils.randomGenerator(16,false);
-		self._props_._view.newSubView({
-			init: init,
-			id: viewId,
-			body: body
-		});
+		
+		if(isButton){
+
+		}else{
+			self._props_._view.newSubView({
+				init: init,
+				id: viewId,
+				body: body
+			});
+		}
+
 
 		if(opts.init!=undefined && opts.init==true)
 			self._props_._active_item = id;
@@ -1473,18 +1499,25 @@ NavbarComponent.prototype = {
 				$("#"+id).click(function(e){
 					e.preventDefault();
 
-					
+					if(isButton && typeof opts.listener==='function'){
+						opts.listener();
+						return;
+					}
 
 
 					var current = self._props_._active_item;
 
 					if(current == id) return;
 					if(current!=""){
-						$("."+current).removeClass('active');
+						$("."+current).removeClass('appfac-navbar-active');
 					}
-					$("."+id).addClass('active');
+					$("."+id).addClass('appfac-navbar-active');
 					self._props_._active_item = id;
 					self._props_._view.render(viewId);
+
+					if(label=="") {
+						$("."+id).removeClass('appfac-navbar-active');
+					}
 
 					if(self._props_._route)
 						stateManager.go(viewId,false);
@@ -1500,22 +1533,22 @@ NavbarComponent.prototype = {
 	build: function(){
 
 	}
+
+
+
 };
 
-function NavComponent(opts){
-	opts = (Utils.isNull(opts)) ? {} : opts;
-	_.extend(this,
-		new AppFactoryManager('NavComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
 
+
+function NavComponent(opts){
+	
+
+	gl_HandleAll(this,opts,'NavComponent');
 	var createElement = Utils.createElement;
+
 	var isNull = Utils.isNull;
 	var self = this;
-	applicationManager.register(this);
-	
-	applicationManager.setComponent(this);
+
 
 	var view = new ViewManager();
 	var frag = document.createDocumentFragment();
@@ -1533,6 +1566,7 @@ function NavComponent(opts){
 	};
 	self._props_._view_mapper = {};
 	self._props_._route = (opts.route) ? opts.route : false;
+
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -1746,14 +1780,6 @@ NavComponent.prototype = {
 	*/
 	build: function(){
 		var self = this;
-		
-		
-		
-		
-		
-		
-		
-		
 
 		
 		self._props_._elements._navbar_container
@@ -1882,6 +1908,13 @@ function ModalComponent_setContent(opts,self){
 			innerHTML: opts.title
 		});		
 
+		
+		
+		
+		
+		
+		
+
 		var exitBtn = Utils.convertStringToHTMLNode(`
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -1929,6 +1962,8 @@ function ModalComponent_setContent(opts,self){
 }
 
 
+
+
 /** @exports ListComponent
 * @classdesc Creates a list component
 * @class
@@ -1940,15 +1975,8 @@ function ListComponent(opts){
 	
 	opts = (Utils.isNull(opts)) ? {} : opts;
 
-	
-	_.extend(this,
-		new AppFactoryManager('ListComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
-	applicationManager.register(this);
-	var main_container = Utils.createElement({ id:this.getId() });
-	applicationManager.setComponent(this);
+
+	gl_HandleAll(this,opts,'ListComponent');
 
 
 	var self = this;
@@ -1994,6 +2022,8 @@ function ListComponent(opts){
 	this._props_._list_container = list_container;
 	this._props_._active_items = [];
 
+	self._props_._list_element_id = compDefaults.id;
+
 	self._props_._single_selection = true;
 	if(!Utils.isNull(opts.selectionSingle)){
 		self._props_._single_selection = opts.selectionSingle;
@@ -2001,98 +2031,25 @@ function ListComponent(opts){
 
 	
 	this.getHtml = function(){
-		return self._props_._main_container;
+		return self._props_._main_container.cloneNode(true);
 	}
 
-
-	if(!Utils.isNull(opts.item) && !Utils.isNull(opts.list)){
-		for(var i=0; i<opts.list.length; i++){
-			callme(i,opts.list,this);
-		}
-	}else
-	if(!Utils.isNull(opts.items) && !Utils.isNull(opts.list)){
-		for(var i=0; i<opts.list.length; i++){
-			callme(i,opts.list,this);
-		}
-	}
-	function callme(index,listItem,self){
-		var n;
-
+	self._props_._initialize_item = function(item_obj,indexItem,index){
 		
-		if(!Utils.isNull(opts.item)){
-			n = opts.item( index, listItem[index] );
-		}
-		else if(!Utils.isNull(opts.items)){
-			n = opts.items( listItem[index], index );
-		}
 
-		if(n==undefined){
-			console.error("Please return this in the items function!");
-		}
-
-		self.item( n, listItem[index], index );
-	}
-
-
-}
-
-ListComponent.prototype = {
-
-
-	/**
-	* Add list item to List Component 
-	*
-	* @param {Object} - options
-	*/
-	item: function(opts,indexItem,index){
-
-		opts = (Utils.isNull(opts)) ? {} : opts;
-
-		var self = this;
-
-		var compDefaults = ComponentDefaults(opts,this);
+		var compDefaults = ComponentDefaults(item_obj,self);
 		var createElement = Utils.createElement;
 
 		var active = "";
 		
 
-		if(!Utils.isNull(opts.active)){
-			if(opts.active){
+		if(!Utils.isNull(item_obj.active)){
+			if(item_obj.active){
 				active = "active"
 			}
 		}
 
-		var a;
-		if(self._props_._list_type=="ul" || self._props_._list_type=="ol"){
-			a = createElement({
-				el: 'li',
-				className: compDefaults.className,
-				id: compDefaults.id,
-				style: compDefaults.style,
-				href: compDefaults.href,
-				innerHTML: compDefaults.label
-			});
-		}else if(self._props_._list_type=="bootstrap"){
-			a = createElement({
-				el: 'li',
-				className: "list-group-item list-group-item d-flex justify-content-between align-items-center list-group-item-action "+active+" "+compDefaults.className,
-				id: compDefaults.id,
-				style: compDefaults.style,
-				href: compDefaults.href,
-				innerHTML: compDefaults.label
-			});
-
-			if(!Utils.isNull(opts.badge)){
-
-				var badge = createElement({
-					el: 'span',
-					className: 'badge badge-primary badge-pill',
-					innerHTML: opts.badge.value
-				});
-				a.appendChild(badge);
-			}
-		}
-
+		var a = ListComponent_item_createElement(item_obj,active,index,compDefaults,self);
 
 		self._props_._list_container.appendChild(a);
 
@@ -2101,8 +2058,8 @@ ListComponent.prototype = {
 		
 
 		var def = false;
-		if(!Utils.isNull(opts.preventDefault)){
-			def = opts.preventDefault;
+		if(!Utils.isNull(item_obj.preventDefault)){
+			def = item_obj.preventDefault;
 		}
 
 		var gh = index;
@@ -2110,40 +2067,71 @@ ListComponent.prototype = {
 		_Utils_registerListenerCallbackForSelf('run','',function(){
 			$("#"+compDefaults.id).click(function(e){
 				if(def) e.preventDefault();
-
-				if(!Utils.isNull(opts.listener)){
-					opts.listener(indexItem,gh);
-				}
-
-				if(self._props_._single_selection){
-					var currentActiveItem = self._props_._active_items[0];
-					if(!Utils.isNull(currentActiveItem)){
-						$("#"+currentActiveItem).removeClass('active');
-					}
-					$("#"+compDefaults.id).addClass('active');
-					self._props_._single_selection[0] = compDefaults.id;
-					self._props_._active_items[0] = compDefaults.id;
-				}else{
-					if(self._props_._active_items.includes(compDefaults.id)){
-						var index = self._props_._active_items.indexOf(compDefaults.id);
-						
-						if (index > -1) {
-						    self._props_._active_items.splice(index, 1);
-						}
-						$("#"+compDefaults.id).removeClass('active');
-
-					}else{
-						self._props_._active_items.push(compDefaults.id);
-						$("#"+compDefaults.id).addClass('active');
-					}
-				}
+				ListComponent_item_createListener(item_obj,indexItem,gh,compDefaults,self);
 			});
 
 		},self);
 
+	};
+
+	self._props_._list_items = opts.list;
+
+	if(!Utils.isNull(opts.item) && !Utils.isNull(opts.list)){
+		for(var i=0; i<opts.list.length; i++){
+			callme(opts.list,i,this);
+		}
+	}else
+	if(!Utils.isNull(opts.items) && !Utils.isNull(opts.list)){
+		for(var i=0; i<opts.list.length; i++){
+			callme(opts.list,i,this);
+		}
+	}
+	self._props_._item_function = opts.item;
+	function callme(listItem,index,self){
+		var n;
+
+		
+		if(!Utils.isNull(opts.item)){
+			n = opts.item( listItem[index], index );
+		}else if(!Utils.isNull(opts.items)){
+			n = opts.items( listItem[index], index );
+		}
+
+		if(n==undefined){
+			console.error("Please return this in the items function!");
+		}
+
+		self._props_._initialize_item( n, listItem[index], index );
+	}
+
+}
+
+ListComponent.prototype = {
+
+	/**
+	* Remove an item from this list at the given index
+	*
+	* @param {number} index
+	*/
+	removeItemAtIndex: function(index,callback,delay){
+		ListComponent_removeItemAtIndex(index,callback,delay,this);
+	},
+
+	/**
+	* Adds item to this list at the given index
+	*
+	* @param {number} index
+	* @param {object} item  
+	*/
+	addItemAtIndex: function(index,item,callback){
+		ListComponent_addItemAtIndex(index,item,callback,this);
 	}
 
 };
+
+
+
+
 
 function FormEventsHandler(obj,formElement,self){
 	FormEventsHandler_constructor(obj,formElement,self,this);
@@ -2160,68 +2148,55 @@ function FormComponentDefaults(obj,self){
 	if(Utils.isNull(obj)){
 		obj = {};
 	}
-	var id,
-		selector = "#_id_"+Utils.randomGenerator(12,false),
-		tag,
-		name;
+	var __default = "default_id_"+Utils.randomGenerator(12,false);
+	this.id        = __default;
+	this.selector  = "#"+__default;
+	this.tag       = __default;
+	this.name      = __default;
+	this.paramName = __default;
+	this.href      = "#";
 
-	if(!Utils.isNull(obj.all)){
-		id = obj.all;
-		if(id.charAt(0)!="#" && id.charAt(0)!="."){
-			selector = "#"+id;
-			tag = id;
-			name = id;
-		}else{
-			selector = id;
-			tag = id.substr(1);
-			id = tag;
-			name = tag;
-		}
+	if(!Utils.isNull(obj.tag)){
+		this.id = obj.tag;
+		this.selector = "#"+obj.tag;
+		this.tag = obj.tag;
+		this.name = obj.tag;
+		this.paramName = obj.tag;
+		
+		
 	}
 
-	this.paramName = (obj.paramName==undefined) ? this.id : obj.paramName;
-
-	var href = "#";
-	if(!Utils.isNull(obj.href)){
-		href = obj.href;
+	if(obj.paramName!=undefined){
+		this.paramName = obj.paramName;
 	}
-	this.href = href;
+
+	if(obj.href!=undefined){
+		this.href = obj.href;
+	}
+
 
 	if(obj.selector!=undefined){
 		if(obj.selector.charAt(0)!="#" && obj.selector.charAt(0)!="."){
-			selector = "#"+obj.selector;
-			id = obj.selector;
+			this.selector = "#"+obj.selector;
+			this.id = obj.selector;
 		}else{
-			selector = obj.selector;
-			id = obj.selector.substr(1);
+			this.selector = obj.selector;
+			this.id = obj.selector.substr(1);
 		}
 	}
 
 	if(obj.name!=undefined){
-		name = obj.name;
+		this.name = obj.name;
 	}
 
-	if(obj.tag!=undefined){
-		tag = obj.tag;
-	}else{
-		tag = this.paramName;
+	if(obj.id!=undefined){
+		this.id = obj.id
 	}
 
-	if(id==undefined){
-		id = Utils.randomGenerator(12,false)
+	this.remember = false;
+	if(obj.remember!=undefined){
+		this.remember = obj.remember;
 	}
-
-	var remember = false;
-	if(!Utils.isNull(obj.remember)){
-		remember = obj.remember;
-	}
-
-
-	this.remember = remember;
-	this.id = id;
-	this.tag = tag;
-	this.selector = selector;
-	this.name = name;
 
 	this.style = (obj.style==undefined) ? "" : obj.style;
 	this.className = (obj.className==undefined) ? "" : obj.className;
@@ -2319,19 +2294,11 @@ FormValidationDefaults.prototype = {
 function FormComponent(obj){
 	
 	
-	obj = (Utils.isNull(obj)) ? {} : obj;
-
-
-	_.extend(this,
-		new AppFactoryManager('FormComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
-	applicationManager.register(this);
+	var opts = obj;
+	gl_HandleAll(this,opts,'FormComponent');
 
 	var self = this;
 
-	applicationManager.setComponent(this);
 
 	FormComponent_constructor(obj,this);
 
@@ -2379,11 +2346,12 @@ function FormComponent(obj){
 FormComponent.prototype = {
 
 
+
 	/**
 	* Begin a section
 	*
-	* @param {String} section_id
-	* @param {Object} options
+	* @param {string} section_id
+	* @param {object} options
 	*/
 	beginSection: function(section_id,opts){
 		var self = this;
@@ -2462,6 +2430,7 @@ FormComponent.prototype = {
 	/**
 	* Even if remember is set form will not remember values.
 	* 
+	* @param {boolean} remember
 	*/
 	preventRemembering: function(remember){
 		this._props_._prevent_remember = remember;
@@ -2472,8 +2441,8 @@ FormComponent.prototype = {
 	* Update and/or change value of form element. A tag must be assigned
 	* to element to update other wise false will be returned.
 	*
-	* @param {Strind} - Tag assigned to elemnt
-	* @param {Strind} - Value
+	* @param {string} - Tag assigned to elemnt
+	* @param {string} - Value
 	*/
 	update: function(tag,value){
 		FormComponent_update(tag,value,this);
@@ -2481,7 +2450,7 @@ FormComponent.prototype = {
 
 	/**
 	* Add an input element to the form
-	* @param {Object} - options
+	* @param {object} - options
 	*/
 	addInput: function(opts){
 		FormComponent_addInput(opts,this);
@@ -2489,7 +2458,7 @@ FormComponent.prototype = {
 
 	/**
 	* Add checkboxes to form.
-	* @param {Object} - options
+	* @param {object} - options
 	*/
 	addCheckBoxGroup: function(opts){
 		FormComponent_addCheckBoxGroup(opts,this);
@@ -2497,7 +2466,7 @@ FormComponent.prototype = {
 
 	/**
 	* Add radio buttons to form.
-	* @param {Object} - options
+	* @param {object} - options
 	*/
 	addRadioButtonGroup: function(opts){
 		FormComponent_addRadioButtonGroup(opts,this);
@@ -2505,7 +2474,7 @@ FormComponent.prototype = {
 
 	/**
 	* Add selection to this form.
-	* @param {Object} - options
+	* @param {object} - options
 	*/
 	addSelection: function(opts){
 		FormComponent_addSelection(opts,this);
@@ -2513,19 +2482,24 @@ FormComponent.prototype = {
 
 	/**
 	* Add selection of US states to this form.
-	* @param {Object} - options
+	* @param {object} - options
 	*/
 	addStateSelection: function(opts){
 		FormComponent_addStateSelection(opts,this);
 	},
 
+	/**
+	* Add textarea
+	*
+	* @param {object} options
+	*/
 	addTextarea: function(opts){
 		FormComponent_addTextarea(opts,this);
 	},
 
 	/**
 	* Add date picker to this form.
-	* @param {Object} - options
+	* @param {object} - options
 	*/
 	addDatePicker: function(opts){
 		FormComponent_datePicker(opts,this);
@@ -2542,8 +2516,8 @@ FormComponent.prototype = {
 	/**
 	* Adds a submit button to the form.
 	*
-	* @param {Object} - options
-	* @param {Function} - callback
+	* @param {object} - options
+	* @param {function} - callback
 	*/
 	onSubmit: function(opts,callback){
 		FormComponent_onSubmit(opts,callback,this);	
@@ -2583,10 +2557,6 @@ function FormSection(){
 
 	};
 
-	
-	
-	
-	
 
 	self._props_._buttons = [];
 
@@ -2665,7 +2635,7 @@ FormSection.prototype = {
 	/**
 	* Set the layout of this section.
 	*
-	*
+	* 
 	*/
 	setLayout: function(layout){
 		this._props_._layout = layout;
@@ -2701,7 +2671,8 @@ FormSection.prototype = {
 
 	/**
 	* Create buttons for normal section
-	*
+	* 
+	* @param {Object} - For normal sections, create buttons for this section layout
 	*/
 	setButtons: function(buttons){
 		if(!Array.isArray(buttons)){
@@ -2735,20 +2706,18 @@ FormSection.prototype = {
 
 }
 
+
 /** @exports FileUploader
 * @classdesc Creates a file upload component
 * @class
 * @constructor
 */
 function FileUploaderComponent(opts){
-	_.extend(this,
-		new AppFactoryManager('FormComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);
-	applicationManager.register(this);
+
+	gl_HandleAll(this,opts,'FileUploaderComponent');
+
 	var topComponentElement = Utils.createElement({ id:this.getId() });
-	applicationManager.setComponent(this);
+
 	this._props_._upload_element = null;
 
 	this._props_._errorcallback = null;
@@ -2778,25 +2747,44 @@ FileUploaderComponent.prototype = {
 	}
 };
 
+function gl_HandleAll(self,opts,type){
+	
+	
+
+	_.extend(self, 
+		new AppFactoryManager(type), 
+		new ComponentManager(Flags.Type.component,self), 
+		new EventManager(self)
+	);	
+	applicationManager.register(self);
+	applicationManager.setComponent(self);
+
+
+	if(opts!=undefined && opts.register!=undefined){
+		applicationManager.setAny(opts.register, self);
+	}
+
+
+}
+
+
+
 /** @exports ButtonComponent
 * @classdesc .
 * @class
 * @constructor
 */
 function ButtonComponent(opts){
-	_.extend(this, 
-		new AppFactoryManager('ButtonComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager(this)
-	);	
-	applicationManager.register(this);
-	applicationManager.setComponent(this);
+	
+
+	gl_HandleAll(this,opts,'ButtonComponent');
 
 	if(Utils.isNull(opts)){
 		opts = {};
 	}
 
 	var self = this;
+
 
 	var id = self.getId();
 	var selector = (opts.selector==undefined) ? "#"+id : opts.selector;
@@ -2829,6 +2817,13 @@ ButtonComponent.prototype = {
 
 };
 
+
+
+/** @exports ContainerComponent
+* @classdesc A top-level component that.
+* @class
+* @constructor
+*/
 function inhertFrom(self,type,flag){
 	_.extend(self, 
 		new AppFactoryManager(type), 
@@ -2839,7 +2834,9 @@ function inhertFrom(self,type,flag){
 }
 function ContainerComponent(obj){
 	var self = this;
-	inhertFrom(this,'ContainerComponent',Flags.Type.component);
+	
+	var opts = obj;
+	gl_HandleAll(this,opts,'ContainerComponent');
 	
 	obj = (obj) ? obj :{};
 	if(Utils.isNull(obj.template)){
@@ -2857,8 +2854,10 @@ function ContainerComponent(obj){
 	var myspan = document.createElement('span');
 	myspan.id = self.getId();
 	self._props_._container = document.createElement('div');
-	self._props_._container.id = (obj.id!=undefined) ? obj.id : ""; 
+	self._props_._container.id = (obj.id!=undefined) ? obj.id : "j"+Utils.randomGenerator(12,false);
 	self._props_._container.appendChild(myspan);
+	var spiiner = Utils_createELement('div',{id:self._props_._container.id+'-spinner'});
+	self._props_._container.appendChild(spiiner);
 	if(!Utils.isNull(obj.classes)){
 		self._props_._container.className = obj.classes;
 	}else if(!Utils.isNull(obj.className)){
@@ -2889,6 +2888,11 @@ function ContainerComponent(obj){
 ContainerComponent.prototype = {
 
 
+	/**
+	* Returns the element Id of this contianer
+	*
+	* @return {string}
+	*/
 	getContainerId: function(){
 		return this._props_._container.id;
 	},
@@ -2896,37 +2900,81 @@ ContainerComponent.prototype = {
 
 	/**
 	* Add event listener to this container. There can be
-	* more than one listener added to the container. If
-	* the element has already been added to the DOM then
-	* the listener will be ignored
+	* more than one listener added to the container. 
 	* 
-	* @param {Object} event type | listener function
-	* @param {Function} function
+	* @param {function} listener - Function to run when container is added
+	* to DOM or if container is already on DOM run when called.
 	*
 	*/
-	addListener: function(eventType,listener){
+	addListener: function(listener){
+		var self = this;
 		var obj = {};
-		if(typeof eventType === 'function'){
-			obj.listener = eventType;
-		}else{
-			obj.listener = {
-				type: eventType,
-				func: listener
-			};
-		}
+		obj.listener = listener;
+		
 		_Utils.registerListenerCallback(obj,this);
+		if(document.getElementById(self.getContainerId())){
+
+		}
+	},
+
+	/**
+	* Add a loader to this container.
+	*
+	*
+	* @param {opts} [Options] - Options for this loader.
+	* @param {string} [opts.customLoaderClass] - Add custom loader 
+	* @param {boolean} [opts.overlay] - Adds an overlay over this container so that elements can't
+	* be interacted with default is true.
+	*/
+	addLoader: function(opts){
+		var self = this;
+		if(opts==undefined) opts = {};
+		if(opts.overlay==undefined){
+			opts.overlay = true;
+		}
+		if(opts.customLoaderClass!=undefined){
+			self._props_._customer_loader_class = opts.customLoader;
+		}else{
+			self._props_._customer_loader_class = undefined;
+		}
+		if(document.getElementById(self.getContainerId())){
+			var cl = document.getElementById(self.getContainerId()).className;
+			$("#"+self.getContainerId()).css('position','relative');
+			if(opts.overlay==true){
+				$("#"+self.getContainerId()).addClass('appfac-dimmed');
+			}
+			if(self._props_._customer_loader_class==undefined){
+				$("#"+self.getContainerId()+"-spinner").addClass('appfac-loader');
+			}else{
+				$("#"+self.getContainerId()+"-spinner").addClass(self._props_._customer_loader_class);
+			}
+			
+		}
+	},
+
+	/**
+	* Remove the loader from this container.
+	*
+	*/
+	removeLoader: function(){
+		var self = this;
+		if(document.getElementById(self.getContainerId())){
+			$("#"+self.getContainerId()).removeClass('appfac-dimmed');
+			$("#"+self.getContainerId()+"-spinner").removeClass('appfac-loader');
+			if(self._props_._customer_loader_class!=undefined){
+				$("#"+self.getContainerId()+"-spinner").removeClass(self._props_._customer_loader_class);
+			}
+			$("#"+self.getContainerId()).css('position','');
+		}
 	},
 
 
 	/**
-	* Adds a component to this component
-	* @param {ComponentManager} (required) The component to add.
-	* @param {Boolean} (optional) Default is true - Empties the component 
+	* Adds a component to this component.
+	* @param {object} ComponentManager - Required, the component to add.
+	* @param {boolean} [empty=true] - Empties the component 
 	* of all other components before adding the new component. If set to
 	* false then all other previous components will still be attached.
-	* @param {Boolean} (optional) Default is false - If set to true then the added
-	* component is only added once, so if this component is removed from 
-	* the DOM and re-added then the added component will not be attached.
 	*/ 
 	addComponent: function(component,empty){
 		
@@ -3030,11 +3078,7 @@ ContainerComponent.prototype = {
 			}
 		}
 	}
-	
-
 };
-
-
 
 
 function ElementAttributes(attrs){
@@ -3069,9 +3113,11 @@ EventManager.prototype = {
 var Brick = {
 
 	/**
-	* @param {String|Object} (optional) if not specified then div is returned
-	* @param {Object} (optional) element properties id|classes|style|innerHTML...
-	* @return {HTMLElement} - 
+	* @param {string} [type] - if not specified then div is returned
+	* @param {object} [opts] - element properties id|classes|style|innerHTML...
+	* @param {object} [opts.id] - Element id
+	* @param {object} [opts.class] - Element class
+	* @return {object} - HTMLElement 
 	*/
 	createElement: function(type,opts){
 		return Utils.createElement(type,opts);
@@ -3511,6 +3557,10 @@ BrickComponent.prototype = {
 		return BrickComponent_make("option", opts, this);
 	}
 
+
+
+
+
 };
 function BrickComponent_make(element,opts,self){
 
@@ -3564,14 +3614,13 @@ function BrickComponent_make(element,opts,self){
 	return self;
 }
 
+
+
 function NavigationComponent(obj){
-	_.extend(this, 
-		new AppFactoryManager('NavigationComponent'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager()
-	);
-	applicationManager.register(this);
 	
+	
+	var opts = obj;
+	gl_HandleAll(this,opts,'NavigationComponent');
 
 	var self = this;
 	obj = (obj) ? obj :{};
@@ -3634,6 +3683,7 @@ NavigationComponent.prototype = {
 		}
 	},
 
+
 	removeSubView: function(id){
 		for(var i=0; i<this._props_._obj['pages'].length; i++){
 			var tag = this._props_._obj['pages'][i].id;
@@ -3682,6 +3732,7 @@ NavigationComponent.prototype = {
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
 				
+				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
 					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
@@ -3689,9 +3740,12 @@ NavigationComponent.prototype = {
 					});
 				
 
+
 			}
 		}
 
+		
+		
 
 	},
 
@@ -3729,12 +3783,11 @@ NavigationComponent.prototype = {
 
 
 function _navigation1(self,view){
-	
 
 	var defaultBody;
 
 	var container = Utils.createElement({});
-
+	
 	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
 
@@ -3742,6 +3795,10 @@ function _navigation1(self,view){
 	self._props_._container_main.appendChild(view.getHtml());
 	self._props_._container.appendChild(self._props_._container_main);
 
+	
+ 
+	
+	
 
 	var container_nav = Utils.createElement({ id:"mySidenav", className: "appfactory-sidenav" });
 
@@ -3905,7 +3962,11 @@ function _side_navigation(self){
 
 	self._props_._body_id = self._props_._elements._body.id;
 
+	
+
 	self._props_._elements._container.className = "side_nav "+containerClasses;
+	
+
 
 	self._props_._collection = new ViewCollectionController("#"
 		+self._props_._elements._body.id);
@@ -4070,11 +4131,10 @@ TableComponent.prototype = {
 
 			container.addComponent(p);
 		}
-
-
 		return container;
-		
+
 	}
+
 
 };
 
@@ -4088,12 +4148,9 @@ TableComponent.prototype = {
 */
 function TableHandler(opts,tableComponent){
 
-	_.extend(this, 
-		new AppFactoryManager('TableHandler'), 
-		new ComponentManager(Flags.Type.component,this), 
-		new EventManager()
-	);
-	applicationManager.register(this);
+	
+
+	gl_HandleAll(this,opts,'TableHandler');
 
 
 	var self = this;
@@ -4145,7 +4202,6 @@ function TableHandler(opts,tableComponent){
 
 
 		}else{
-			
 			
 			
 
@@ -4241,7 +4297,7 @@ TableHandler.prototype = {
 		return this;
 	}
 };
-
+ 
 
 function TableComponent245 (obj){
 	
@@ -4287,6 +4343,7 @@ function TableComponent245 (obj){
 	_thead.className = "uieb-table-thead";
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
 
+	
 	var _columnNames = [];
 	var _columnNameHeader = document.createElement('tr');
 	var _column_ = [];
@@ -4412,6 +4469,16 @@ function TableComponent245 (obj){
 	ap.id = this.ID;
 	this._props_._elements._fragment.appendChild(ap);
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
 	this._props_._extensionObject.push(this._props_._modalDialog);
 	
 
@@ -4434,6 +4501,13 @@ TableComponent245.prototype = {
 
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
+		
+		
+		
+		
+		
+		
+		
 		
 		if(isNull(columnIndex)){
 			return this._props_._tableStructure._column;
@@ -4514,6 +4588,8 @@ TableComponent245.prototype = {
 		return d;
 	},
 
+	
+
 	/**
 	*  cellId:String - The DOM id of the cell
 	*  connectId:String - The id/string that is in the cell
@@ -4583,6 +4659,14 @@ TableComponent245.prototype = {
 	updateRow: function(cellId,newValue,updateOnDOM){
 		var isNull = Utils.isNull;
 		
+			
+			
+			
+			
+			
+
+
+		
 		var self = this;
 		var found = false;  
 		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
@@ -4633,9 +4717,12 @@ TableComponent245.prototype = {
 	*/
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
-		
+
+	
 		var file_rows = obj.content.split("\n");
 		
+		
+
 		if(file_rows.length==0){
 			var cust = new ContainerComponent({
 				styles: "margin-bottom:10%;",
@@ -4671,11 +4758,19 @@ TableComponent245.prototype = {
 			cellRequestForConnectedData: obj.cellRequestForConnectedData
 		});
 
+		
+	
+
 		var columnsData = [];
 		
 		for(var i=1; i<file_rows.length; i++){
 			var row = file_rows[i].split("\t");
 			
+			
+			
+
+
+
 			for (var p = 0; p < row.length; p++) {
 				columnsData[p] = {
 					html: row[p]
@@ -4704,6 +4799,32 @@ TableComponent245.prototype = {
 
 	}
 };
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+	
+
+
+
+
+
+
+
 
 
 function TableComponent__add_col(obj,self,containerId){
@@ -4781,17 +4902,56 @@ function TableComponent__add_col(obj,self,containerId){
 						table.initializeListeners();
 					}
 
+
+
+
+
+					
+					
+					
+					
+					
+
+					
+					
+					
+					
+					
+
+					
+					
+
+					
 				});
 
+				
 			}
 		}
 	});
 	
+	
+	
+	
+	
+	
+
+
+	
+
 }
 function TableComponent__column_adjustment(self,obj,e){
 	var isNull = Utils.isNull;
 
+	
+	
+	
+
+	
+	
+
 	var tableEditMenu = new ContainerComponent();
+
+
 
 	var id = "table-columns-dialog-"+Utils.randomGenerator(22,false);
 	
@@ -4812,6 +4972,14 @@ function TableComponent__column_adjustment(self,obj,e){
 		id: id,
 		body: cont
 	});
+
+
+	
+	
+	
+	
+	
+	
 
 }
 function _x1(self,cont,tableEditMenu){
@@ -4835,6 +5003,11 @@ function _x1(self,cont,tableEditMenu){
 			}
 		});
 	}
+
+	
+	
+	
+	
 
 	var cust = comp.container({
 		body: buttons
@@ -4892,12 +5065,111 @@ function _editTableByGroup(button,self){
 			type: 'run',
 			func: function(){
 				
+				
+				
+				
+				
+
+				
+				
+
+					
+
+				
+
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
+				
+
+
+				
+				
+				
+				
+
+				
+
+				
+
+
+					
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
+					
+
+
+				
+				
+				
+				
+				
+				
+
+				
+				
+				
+				
+				
+				
+				
+				
+				
+										
+				
+				
+
+				
+
+				
+								
+
+
+				
+				
+				
+
+				
+
+				
 
 			}
 		}
 	});
 
 	
+
+
+
+	
+
+	
+
+
+
+
 	cust.addComponent('<h4>'+button+'</h4>');
 
 
@@ -4932,6 +5204,8 @@ function TableComponent__add_row(self){
 		_form += '<input type="text" id="'+_form_row_ids[i]+'" /><br>';
 	}
 
+	
+
 	var r = "add-row-"+Utils.randomGenerator(7,false);
 	_form += "<button id='"+r+"'>Add Row</button>";
 
@@ -4942,16 +5216,56 @@ function TableComponent__add_row(self){
 			type: 'run',
 			func: function(){
 				
+
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 				
 			}
 		}
 	});
 	
+	
+	
+	
+	
+	
+	
 }
 function TableComponent_row(obj,self){
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
 	var isNull = Utils.isNull;
 
+
+	
 	var _row_names = [];
 	var rowCount = self._props_._row_count++;
 	var row_items = [];
@@ -5038,6 +5352,71 @@ function TableComponent_row(obj,self){
 			data.e.stopPropagation();
 			data.e.preventDefault();
 
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+
+			
+			
+			
+			
+			
+			
+			
+				
+			
+
+			
+			
+			
+			
+
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+
+			
+			
+			
+			
+			
+									
+			
+								
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+				
 		},self,true);
 	}
 	
@@ -5056,7 +5435,9 @@ function TableComponent_row(obj,self){
 		
 	}
 
+	
 	_Utils_registerListenerCallbackForSelf("click",_tr.id,function(data){
+
 
 		if(!self._props_._updatable) return;
 		var col_names = self._props_._tableStructure._columnNames;
@@ -5069,6 +5450,8 @@ function TableComponent_row(obj,self){
 		}
 
 		form += "<br><button id='change-table-row-"+rowCount+"'>Update</button>";
+
+		
 
 		var c = new ContainerComponent({ 
 			body: form,
@@ -5090,12 +5473,23 @@ function TableComponent_row(obj,self){
 							var cellId = self.getRowCellData()[_tr.id][indx].cellId;
 							self.updateCell(cellId,val,true);
 						}
-	
+
+						
+
+						
+
+						
+
+						
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
+		
+		
+		
+		
 		
 		
 	},self,true);
@@ -5113,11 +5507,50 @@ function TableComponent_row(obj,self){
 		self._props_._elements._tbody.appendChild(_tr);
 	}
 
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+		
+	
+	
+
+
+	
+	
+ 
+ 
+ 
+    	
+
 }
 
 function TableComponent_getTableAsString(delemeter,self){
 
 	var isNull = Utils.isNull;
+
+	
+			
+			
+			
+			
+			
+
+
+		
+
 
 	if(isNull(delemeter)){
 		delemeter = "\t";
@@ -5145,9 +5578,87 @@ function TableComponent_getTableAsString(delemeter,self){
 	}
 
 	return str;
+
+	
+
+	
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
 
 function CMSUsers(){
 
@@ -5557,8 +6068,18 @@ var Utils = {
 
 	}
 
+
+
+
 };
 
+
+
+/* _Utils */
+
+/**
+*
+*/
 var _registered_listeneres_ = [];
 var _Utils = {
 	registerListenerCallbackForSelf: function(type,selector,func,self,preventDefault,stopPropagation){
@@ -5570,6 +6091,30 @@ var _Utils = {
 	}
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
 	ApplicationManager_start_createDiv(self);
 	try{
@@ -5772,8 +6317,23 @@ function startRouterApplication(self){
 }
 
 
+
+
+
+
+
+
+/* 0000 - ComponentManager */
 function AppComponent_getHtml(self,route){
+
 	return document.createElement('div');
+	
+	
+	
+	
+	
+	
+	
 }
 
 function AppComponent_getHtml_view_fragment(self,route){
@@ -5988,6 +6548,12 @@ function ContainerComponent_setActive(active,stillSet,self){
 	}
 }
 
+
+
+
+
+
+/* 0000 - Pages */
 function Pages_init(self){
 	var obj = self._props_._initial_view
 	var hash = window.location.hash.substring(1);
@@ -6001,6 +6567,12 @@ function Pages_init(self){
 }
 function Pages_newPageView(obj,self){
 
+	
+	
+	
+	
+	
+	
 
 	var baseRoute = "";
 	if(!Utils.isNull(obj.baseRoute)){
@@ -6181,8 +6753,6 @@ function ViewManager_render(id,params,opts,self){
 	var addComponentBody = null;
 	opts = (opts) ? opts : {};
 	
-	
-	
 
 	var mOpts = null;
 	for (var i = 0; i < self._props_._views_objects.length; i++) {
@@ -6195,9 +6765,7 @@ function ViewManager_render(id,params,opts,self){
 		self._props_._active_view = mOpts;
 		var _options = {};
 		if(typeof mOpts.body == 'function'){
-
 			var n = mOpts.body();
-
 			self._props_._containers.addComponent(n,replace);
 			_options.body = n;
 			return;
@@ -6356,8 +6924,29 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 }
 
 
+
+
+
+
+
 /* 0000 - FormComponent */
 function FormComponent_constructor(obj,self){
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 	var formhandler = new ContainerComponent();
@@ -6824,6 +7413,20 @@ function f_handle_formSection(formSectionHandler,index,self){
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function handleFormPageBuild(pages,self){
 	var view = new ViewManager({routable:false});
 	for(var i=0; i<pages.length; i++){
@@ -7029,6 +7632,12 @@ function FormComponent_onSubmit(opts,callback,self){
 	self._props_._submit_button_id = self._props_._submit_button.getId();
 }
 
+
+
+
+
+
+
 function FormComponent_addInput(opts,self){
 
 	var formElement = new FormComponentDefaults(opts,self);
@@ -7098,6 +7707,16 @@ function FormComponent_addInput(opts,self){
 	});
 
 	_Utils_registerListenerCallbackForSelf("run","",function(b){
+
+		setTimeout(function(){
+			if(self._props_._values[formElement.paramName]!="" && 
+				self._props_._values[formElement.paramName]!=default_value &&
+				self._props_._values[formElement.paramName]!=undefined){
+
+				$(formElement.selector).val(self._props_._values[formElement.paramName]);
+			}
+			
+		},500);
 
 		if(formElement.remember){
 			
@@ -7559,6 +8178,23 @@ function FormComponent_addInput(opts,self){
 		}
 
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
 		function runSetupDefualts(){
 
 			if(!Utils.isNull(validation.characters.trim)){
@@ -7868,7 +8504,15 @@ function FormComponent_addSelection(opts,self){
 		getSelectionValue();
 	}
 
+
+
+
+
+
+
+
 }
+
 
 function FormComponent_addTextarea(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
@@ -8170,6 +8814,27 @@ function FormComponent_addRadioButtonGroup(opts,self){
 		};
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 function FormComponent_addCheckBoxGroup(opts,self){
 
@@ -8231,6 +8896,9 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
 		self._props_._form_data[tag].status = 0;
 	});
+	
+	
+	
 
 	function initializeValidationAndValues(){
 		var validation = new FormValidationDefaults(opts.validation);
@@ -8247,6 +8915,51 @@ function FormComponent_addCheckBoxGroup(opts,self){
 			}
 		}
 	}
+
+
+	
+
+	
+	
+	
+	
+	
+	
+
+	
+
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
 	
 	self._props_._form_data[tag] = {
 		paramName: formElement.paramName,
@@ -8257,6 +8970,24 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		statusId: statusId,
 		isValid: true
 	};
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 function FormComponent_datePicker(obj,self){
@@ -8514,6 +9245,10 @@ function FormComponent_datePicker(obj,self){
 		  if(previousDay) {
 		    daySelect.value = previousDay;
 
+		    
+		    
+		    
+		    
 		    if(daySelect.value === "") {
 		      daySelect.value = previousDay - 1;
 		    }
@@ -8603,6 +9338,9 @@ function FormComponent_addFileUpload(opts,self){
 		}
 		return p;
 	}
+
+	
+
 
 	var containerDefaults = new ComponentDefaults(opts,self);
 	var formDefaults = new ComponentDefaults(opts.form,self);
@@ -9107,8 +9845,14 @@ function charactersValidation(val,validation){
 		}
 	}
 
+
+
+
+
 	return _isvalid;
 }
+
+
 
 
 /* 0000 - FormEventsHandler */
@@ -9170,6 +9914,168 @@ function FormEventsHandler_constructor(obj,formElement,self){
 		
 	}
 }
+
+
+
+
+
+
+
+/* 0000 - ListComponent */
+
+
+function ListComponent_addItemAtIndex(index,item,callback,self){
+
+	self._props_._list_items.splice(index,0,item);
+
+	var opts = self._props_._item_function(item);
+	if(opts==undefined) opts = {};
+
+	var compDefaults = ComponentDefaults(opts,self);
+	var createElement = Utils.createElement;
+
+	var a = ListComponent_item_createElement(opts,false,index,compDefaults,self);
+
+	$(self._props_._list_container).find("[data-index=0]").after(a.cloneNode(true));
+
+	if(document.getElementById(self._props_._list_element_id)){
+
+		if(index==0){
+			$('#'+self._props_._list_element_id).find("[data-index=0]").before(a).addClass('remove');
+			if(callback!=undefined){
+				var $el = $('#'+self._props_._list_element_id).find("[data-index="+index+"]").removeClass('remove');
+				callback( $el );
+			}
+		}else if(index>=(self._props_._list_items.length-1)){
+			var i = self._props_._list_items.length - 3;
+			console.log("yes: "+i);
+			$('#'+self._props_._list_element_id).find("[data-index="+i+"]").after(a);
+			if(callback!=undefined){
+				var $el = $('#'+self._props_._list_element_id).find("[data-index="+index+"]").removeClass('remove');
+				callback( $el );
+			}
+		}else{
+			var i = index - 1;
+			$('#'+self._props_._list_element_id).find("[data-index="+i+"]").after(a);
+			if(callback!=undefined){
+				var $el = $('#'+self._props_._list_element_id).find("[data-index="+index+"]").removeClass('remove');
+				callback( $el );
+			}
+		}
+
+		
+
+		$( "#"+self._props_._list_element_id ).find('li').each(function( index ) {
+		  	$( this ).attr("data-index",index);
+		});
+		
+
+		$("#"+compDefaults.id).click(function(e){
+			e.preventDefault();
+			ListComponent_item_createListener(opts,item,gh,compDefaults,self);
+		});
+
+	}else{
+
+
+	}
+}
+function ListComponent_removeItemAtIndex(index,callback,delay,self){
+
+	self._props_._list_items.splice(index,1);
+
+	
+
+	var el = $("#"+self._props_._list_element_id).find("[data-index="+index+"]");
+	if(callback!=undefined){
+		callback(el);
+	}
+
+	if(delay==undefined) delay = 0;
+
+	if(delay==0){
+		
+	}else{
+		setTimeout(function(){
+			
+		},delay);
+	}
+	
+
+	$( "#"+self._props_._list_element_id ).find('li').each(function( index ) {
+	  	$( this ).attr("data-index",index);
+	});
+}
+function ListComponent_item_createListener(opts,indexItem,gh,compDefaults,self){
+	if(!Utils.isNull(opts.listener)){
+		opts.listener(indexItem,gh);
+	}
+
+	if(self._props_._single_selection){
+		var currentActiveItem = self._props_._active_items[0];
+		if(!Utils.isNull(currentActiveItem)){
+			$("#"+currentActiveItem).removeClass('active');
+		}
+		$("#"+compDefaults.id).addClass('active');
+		self._props_._single_selection[0] = compDefaults.id;
+		self._props_._active_items[0] = compDefaults.id;
+	}else{
+		if(self._props_._active_items.includes(compDefaults.id)){
+			var index = self._props_._active_items.indexOf(compDefaults.id);
+			
+			if (index > -1) {
+			    self._props_._active_items.splice(index, 1);
+			}
+			$("#"+compDefaults.id).removeClass('active');
+
+		}else{
+			self._props_._active_items.push(compDefaults.id);
+			$("#"+compDefaults.id).addClass('active');
+		}
+	}
+}
+function ListComponent_item_createElement(opts,active,index,compDefaults,self){
+
+	var createElement = Utils.createElement;
+
+	var a;
+	if(self._props_._list_type=="ul" || self._props_._list_type=="ol"){
+		a = createElement({
+			el: 'li',
+			"data-index":  index,
+			className: compDefaults.className,
+			id: compDefaults.id,
+			style: compDefaults.style,
+			href: compDefaults.href,
+			innerHTML: compDefaults.label
+		});
+	}else if(self._props_._list_type=="bootstrap"){
+		a = createElement({
+			el: 'li',
+			"data-index":  index,
+			className: "list-group-item list-group-item d-flex justify-content-between align-items-center list-group-item-action "+active+" "+compDefaults.className,
+			id: compDefaults.id,
+			style: compDefaults.style,
+			href: compDefaults.href,
+			innerHTML: compDefaults.label
+		});
+
+		if(!Utils.isNull(opts.badge)){
+
+			var badge = createElement({
+				el: 'span',
+				className: 'badge badge-primary badge-pill',
+				innerHTML: opts.badge.value
+			});
+			a.appendChild(badge);
+		}
+	}
+	return a;
+}
+
+
+
+
 
 /* 0000 - ModalComponent */
 
@@ -9463,7 +10369,7 @@ function ModalDialogComponent_mobile(){
 
 
 
-/* 0000 5051 - Utils */
+/* 0000 - Utils */
 
 function Utils_createELement(type,options){
 	
@@ -9593,6 +10499,18 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 					}
 				}
 
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
 				for(var v=0;v<s.length;v++){
 					if(s[v]==special_character){
 						if(!isExceptionCharacter(s[v],charExceptions)){
@@ -9618,6 +10536,11 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 		}
 		return _isException;
 	}
+
+
+	
+	
+	
 
 	return contains;
 
@@ -9716,6 +10639,15 @@ function Utils_detectEngine(){
 		isBlink: isBlink
 	};
 }
+
+
+
+
+
+
+/* 0000 - AppLayout */
+
+
 
 function AppLayout_constructor(obj,self){
 
@@ -9822,6 +10754,7 @@ function isBuildBody(body){
 		isbody = true;
 	}
 
+
 	return isbody;
 
 }
@@ -9830,15 +10763,11 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 		arrayOfItems = [arrayOfItems];
 	}else{
 		
-		
-		
 		if(isBuildBody(arrayOfItems)){
 			arrayOfItems = [arrayOfItems];
 		}
 
 	}
-
-	
 	
 	var currentRow = self._props_._current_row_id;
 	var len = self._props_._layout_container[currentRow].columns.length;
@@ -9848,6 +10777,7 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 }
 
 function AppLayout_build(self){
+	
 	
 	self._props_._isBuilt = true;
 	self._props_._elements._fragment = document.createDocumentFragment();
@@ -9978,16 +10908,19 @@ function _getComponentFromRout(obj123,self){
 			console.error(arrayOfItems[i]+" is not a function for rout: "+self._props_._routes.route);
 		}
 	}else if(arrayOfItems[i].charAt(0) == "@"){
-		var f = applicationManager.retrieve(arrayOfItems[i],Flags.Method);
-		if(typeof f === "function"){
-			mycomp = f(self._props_._routes);
-		}else{
-			
-			mycomp = _create_body({ body: arrayOfItems[i], original: true });
-
-			
-			
-		}
+		
+		mycomp = buildBody(arrayOfItems[i]);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 	return mycomp;
 }
@@ -10061,6 +10994,9 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		_view_._props_._container.appendChild(v.getHtml());
 		topDiv.appendChild(_view_._props_._container.cloneNode(true));
 
+		
+
+
 		function _getComponentType(obj){
 			if(Utils.isNull(obj.body)){
 				var blankComponent = componentManager.container({
@@ -10071,7 +11007,8 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			var body = obj.body;
 			if(typeof body === "string"){
 				if(body.charAt(0) === "@"){
-					var view = _getView(body,obj);
+					
+					var view = buildBody(body,obj);
 					if(Utils.isNull(view)){ return blankComponent; }
 					return view;
 				}else{
@@ -10161,6 +11098,8 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 }
 function _getLayoutColumnClasses(columns){
 
+	
+	
 
 	/*
 
@@ -10267,6 +11206,8 @@ function _sortClassesDisplay(col,columns,colClasses){
 	}
 	
 	function _addTogether(columns,col,start,end){
+		
+		
 		
 		if(Array.isArray(columns[col])){
 			var p = "";
@@ -10400,6 +11341,8 @@ function _getFragementForViewLayout(self){
 	}
 
 	return frag;
+
+
 }
 function _layoutMake(obj,arrayOfItems){
 	var propTypeof = typeof obj;
@@ -10454,6 +11397,14 @@ function _layoutMake(obj,arrayOfItems){
 							el.innerHTML = tmpBody
 						}
 						
+						
+						
+						
+						
+						
+						
+						
+						
 
 						isObj = false;
 					}
@@ -10463,13 +11414,19 @@ function _layoutMake(obj,arrayOfItems){
 
 				}
 			}
+
+
 		}
 
 		fragment.appendChild(el);
 
 		return fragment;
 	}
+
+
+	
 };
+
 
 function buildBody(object,self){
 	var body = null;
@@ -10629,6 +11586,7 @@ function convertIntoAppFactoryObject(body){
 }
 function _build_view(body,params,self,obj){
 
+	
 	var paramValues = {  
 		"view": obj, 
 		
@@ -10638,6 +11596,15 @@ function _build_view(body,params,self,obj){
 	};
 	var method = body.slice(1);
 	var v = applicationManager.getMethod(method)(paramValues);
+
+	var anyid = applicationManager._application_manager._any_id[method];
+
+
+	if(anyid!=undefined){
+		applicationManager.setAny(anyid,v);
+	}
+
+	
 	return v;
 }
 function getComponentType(obj,self){
@@ -10702,7 +11669,6 @@ function getView(body,obj,self){
 }
 
 
-
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
@@ -10716,6 +11682,8 @@ function isEventRegistered(selector,self){
 	}
 	return alreadyRegistered;
 }
+
+
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
 	stopPropagation = (Utils.isNull(stopPropagation)) ? false : stopPropagation;
@@ -10779,7 +11747,6 @@ function _Utils_registerListenerCallback(obj,self){
 		}
 	}
 }
-
 
 function setBaseURL(self,url){
 	var config = self._props_._application_config;
@@ -10902,7 +11869,7 @@ function gl_event_trigger_reset(type,self,tag){
 *
 */
 function registerAppFactoryPlugin(plugin){
-	gl_app_plugins.push(plugin);
+	gl_app_plugins.push(plugin); 
 }
 
 /** @exports ApplicationContextManager
@@ -11202,7 +12169,7 @@ function initializeApplication(isClient,activePlugin,self){
 
 	if(isClient==false){
 		
-		
+		_start_admin_app();
 		return;
 	}
 
@@ -11307,8 +12274,6 @@ function initializeApplication(isClient,activePlugin,self){
 
 	function _start_admin_app(){
 
-		console.log(config_appfac);
-
 		var admin_plugin_config = config_appfac['application']['client-active-theme'];
 		var admin_active_plugin = admin_plugin_config.split("|")[0];
 		var admin_active_theme = admin_plugin_config.split("|")[1];
@@ -11317,9 +12282,6 @@ function initializeApplication(isClient,activePlugin,self){
 
 		var url = "../../plugins/"+admin_active_plugin+"/plugin.config.json";
 		$.getJSON( url, function( pluginconfig ) {
-
-
-			console.log(pluginconfig);
 
 			var clientactivetheme = null;
 			var clientthemes = pluginconfig['admin-themes'];
@@ -11348,6 +12310,9 @@ function initializeApplication(isClient,activePlugin,self){
 		});
 
 	}
+
+
+
 }
 
 function _callRequest(filePath,callback){
@@ -11360,6 +12325,8 @@ function _callRequest(filePath,callback){
 	};
 	xhttp.open("GET", filePath, true);
 	xhttp.send();
+
+
 }
 
 
@@ -11373,8 +12340,12 @@ function a1(configFile){
 } 
 
 
-function LoadDependencies(baseUrl,classes,views,dependencies){ 
 
+function LoadDependencies(baseUrl,classes,views,dependencies){ 
+	
+	
+	
+	
 
 	if(baseUrl.includes("/client")){
 		for(var i=0; i < classes.length; i++){

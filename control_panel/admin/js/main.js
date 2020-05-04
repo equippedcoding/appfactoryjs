@@ -29,7 +29,7 @@ function run(config){
 	config['requirejs-config']['baseUrl'] = '../../';
 
 	//console.log(config['requirejs-config']);
-	require.config(config['requirejs-config']);
+	require.config(config['requirejs-config']); 
 	requirejs(pluginRequireURLS,function(){
 		var app = new ApplicationContextManager(config);
 		app.initializeApplication(false);
@@ -105,127 +105,32 @@ function run(config){
 		});
 
 
-		Manager.register('plugin:view',function(obj){
+		// var header = Brick.stack().h2("AppfactoryJS Manager Portal").build();
 
-			var params = obj.params;
+		// var homeLayout = Layout.newLayout()
+		// 	.row()
+		// 	.col({md:12},['@home:'])
+		// 	.row()
+		// 	.col({md:6},['@plugin:selection:form'])
+		// 	.build();
 
-			var n = null;
-			for (var i = 0; i < adminThemesArray.length; i++) {
-				if(adminThemesArray[i].directory==params.directory){
-					n = adminThemesArray[i];
-					break;
-				}
-			}
+		// var comp1 = app.Factory.container({body:homeLayout});
 
-			var clientThemes = n['client-themes'];
-			var adminThemes = n['admin-themes'];
+		// var view = new app.View();
+		// view.newSubView({
+		// 	id: "home",
+		// 	init: true,
+		// 	body: comp1
+		// });
+		// view.newSubView({
+		// 	id: "plugin",
+		// 	init: false,
+		// 	body: '@plugin:view'
+		// });
 
-			var component = adminThemes[0].component(app);
-
-
-			var form = app.Factory.form('form_one');
-
-			var buttons = handler.createPluginsFormRadioButton(n);
-
-			// Radio Buttons
-			form.addRadioButtonGroup({
-				tag: 'choices',
-				label: "Activate Plugin Theme",
-				paramName: 'active_plugin',
-				name: "activePlugin",
-				inline: true,
-				//defaultValue: false,
-				buttons: buttons,
-				listener: function(obj){
-					
-				}	
-			});
-
-			form.onSubmit({
-				//id: "",
-				label: "Submit",
-				style: "width: 100%;",
-				className: "btn btn-success",
-				return: 'array'
-			},function(obj){
-				console.log(obj);
-
-			});
-
-			form.build();
-
-			var c2 = app.Factory.container({body:'<h2>App Settings</h2>'});
-			var pluginLayout = app.Layout.newLayout()
-				.row()
-				.col({md:12},c2)
-				.row()
-				.col({md:12},form)
-				.build();
-
-			var c1 = app.Factory.container({body:'<h2>Plugin Settings</h2>'});
-			
-
-			var nav = app.Factory.nav({
-				//top[default], top-center, top-left, right, left
-				//position: "top-center"
-			});
-			nav.add({
-				init: true,
-				label: 'Application Settings',
-				body: pluginLayout
-			});
-			nav.add({
-				init: false, 
-				label: 'Plugin Settings',
-				body: component
-			});
-			nav.build();
-			
-			
-			var header = app.Factory.container({body:'<h2>'+params.name+'</h2>'});
-
-
-			var layout = app.Layout.newLayout()
-				.row()
-				.col({md:12},header)
-				.row()
-				.col({md:12},nav)
-				.build();
-
-
-			return layout;
-
-		});
-
-		var header = Brick.stack().h2("AppfactoryJS Manager Portal").build();
-
-		var homeLayout = Layout.newLayout()
-			.row()
-			.col({md:12},[header])
-			.row()
-			.col({md:6},['@plugin:selection:form'])
-			.build();
-
-		var comp1 = app.Factory.container({body:homeLayout});
-
-		var view = new app.View({ 
-			parent: "#appfac_main_content"
-		});
-
-		view.newSubView({
-			id: "home",
-			init: true,
-			body: comp1
-		});
-		view.newSubView({
-			id: "plugin",
-			init: false,
-			body: '@plugin:view'
-		});
-
-		Manager.register('view:main',function(obj){
-			return view;
-		});
+		// Manager.register('view:main',function(obj){
+		// 	return view;
+		// });
 
 
 
@@ -324,49 +229,212 @@ function run(config){
 			return con;
 		});
 
-		Manager.register('home:init',function(routes){
-			var pluginObjArray = [];
-			for (var p in plugins) {
-				pluginObjArray.push({
-					href: '#',
-					innerHTML: plugins[p].name,
-					className: "appfac_link_btn_plugin"
-				});
+		function openCloseNavListener(){
+			if($('.appfac_sidenav').css('width')=='0px'){
+				$('.appfac_sidenav').css('width','200px');
+				$('#appfac_main_section').css('marginLeft','200px');
+			}else{
+				$('.appfac_sidenav').css('width','0');
+				$('#appfac_main_section').css('marginLeft','0');
 			}
+		}
 
-			function openCloseNavListener(){
-				if($('.appfac_sidenav').css('width')=='0px'){
-					$('.appfac_sidenav').css('width','200px')
-					$('#appfac_main_section').css('marginLeft','200px')
-				}else{
-					$('.appfac_sidenav').css('width','0')
-					$('#appfac_main_section').css('marginLeft','0')
+		Manager.register('home:plugin:navbar',function(data){
+
+			var navbarmenucomp = app.Factory.navbar({
+				route: false,
+
+				navClassName: "navbar-expand-lg",
+				ulClassName: "ml-auto mt-2 mt-lg-0",
+
+				brand: "AppfactoryJS",
+
+				// right left
+				// hamburgerMenuPosition: "right",
+				// hamburgerLinkPosition: "left", 
+
+				hamburgerButtonSpanClassName: "navbar-toggler-icon",
+
+				// 
+				hamburgerButtonAttributes: {
+					overwrite: false
+				},
+
+				// bottom top sticky
+				//fixed: "top"
+			});
+			navbarmenucomp.add({
+				init: true, 
+				id: 'application_settings',
+				label: 'Application Settings',
+				body: function(){
+					//return pluginLayout;
 				}
-			}
-
-			var openCloseNavButton = app.Factory.button({
-				label: "Open/Close",
-				style: "margin-bottom:15px;",
-				listener: function(e){
+			});
+			navbarmenucomp.add({
+				init: false,
+				id: 'plugin_settings',
+				label: 'Plugin Settings',
+				body: function(){
+					//return component;
+				}
+			});
+			navbarmenucomp.add({
+				label: 'Menu',
+				listener: function(){
 					openCloseNavListener();
 				}
 			});
+			navbarmenucomp.build();
 
-			var cont = app.Factory.container({
-				id:"appfac_main_content",
-				body:"@view:main"
+			return navbarmenucomp;
+		});
+
+
+		Manager.register('home:main:view',function(obj){
+
+		});
+		Manager.register('plugin:view',function(obj){
+
+			var params = obj.params;
+
+			var n = null;
+			for (var i = 0; i < adminThemesArray.length; i++) {
+				if(adminThemesArray[i].directory==params.directory){
+					n = adminThemesArray[i];
+					break;
+				}
+			}
+
+			var clientThemes = n['client-themes'];
+			var adminThemes = n['admin-themes'];
+
+			var component = adminThemes[0].component(app);
+
+
+			var form = app.Factory.form('form_one');
+
+			var buttons = handler.createPluginsFormRadioButton(n);
+
+			// Radio Buttons
+			form.addRadioButtonGroup({
+				tag: 'choices',
+				label: "Activate Plugin Theme",
+				paramName: 'active_plugin',
+				name: "activePlugin",
+				inline: true,
+				//defaultValue: false,
+				buttons: buttons,
+				listener: function(obj){
+					
+				}	
 			});
 
+			form.onSubmit({
+				//id: "",
+				label: "Submit",
+				style: "width: 100%;",
+				className: "btn btn-success",
+				return: 'array'
+			},function(obj){
+				console.log(obj);
 
-			var layout2 = Layout.newLayout({routes:routes})
+			});
+
+			form.build();
+
+			var c2 = app.Factory.container({body:'<h2>App Settings</h2>'});
+			var pluginLayout = app.Layout.newLayout()
 				.row()
-				.col({md:12},[openCloseNavButton])
+				.col({md:12},c2)
 				.row()
-				.col({md:12},cont)
+				.col({md:12},form)
 				.build();
 
+			// var c1 = app.Factory.container({body:'<h2>Plugin Settings</h2>'});
 			
 
+			// var nav = app.Factory.nav({
+			// 	//top[default], top-center, top-left, right, left
+			// 	//position: "top-center"
+			// });
+			// nav.add({
+			// 	init: true,
+			// 	label: 'Application Settings',
+			// 	body: pluginLayout
+			// });
+			// nav.add({
+			// 	init: false, 
+			// 	label: 'Plugin Settings',
+			// 	body: component
+			// });
+			// nav.build();
+
+			// var header = app.Factory.container({
+			// 	body:'<h2>'+params.name+'</h2>'
+			// });
+
+
+
+
+			var navbarmenucomp = app.Factory.navbar({
+				route: false,
+
+				navClassName: "navbar-expand-lg appfac-main-navbar",
+				ulClassName: "ml-auto mt-2 mt-lg-0",
+
+				brand: "AppfactoryJS - "+params.name,
+
+				hamburgerButtonSpanClassName: "navbar-toggler-icon",
+
+				// 
+				hamburgerButtonAttributes: {
+					overwrite: false
+				},
+
+				// bottom top sticky
+				//fixed: "top"
+			});
+			navbarmenucomp.add({
+				init: true, 
+				id: 'application_settings',
+				label: 'Application Settings',
+				body: function(){
+					return pluginLayout;
+				}
+			});
+			navbarmenucomp.add({
+				init: false,
+				id: 'plugin_settings',
+				label: 'Plugin Settings',
+				body: function(){
+					return component;
+				}
+			});
+			navbarmenucomp.add({
+				label: 'Menu',
+				listener: function(){
+					openCloseNavListener();
+				}
+			});
+			navbarmenucomp.build();
+
+			var layout = app.Layout.newLayout()
+				.row()
+				.col({md:12},navbarmenucomp)
+				// .row()
+				// .col({md:12},header)
+				// .row()
+				// .col({md:12},nav)
+				.build();
+
+
+			return layout;
+
+		});
+
+
+		function buildSideNav(handler,pluginObjArray,content_container_comp_view){
 			var sidenav = Brick.stack()
 			.div({
 				className: 'appfac_sidenav',
@@ -396,10 +464,93 @@ function run(config){
 			.div({
 				id: "appfac_main_section",
 				nest: Brick.stack().div({
-					nest: layout2
+					nest: content_container_comp_view
 				}).build()
 			}).build();
 
+			return sidenav;
+
+		}
+		Manager.register('home:main:navbar',function(data){
+			var navbarmenucomp = app.Factory.navbar({
+				navClassName: "navbar-expand-lg appfac-main-navbar",
+				ulClassName: "ml-auto mt-2 mt-lg-0",
+
+				brand: "AppfactoryJS",
+
+				hamburgerButtonSpanClassName: "navbar-toggler-icon",
+				hamburgerButtonAttributes: {
+					overwrite: false
+				}
+			});
+
+			var component = Brick.stack().h2({
+				style: "margin-top: 2%;",
+				innerHTML: "AppfactoryJS Management Portal"
+			}).build();
+
+			navbarmenucomp.add({
+				init: true,
+				id: 'home_main',
+				body: function(){
+					return component;
+				}
+			});
+
+			navbarmenucomp.add({
+				label: 'Menu',
+				listener: function(){
+					openCloseNavListener();
+				}
+			});
+			navbarmenucomp.build();
+
+			return navbarmenucomp;
+		});
+
+		Manager.register('home:init',function(routes){
+			var pluginObjArray = [];
+			for (var p in plugins) {
+				pluginObjArray.push({
+					href: '#',
+					innerHTML: plugins[p].name,
+					className: "appfac_link_btn_plugin"
+				});
+			}
+
+			// var cont = app.Factory.container({
+			// 	id:"appfac_main_content",
+			// 	body:"@view:main"
+			// });
+
+
+			// var layout2 = Layout.newLayout({routes:routes})
+			// 	.row()
+			// 	.col({md:12},navbarmenucomp)
+			// 	// .row()
+			// 	// .col({md:12},cont)
+			// 	.build();
+
+
+
+
+			// var comp1 = app.Factory.container({body:homeLayout});
+
+			var content_container_comp_view = new app.View();
+			content_container_comp_view.newSubView({
+				id: "home",
+				init: true,
+				// body: comp1
+				body: '@home:main:navbar'
+			});
+			content_container_comp_view.newSubView({
+				id: "plugin",
+				init: false,
+				body: '@plugin:view'
+				// body: '@home:plugin:view'
+			});
+
+			var sidenav = buildSideNav(handler,pluginObjArray,content_container_comp_view);
 
 			var navContainer = app.Factory.container({
 				body: sidenav,
@@ -410,9 +561,7 @@ function run(config){
 					});
 
 					$('.appfac_link_btn_home').click(function(e){
-
-						Manager.get('view:main').render('home');
-
+						content_container_comp_view.render('home');
 					});
 
 					$('.appfac_link_btn_plugin').click(function(e){
@@ -426,7 +575,7 @@ function run(config){
 
 						}
 
-						Manager.get('view:main').render('plugin',_plugin);
+						content_container_comp_view.render('plugin',_plugin);
 
 					});
 
