@@ -9,13 +9,13 @@
     },
     "admin-themes": [
         {
-            "directory": "app",
+            "directory": "default",
             "start": "theme_interface"
         }
     ],
     "client-themes": [
         {
-            "directory": "app",
+            "directory": "default",
             "start": "theme_interface",
             "head": [
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"plugins/app/client/themes/default/styles/css/styles.css\">"
