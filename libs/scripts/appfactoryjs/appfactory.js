@@ -21,11 +21,12 @@
 * @see {@link http://bootstrap.org/} 
 *
 * @author Joseph Mitchell
-* @license BSD-2-Clause. 
+* @license MIT. 
 * @version 0.0.1   
 */
 (function (root, factory) {             
 	/*global define*/
+	
 
 	if (typeof define === 'function' && define.amd) {
 		
@@ -38,6 +39,7 @@
 		factory(jQuery);
 	}	
 }(this, function ($) {    
+
 
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
@@ -73,6 +75,7 @@ function AppFactoryManager(type){
 
 }
 AppFactoryManager.prototype = {};
+
 
 /** @exports ApplicationManager
 * @classdesc The ApplicationManager runs the application life cycle.
@@ -114,6 +117,9 @@ ApplicationManager.prototype = {
 	init: function(pages){
 		
 		var self = this;
+
+		
+		
 
 		$('body').append(self.getRootElement());
 		
@@ -309,6 +315,14 @@ ApplicationManager.prototype = {
 
 
 };
+
+
+
+
+
+ 
+ 
+ 
  
 
 function SessionManager(){
@@ -316,6 +330,14 @@ function SessionManager(){
 
 }
 SessionManager.prototype = {};
+
+
+
+
+ 
+ 
+ 
+ 
 
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
@@ -436,6 +458,17 @@ StateManager.prototype = {
 };
 
 
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
 function ApplicationExtensions(){
 	this._props_ = {};
 }
@@ -472,6 +505,14 @@ ApplicationExtensions.prototype = {
 	}
 
 };
+
+
+
+
+ 
+ 
+ 
+ 
 
 function ApplicationPlugin(){
 	this.plugins = [];
@@ -513,8 +554,15 @@ ApplicationPlugin.prototype = {
 	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
+		
+		
+		
+
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
+
+		
+
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
 
@@ -546,6 +594,24 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+				
+		
+		
+
+		
+
+
 		return {
 			admin: adminTheme,
 			client: client,
@@ -554,6 +620,14 @@ ApplicationPlugin.prototype = {
 	}
 
 };
+
+
+/* Components */
+
+ 
+ 
+ 
+ 
  
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
@@ -569,6 +643,9 @@ function ComponentManager(type,context){
 
 		_isEventsActive: false,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
+
+		
+		
 		
 		_args: null,
 		_object_config: null,
@@ -681,6 +758,12 @@ function ComponentManager(type,context){
 ComponentManager.prototype = {};
 
 
+
+
+
+
+
+
 /** @exports Pages
 * @classdesc handles the routing and mapping between component and routes 
 * @class
@@ -695,6 +778,12 @@ function Pages(){
 	};
 	var containerDiv = document.createElement('div');
 	containerDiv.id = this._props_._container_id;
+
+	
+	
+
+	
+	
 
 }
 
@@ -774,6 +863,9 @@ var ViewsHolder = [];
 * @constructor
 */
 function ViewManager(opt){
+	
+
+	
 	
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
@@ -926,6 +1018,16 @@ ViewManager.prototype = {
 		var opt = self._props_._options;
 		
 		
+		
+		
+		
+		
+		
+
+		
+		
+
+		
 		if(opts.id==undefined){
 			opts.id = 'p'+Utils.randomGenerator(12);
 			console.log("View Component does not contain an id"); 
@@ -956,7 +1058,14 @@ ViewManager.prototype = {
 		return this._props_._is_routable;
 	}
 
+
+
 };
+
+
+
+
+
 
 
 /** @exports LayoutManager
@@ -980,6 +1089,8 @@ LayoutManager.prototype = {
 		return new AppLayout(obj,this.Application);
 	}
 };
+
+
 
 
 /** @exports AppLayout
@@ -1040,6 +1151,9 @@ AppLayout.prototype = {
 	}
 };
 
+
+
+
 /** @exports ComponentFactory
 * @classdesc A top-level component that handles all other components except ViewManager component and AppLayout component.
 * @class
@@ -1052,9 +1166,7 @@ function ComponentFactory(){
 }
 ComponentFactory.prototype = {
 
-	/**
-	*
-	*/
+
 	stub: function(opts){},
 
 	/**
@@ -1079,9 +1191,6 @@ ComponentFactory.prototype = {
 		return new BrickComponent(obj);
 	},
 
-	/**
-	* Create a nvaigaiton component
-	*/
 	navigation: function(obj){
 		return new NavigationComponent(obj);
 	},
@@ -1102,9 +1211,7 @@ ComponentFactory.prototype = {
 		return new FormComponent(obj);
 	},
 
-	/**
-	* fileUploader
-	*/
+	
 	fileUploader: function(obj){
 		return new FileUploaderComponent(obj);
 	},
@@ -1142,7 +1249,541 @@ ComponentFactory.prototype = {
 	*/
 	img: function(opts){
 		return new ImageComponent(opts);
+	},
+
+	/**
+	* Create an audio player
+	*
+	* @return {AudioComponent}
+	*/
+	audio: function(opts){
+		return new AudioComponent(opts);
 	}
+
+};
+
+
+
+function gl_assets_icons(){
+	return "assets/open-iconic";
+}
+
+
+
+/** @exports AudioComponent
+* @classdesc Audio player creator container class 
+* @class
+* @constructor
+*/
+function AudioComponent(opts){
+
+
+}
+AudioComponent.prototype = {
+
+	/**
+	* Create custom audio player. Creates an AudioPlayerBuilder that only
+	* accessable inside the callback function to build out custom audio
+	* player then returns a AudioPlayerBuilderComponent
+	*
+	* @param {function} 
+	* 
+	* @return {AudioPlayerBuilderComponent}
+	*/
+	builder: function(callback){
+		
+		var audioPlayerBuilder = new AudioPlayerBuilder();
+		var c = callback(audioPlayerBuilder);
+		audioPlayerBuilder._props_._set_html(c);
+		
+		return new AudioPlayerBuilderComponent({},audioPlayerBuilder);
+	},
+
+
+	create: function(opts){
+		
+
+	}
+
+};
+
+
+
+
+
+/** @exports AudioPlayerBuilder
+* @classdesc Audio player creator container class 
+* @class
+* @constructor
+*/
+function AudioPlayerBuilder(opts){
+	opts = (opts==undefined) ? {} : opts;
+	var self = this;
+	self._props_ = {};
+
+	self._props_._isBuilt = false;
+	
+	self._props_._element = document.createElement("div");
+	
+
+	self._props_._default_media_btns = {
+		"play": gl_assets_icons()+"/png/media-play-6x.png",
+		"pause": gl_assets_icons()+"/png/media-pause-6x.png",
+		"stop": gl_assets_icons()+"/png/media-stop-6x.png",
+		"next": gl_assets_icons()+"/png/media-skip-forward-6x.png",
+		"prev": gl_assets_icons()+"/png/media-skip-backward-6x.png",
+		"skipForward": gl_assets_icons()+"/png/media-step-forward-6x.png",
+		"skipBackward": gl_assets_icons()+"/png/media-step-backward-6x.png"
+	}
+
+	self._props_._element2 = null;
+
+	self._props_._set_html = function(el){
+		
+		self._props_._element2 = el.getHtml();
+		
+	}
+
+	this.getHtml = function(){
+		return self._props_._element2.cloneNode(true);
+		
+	}
+
+
+	self._props_._event_ids = {
+		'time_current': null,
+		'time_max': null,
+		'time_both': null,
+		'play': null,
+		'prev': null,
+		'next': null,
+		'stop': null,
+		'skipBackward': null,
+		'skipForward': null,
+		'seek_bar': null,
+		'handle': null
+	};
+
+
+}
+function AudioPlayerBuilder_create_btn_element(opts,defaultImage,param,self){
+	var opts = (opts==undefined) ? {} : opts;
+	var img = (opts.img!=undefined) ? opts.img : defaultImage;
+	var btn = document.createElement('button');
+	btn.id = (opts.id==undefined) ? "mp-"+Utils.randomGenerator(18) : opts.id;
+	var btnclassname = (opts.className==undefined) ? "" : opts.className;
+	btn.className = "appfac-media-player-btn "+btnclassname;
+	btn.innerHTML = '<img src="'+img+'" height="60%" width="60%">';
+
+	
+
+	self._props_._event_ids[param] = btn.id;
+
+	return Utils.convertFragmentToHTMLText(btn);
+
+}
+AudioPlayerBuilder.prototype = {
+
+	/**
+	* Create a play button html element
+	*
+	*/
+	play: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['play'],
+			"play",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a previous button html element
+	*
+	*/
+	prev: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['prev'],
+			"prev",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a next button html element
+	*
+	*/
+	next: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['next'],
+			"next",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a pause button html element
+	*
+	*/
+	pause: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['pause'],
+			"pause",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a stop button html element
+	*
+	*/
+	stop: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['stop'],
+			"stop",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a seek backward button html element
+	*
+	*/
+	seekBack: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['skipBackward'],
+			"skipBackward",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a seek forward button html element
+	*
+	*/
+	seekForward: function(opts){
+		var self = this;
+		return AudioPlayerBuilder_create_btn_element(
+			opts,
+			self._props_._default_media_btns['skipForward'],
+			"skipForward",
+			this
+		);
+		
+	},
+
+	/**
+	* Create a seekbar html element
+	*
+	*/
+	seekBar: function(opts){
+		var self = this;
+		opts = (opts==undefined) ? {} : opts;
+		var seek_bar = document.createElement('div');
+		seek_bar.id = "mp-"+Utils.randomGenerator(18);
+		seek_bar.className = "appfac-media-player-seekbar";
+		
+		var fill = document.createElement('div');
+		fill.id = (opts.fillId==undefined) ? "mp-"+Utils.randomGenerator(18) : opts.fillId;
+		var fillClassName = (opts.fillClassName==undefined) ? "" : opts.fillClassName;
+		fill.className = "appfac-media-player-seekbar-fill "+fillClassName;
+		
+		var handle = document.createElement('div');
+		handle.id = (opts.handleId==undefined) ? "mp-"+Utils.randomGenerator(18) : opts.handleId;
+		var handleClassName = (opts.handleClassName==undefined) ? "" : opts.handleClassName;
+		handle.className = "appfac-media-player-seekbar-handle "+handleClassName;
+		
+		seek_bar.appendChild(fill);
+		seek_bar.appendChild(handle);
+		self._props_._element.appendChild(seek_bar);
+
+		self._props_._event_ids['seek_bar'] = seek_bar.id;
+		self._props_._event_ids['handle'] = handle.id;
+		self._props_._event_ids['fill'] = fill.id;
+
+		return Utils.convertFragmentToHTMLText(seek_bar);
+		
+
+	},
+
+	/**
+	* Create a seekbar time text html element
+	*
+	*/
+	timeCurrent: function(opts){
+		var self = this;
+		opts = (opts==undefined) ? {} : opts;
+		var timeText = Utils_createELement('div',opts);
+		timeText.id = "mp"+Utils.randomGenerator(16);
+		timeText.textContent = "00:00:00";
+		self._props_._element.appendChild(timeText);
+
+		self._props_._event_ids['time_current'] = timeText.id;
+
+		return Utils.convertFragmentToHTMLText(timeText);
+		
+		
+	},
+
+	/**
+	* Create a seekbar time text html element
+	*
+	*/
+	timeMax: function(opts){
+		var self = this;
+		opts = (opts==undefined) ? {} : opts;
+		var timeText = Utils_createELement('div',opts);
+		timeText.id = "mp"+Utils.randomGenerator(16);
+		timeText.textContent = "00:00:00";
+		self._props_._event_ids['time_max'] = timeText.id;
+		self._props_._element.appendChild(timeText);
+
+		self._props_._event_ids['time_max'] = timeText.id;
+
+		return Utils.convertFragmentToHTMLText(timeText);
+		
+		
+	},
+
+	/**
+	* Create a seekbar time text html element
+	*
+	*/
+	timeBoth: function(opts){
+		var self = this;
+		var timeText = document.createElement('div');
+		timeText.id = "mp"+Utils.randomGenerator(16);
+		timeText.textContent = "00:00:00 / 00:00:00";
+		self._props_._element.appendChild(timeText);
+
+		self._props_._event_ids['time_both'] = timeText.id;
+
+		return timeText;
+		
+	}
+
+};
+
+
+
+/** @exports AudioPlayerBuilderComponent
+* @classdesc Audio player creator container class 
+* @class
+* @constructor
+*/
+function AudioPlayerBuilderComponent(opts,audioPlayerBuilder){
+
+	
+	gl_HandleAll(this,opts,'AudioPlayerBuilderComponent');
+
+
+	var self = this;
+
+	var audio = new Audio();
+	self._props_._audio = audio;
+
+	self._props_._fragment = document.createDocumentFragment();
+	self._props_._element = document.createElement('div');
+	self._props_._element.id = self.getId();
+	self._props_._element.appendChild(audioPlayerBuilder.getHtml());
+	self._props_._fragment.appendChild(self._props_._element);
+
+
+	this.getHtml = function(){
+		return self._props_._fragment.cloneNode(true);
+	}
+
+
+	_Utils_registerListenerCallbackForSelf('run','',function(){
+
+
+	var time_current_id = audioPlayerBuilder._props_._event_ids['time_current'];
+	var time_max_id = audioPlayerBuilder._props_._event_ids['time_max'];
+	var time_both_id = audioPlayerBuilder._props_._event_ids['time_both'];
+	var play_id = audioPlayerBuilder._props_._event_ids['play'];
+	var pause_id = audioPlayerBuilder._props_._event_ids['pause'];
+	var prev_id = audioPlayerBuilder._props_._event_ids['prev'];
+	var next_id = audioPlayerBuilder._props_._event_ids['next'];
+	var stop_id = audioPlayerBuilder._props_._event_ids['stop'];
+	var skipBackward_id = audioPlayerBuilder._props_._event_ids['skipBackward'];
+	var skipForward_id = audioPlayerBuilder._props_._event_ids['skipForward'];
+	var seek_bar_id = audioPlayerBuilder._props_._event_ids['seek_bar'];
+	var handle_id = audioPlayerBuilder._props_._event_ids['handle'];
+	var fill_id = audioPlayerBuilder._props_._event_ids['fill'];
+
+	if(seek_bar_id!=null){
+		var fillBar = document.getElementById(fill_id);
+		var seek_bar = document.getElementById(seek_bar_id);
+
+		var time_current = document.getElementById(time_current_id);
+		var time_max = document.getElementById(time_max_id);
+		var time_both = document.getElementById(time_both_id);
+
+
+		self._props_._audio.addEventListener('timeupdate',function(){
+		    var position = self._props_._audio.currentTime / self._props_._audio.duration;
+		    var time = self._props_._audio.currentTime / self._props_._audio.duration * 100 + '%';
+		    fillBar.style.width = time;
+
+		    var totalTime = Utils.secondsToHms(self._props_._audio.duration);
+		    var current_time = Utils.secondsToHms(self._props_._audio.currentTime);
+
+		    if(time_current!=undefined && time_current!=null){
+		    	time_current.textContent = current_time;
+		    }
+		    if(time_max!=undefined && time_max!=null){
+		    	time_max.textContent = totalTime;
+		    }
+		    if(time_both!=undefined && time_both!=null){
+		    	time_both.textContent = current_time + " / " + totalTime;
+		    }
+
+
+		});
+		document.getElementById(seek_bar_id).addEventListener('click',function(e){
+			var newWidth = (e.offsetX / seek_bar.offsetWidth * 100);
+			fillBar.style.width = newWidth + "%";
+
+			var n = (e.offsetX / (seek_bar.offsetWidth / self._props_._audio.duration));
+			self._props_._audio.currentTime = n;
+		});
+	}
+
+	if(play_id!=null){
+		document.getElementById(play_id).addEventListener('click', function(e){
+			console.log(self._props_._audio.src);
+			if(self._props_._audio.src=="" || self._props_._audio.src==undefined || 
+				self._props_._audio.src==null){
+
+				console.log("Audio src not set")
+				return;
+			}
+			if(self._props_._audio.paused){
+		        self._props_._audio.play();
+		        $("#"+play_id+" img").attr("src",audioPlayerBuilder._props_._default_media_btns['play']);
+		    }else{
+		        self._props_._audio.pause();
+		        $("#"+play_id+" img").attr("src",audioPlayerBuilder._props_._default_media_btns['pause']);
+		    }
+		});
+	}
+		
+
+
+
+
+
+
+
+		
+		
+		
+
+		
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+
+
+	},self);
+
+	return this;
+
+}
+AudioPlayerBuilderComponent.prototype = {
+
+	setPlaylist: function(){
+
+	},
+
+	/**
+	* Set the audio source
+	*
+	*/
+	setSource: function(source){
+		this._props_._audio.src = source;
+	},
+
+	/**
+	* Get the Audio object
+	*/
+	getAudio: function(){
+		return this._props_._audio;
+	},
+
+	getCurrentTime: function(){
+
+	},
+
+	getMaxTime: function(){
+
+	},
+
+
+	play: function(){
+
+	},
+
+	pause: function(){
+
+	},
+
+	playPause: function(){
+
+	},
+
+	next: function(){
+
+	},
+
+	prev: function(){
+
+	},
+
+	skipForward: function(){
+
+	},
+
+	skipBackward: function(){
+
+	}
+
 
 };
 
@@ -1151,6 +1792,15 @@ ComponentFactory.prototype = {
 
 function ImageComponent(opts){
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	gl_HandleAll(this,opts,'ImageComponent');
 
@@ -1188,9 +1838,22 @@ ImageComponent.prototype = {
 
 function NavbarComponent(opts){
 
+	
+	
+	
+	
+	
+	
+
+	
+	
+
 	gl_HandleAll(this,opts,'NavbarComponent');
 
 	var self = this;
+
+
+
 
 
 	var createElement = Utils.createElement;
@@ -1304,6 +1967,11 @@ function NavbarComponent(opts){
 		return _brandLink;
 	}
 
+
+
+
+
+	
 
 	var hamburgerMenuPosition = (opts.hamburgerMenuPosition!=undefined) ? opts.hamburgerMenuPosition : "left";
 
@@ -1540,14 +2208,36 @@ NavbarComponent.prototype = {
 
 
 
+
+
+
+ 
+ 
+ 
+ 
+
 function NavComponent(opts){
 	
+	
+	
+	
+	
+	
+	
+	
+	
+
 
 	gl_HandleAll(this,opts,'NavComponent');
 	var createElement = Utils.createElement;
 
 	var isNull = Utils.isNull;
 	var self = this;
+
+	
+	
+	
+	
 
 
 	var view = new ViewManager();
@@ -1567,6 +2257,17 @@ function NavComponent(opts){
 	self._props_._view_mapper = {};
 	self._props_._route = (opts.route) ? opts.route : false;
 
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -1780,6 +2481,14 @@ NavComponent.prototype = {
 	*/
 	build: function(){
 		var self = this;
+		
+		
+		
+		
+		
+		
+		
+		
 
 		
 		self._props_._elements._navbar_container
@@ -1806,6 +2515,16 @@ function NavComponent_initialize_tab_click(self,id){
 	self._props_._elements._view.render(id);
 	
 }
+
+
+
+
+
+
+
+
+
+
 
 
 function ModalComponent(opts){
@@ -1861,6 +2580,11 @@ ModalComponent.prototype = {
 		ModalComponent_setContent(opts,this);
 	}
 }
+
+
+
+
+
 
 
 function ModalComponent_setContent(opts,self){
@@ -1975,6 +2699,15 @@ function ListComponent(opts){
 	
 	opts = (Utils.isNull(opts)) ? {} : opts;
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	gl_HandleAll(this,opts,'ListComponent');
 
@@ -2104,6 +2837,10 @@ function ListComponent(opts){
 		self._props_._initialize_item( n, listItem[index], index );
 	}
 
+	
+	
+
+
 }
 
 ListComponent.prototype = {
@@ -2162,6 +2899,15 @@ function FormComponentDefaults(obj,self){
 		this.tag = obj.tag;
 		this.name = obj.tag;
 		this.paramName = obj.tag;
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 	}
@@ -2294,6 +3040,34 @@ FormValidationDefaults.prototype = {
 function FormComponent(obj){
 	
 	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+	
+	
+	
+	
+	
+	
+	
 	var opts = obj;
 	gl_HandleAll(this,opts,'FormComponent');
 
@@ -2345,7 +3119,9 @@ function FormComponent(obj){
 }
 FormComponent.prototype = {
 
-
+	
+	
+	
 
 	/**
 	* Begin a section
@@ -2557,6 +3333,10 @@ function FormSection(){
 
 	};
 
+	
+	
+	
+	
 
 	self._props_._buttons = [];
 
@@ -2707,12 +3487,20 @@ FormSection.prototype = {
 }
 
 
-/** @exports FileUploader
-* @classdesc Creates a file upload component
-* @class
-* @constructor
-*/
+
+
+
+
+
+
 function FileUploaderComponent(opts){
+	
+	
+	
+	
+	
+	
+	
 
 	gl_HandleAll(this,opts,'FileUploaderComponent');
 
@@ -2775,6 +3563,12 @@ function gl_HandleAll(self,opts,type){
 * @constructor
 */
 function ButtonComponent(opts){
+	
+	
+	
+	
+	
+	
 	
 
 	gl_HandleAll(this,opts,'ButtonComponent');
@@ -2871,6 +3665,8 @@ function ContainerComponent(obj){
 		var b = buildBody(obj,self);
 		self._props_._container.appendChild(b);
 	}
+
+	this._props_._component_html = null;
 
 	
 	var fragment = document.createDocumentFragment();
@@ -2970,6 +3766,22 @@ ContainerComponent.prototype = {
 
 
 	/**
+	* If component.getHtml() is called from client side then this doesnt't
+	* return a good representation of the current html element held by this
+	* component because it's added directly to the dom when this element
+	* is added this returns the html element that was added by calling 
+	* component.addComponent(comp) otherwise returns null if no html was ever
+	* added by calling addComponent
+	*
+	* @return {object}
+	*
+	*/
+	getAddedComponentHtml: function(){
+		return this._props_._component_html;
+	},
+
+
+	/**
 	* Adds a component to this component.
 	* @param {object} ComponentManager - Required, the component to add.
 	* @param {boolean} [empty=true] - Empties the component 
@@ -3008,12 +3820,16 @@ ContainerComponent.prototype = {
 				"app": gl_applicationContextManager
 			};
 
-			var p = gl_applicationContextManager.Manager.retrieve(component);
-			if(p==undefined){
-				console.error('Method Not found: '+component);
-			}else{
-				setComponent = p(obj123);
-			}
+			
+
+			var setComponent = buildBody(component);
+
+			self._props_._component_html = setComponent.cloneNode(true);
+			
+			
+			
+			
+			
 
 		}else if(Array.isArray(component)){
 			var params = [];
@@ -3034,6 +3850,10 @@ ContainerComponent.prototype = {
 			setComponent = component;
 		}
 
+
+		
+		
+		
 
 		if( document.getElementById(self.getId()) ){
 			addToDOM(setComponent);
@@ -3078,7 +3898,33 @@ ContainerComponent.prototype = {
 			}
 		}
 	}
+	
+	
+	
+	
+	
+
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+
 };
+
+
 
 
 function ElementAttributes(attrs){
@@ -3108,7 +3954,7 @@ EventManager.prototype = {
 
 
 /** 
-* @exports AFBrick
+* @exports Brick
 */
 var Brick = {
 
@@ -3175,7 +4021,7 @@ BrickComponent.prototype = {
 	*
 	*/
 	array: function(type,arrayObjs){
-
+		
 		if(typeof type === 'string'){
 			for (var i = 0; i < arrayObjs.length; i++) {
 				arrayObjs[i]['_el'] = type;
@@ -3616,7 +4462,21 @@ function BrickComponent_make(element,opts,self){
 
 
 
+
+
+
+
+ 
+ 
+ 
+ 
+
 function NavigationComponent(obj){
+	
+	
+	
+	
+	
 	
 	
 	var opts = obj;
@@ -3732,6 +4592,12 @@ NavigationComponent.prototype = {
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
 				
+					
+				
+				
+				
+				
+				
 				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
@@ -3784,9 +4650,25 @@ NavigationComponent.prototype = {
 
 function _navigation1(self,view){
 
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+ 
+	
+	
+
 	var defaultBody;
 
 	var container = Utils.createElement({});
+
+	
 	
 	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
@@ -4131,9 +5013,20 @@ TableComponent.prototype = {
 
 			container.addComponent(p);
 		}
+
+
+
+
+		
+
 		return container;
 
+		
+
+		
+
 	}
+
 
 
 };
@@ -4148,6 +5041,11 @@ TableComponent.prototype = {
 */
 function TableHandler(opts,tableComponent){
 
+	
+	
+	
+	
+	
 	
 
 	gl_HandleAll(this,opts,'TableHandler');
@@ -4297,6 +5195,17 @@ TableHandler.prototype = {
 		return this;
 	}
 };
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
 
 function TableComponent245 (obj){
@@ -4342,6 +5251,16 @@ function TableComponent245 (obj){
 	_tbody.className = "uieb-table-tbody";
 	_thead.className = "uieb-table-thead";
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
+
+	
+	
+	
+	
+	
+	
+	
+
+
 
 	
 	var _columnNames = [];
@@ -4718,7 +5637,25 @@ TableComponent245.prototype = {
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
 
-	
+		
+			
+			
+				
+			
+			
+			
+			
+			
+			
+			
+			
+		
+			
+		console.log(obj);
+
+		
+
+		
 		var file_rows = obj.content.split("\n");
 		
 		
@@ -5708,6 +6645,28 @@ var Utils = {
 
 	createElement: function(type,options){
 		return Utils_createELement(type,options);
+	},
+
+	/**
+	* Convert seconds into time hh:mm:ss
+	*
+	*/
+	secondsToHms: function(d) {
+	    d = Number(d);
+	    var h = Math.floor(d / 3600);
+	    var m = Math.floor(d % 3600 / 60);
+	    var s = Math.floor(d % 3600 % 60);
+
+	    h = (h<10) ? "0" + h : h;
+	    m = (m<10) ? "0" + m : m;
+	    s = (s<10) ? "0" + s : s
+
+	    
+	    
+	    
+	    
+
+	    return h + ":" + m + ":" + s;
 	},
 
 
@@ -10763,11 +11722,15 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 		arrayOfItems = [arrayOfItems];
 	}else{
 		
+		
+		
 		if(isBuildBody(arrayOfItems)){
 			arrayOfItems = [arrayOfItems];
 		}
 
 	}
+
+	
 	
 	var currentRow = self._props_._current_row_id;
 	var len = self._props_._layout_container[currentRow].columns.length;
@@ -10777,6 +11740,10 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 }
 
 function AppLayout_build(self){
+	
+	
+	
+	
 	
 	
 	self._props_._isBuilt = true;
@@ -10855,6 +11822,11 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 	var nodes = [];
 
 	var divRow = null;
+
+	
+	
+	
+	
 
 	for(var i=0;i<arrayOfItems.length;i++){
 		if(typeof arrayOfItems[i]=="string"){
@@ -11428,6 +12400,26 @@ function _layoutMake(obj,arrayOfItems){
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function buildBody(object,self){
 	var body = null;
 
@@ -11587,6 +12579,11 @@ function convertIntoAppFactoryObject(body){
 function _build_view(body,params,self,obj){
 
 	
+	
+	
+	
+	
+	
 	var paramValues = {  
 		"view": obj, 
 		
@@ -11669,6 +12666,25 @@ function getView(body,obj,self){
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
@@ -11682,6 +12698,9 @@ function isEventRegistered(selector,self){
 	}
 	return alreadyRegistered;
 }
+
+
+
 
 
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation){
@@ -11747,6 +12766,62 @@ function _Utils_registerListenerCallback(obj,self){
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function setBaseURL(self,url){
 	var config = self._props_._application_config;
@@ -11863,6 +12938,13 @@ function gl_event_trigger_reset(type,self,tag){
 		self._props_._form_data[tag].status = 0;
 	}
 }
+
+
+
+
+
+
+
 
 /**
 * Register plugin
@@ -12143,14 +13225,14 @@ ApplicationContextManager.prototype = {
 var _main_includes = {};
 
 /** 
-* @exports AFInclude
+* @exports Include
 * @classdesc A component that handles.
 */
 function AFInclude(prop){
 	return _main_includes[prop];
 }
 
-window.AFInclude = AFInclude;
+window.Include = AFInclude;
 
 function initializeApplication(isClient,activePlugin,self){
 
@@ -12450,9 +13532,15 @@ window.AFLoadConfiguration = LoadConfiguration;
 
 window.AFGetClientPath = GetClientPath;
 
+
+
+
+
 window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
 
 window.ApplicationContextManager = ApplicationContextManager;
+
+
 
 window.ApplicationExtensions = ApplicationExtensions;
 

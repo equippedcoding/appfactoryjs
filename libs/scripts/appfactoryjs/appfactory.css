@@ -1,5 +1,6 @@
-
-
+/* Component Loader */
+/* Media Player */
+/* Fixed sidenav, full height */
 
 
 .app-display-none {
@@ -20,6 +21,9 @@
 }
 
 
+
+
+/* Component Loader */
 .appfac-loader {
   border: 16px solid #f3f3f3; /* Light grey */
   border-top: 16px solid #3498db; /* Blue */
@@ -55,6 +59,37 @@
   right: 0;
   background: rgba(0, 0, 0, 0.5);
 }
+
+
+/* Media Player */
+.appfac-media-player-seekbar{
+    width: 100%;
+    height: 5px;
+    background-color:gray;
+    display: flex;
+    border-radius: 50px;
+    /*margin-left: 25px;*/
+    cursor: pointer;
+}
+.appfac-media-player-seekbar-fill{
+    height: 5px;
+    background-color:royalblue;
+    border-radius: 20px;
+}
+.appfac-media-player-seekbar-handle{
+    width: 8px;
+    height: 8px;
+    background-color:royalblue;
+    border-radius: 50%;
+    margin-left: -5px;
+    transform: scale(2);
+}
+.appfac-media-player-btn {
+  border: none;
+  outline: none;
+  background: none;
+}
+
 
 
 
