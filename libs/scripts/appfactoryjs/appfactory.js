@@ -26,7 +26,7 @@
 */
 (function (root, factory) {             
 	/*global define*/
-	
+
 
 	if (typeof define === 'function' && define.amd) {
 		
@@ -40,19 +40,139 @@
 	}	
 }(this, function ($) {    
 
+/* Global Variables */ 
 
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
+
+var App = function(context) {
+    
+    return new App.init(context);
+};
+
+
+App.init = function( selector ) {
+    
+    this.selector = selector;
+
+	if ( !selector ) {
+		return this;
+	}
+	if(isNode(selector) || isElement(selector)){
+		this._element = selector;
+	}else if(selector.charAt(0) == "#"){
+		this._element = document.getElementById(selector);
+	}else if(selector.charAt(0) == "."){
+		this._element =  document.querySelectorAll(selector);
+	}else if(selector=="body"){
+		this._element = document.body;
+	}
+	return this;
+};
+App.post = function(str) {
+    console.log(str);
+};
+
+App.init.prototype.print = function(contents) {
+     console.log(contents);
+};
+App.init.prototype.append = function(element){
+	this._element.appendChild(element);
+	return this;
+};
+App.init.prototype.html = function(){
+	return this._element;
+};
+App.init.prototype.attr = function(param,value){
+	 this._element.setAttribute(param, value);
+	 return this;
+};
+App.init.prototype.click = function(callback) {
+	this._method = function(e){ callback(e); }
+	this._type = "click";
+	
+	
+	this._element.addEventListener(this._type, this._method);
+    return this;
+};
+App.init.prototype.on = function(event, callback) {
+	this._method = function(e){ callback(e); }
+	this._type = event;
+	this._element.addEventListener(this._type, this._method);
+    return this;
+};
+App.init.prototype.removeListener = function() {
+	if(this._method!=undefined && this._type!=undefined)
+		this._element.removeEventListener(this._type, this._method);
+    return this;
+};
+App.init.prototype.css = function(propName,val) {
+	if(val==undefined && typeof propName === 'object'){
+		var style = "";
+		for(prop in propName){
+			style = style + prop +":"+ propName[prop] + ";";
+		}
+		this._element.setAttribute("style",style);
+	}else{
+		this._element.setAttribute(propNamm,val);
+	}
+    return this;
+};
+
+App.init.prototype.addClass = function(val){
+	this._element.classList.add(val);
+	return this;
+};
+App.init.prototype.removeClass = function(val){
+	this._element.classList.remove(val);
+	return this;
+};
+App.init.prototype.hasClass = function(val){
+	return this._element.classList.contains(val);
+};
+App.init.prototype.html = function(html){
+	this._element.innerHTML = html;
+	return this;
+};
+App.init.prototype.empty = function(){
+	
+	while (this._element.firstChild) {
+		this._element.removeChild(this._element.lastChild);
+	}
+	return this;
+};
+
+App.init.prototype.flash = function() {
+    document.body.style.backgroundColor = '#ffc';
+    setInterval(function() {
+        document.body.style.backgroundColor = '';
+    }, 5000);
+    return this;
+};
+
+function isNode(o){
+  return (
+    typeof Node === "object" ? o instanceof Node : 
+    o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName==="string"
+  );
+}
+
+
+function isElement(o){
+  return (
+    typeof HTMLElement === "object" ? o instanceof HTMLElement : 
+    o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+);
+}
+function _addAppElementToList(self){
+
+}
 
 var Flags = Object.freeze({
 	Type: {view:"v",component:"c",layout:"l"},
 	Component: "comp",
 	Method: "meth"
 });
-
-function GL_RegisterListenerCallback(obj,self,id,moreData){
-
-}
 
 var AppFactoryManagerTypes = [
 	"ApplicationManager",
@@ -62,7 +182,6 @@ var AppFactoryManagerTypes = [
 	"LayoutManager",
 	"ViewManager"
 ];
-
 /* AppFactoryManager */
 function AppFactoryManager(type){
 	this._appfactory_manager = {
@@ -75,6 +194,7 @@ function AppFactoryManager(type){
 
 }
 AppFactoryManager.prototype = {};
+
 
 
 /** @exports ApplicationManager
@@ -117,33 +237,28 @@ ApplicationManager.prototype = {
 	init: function(pages){
 		
 		var self = this;
+		App("body").append(self.getRootElement());
+		App(self.getRootElement()).click(function(e){
+			console.log(e);
+		});
+		setTimeout(function(){
+			ApplicationManager_start_runInterval(self);
+			if(Array.isArray(pages)){
+				
+				
+			}else{
+				pages.func(pages.obj,pages.self);
+			}
 
-		
-		
-
-		$('body').append(self.getRootElement());
-		
-		ApplicationManager_start_runInterval(self);
-
-		if(Array.isArray(pages)){
-			
-			
-		}else{
-			pages.func(pages.obj,pages.self);
-		}
-
-		stateManager.buildRoutes();
-
-		stateManager.start();
-		
-		
-		
-		var hash = gl_applicationContextManager.getHash();
-		if(hash!=undefined && hash!=null){
-			stateManager.go(hash,true);
-		}else{
-			stateManager.go("",true);
-		}
+			stateManager.buildRoutes();
+			stateManager.start();
+			var hash = gl_applicationContextManager.getHash();
+			if(hash!=undefined && hash!=null){
+				stateManager.go(hash,true);
+			}else{
+				stateManager.go("",true);
+			}
+		},100);
 	},  
 
 	/**
@@ -316,28 +431,11 @@ ApplicationManager.prototype = {
 
 };
 
-
-
-
-
- 
- 
- 
- 
-
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
 
 }
 SessionManager.prototype = {};
-
-
-
-
- 
- 
- 
- 
 
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
@@ -367,10 +465,6 @@ StateManager.prototype = {
 
 
 	mapRoute: function(route,layout){
-
-		
-		
-		
 
 		if(route=="") route = "_NOT_SET_";
 		this._state_manager._map_layout[route] = layout;
@@ -457,18 +551,6 @@ StateManager.prototype = {
 	}
 };
 
-
-
-
- 
- 
- 
- 
- 
- 
- 
- 
-
 function ApplicationExtensions(){
 	this._props_ = {};
 }
@@ -505,14 +587,6 @@ ApplicationExtensions.prototype = {
 	}
 
 };
-
-
-
-
- 
- 
- 
- 
 
 function ApplicationPlugin(){
 	this.plugins = [];
@@ -554,15 +628,9 @@ ApplicationPlugin.prototype = {
 	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
-		
-		
-		
 
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
-
-		
-
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
 
@@ -594,24 +662,6 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-				
-		
-		
-
-		
-
-
 		return {
 			admin: adminTheme,
 			client: client,
@@ -623,11 +673,6 @@ ApplicationPlugin.prototype = {
 
 
 /* Components */
-
- 
- 
- 
- 
  
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
@@ -644,8 +689,6 @@ function ComponentManager(type,context){
 		_isEventsActive: false,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
 
-		
-		
 		
 		_args: null,
 		_object_config: null,
@@ -751,17 +794,11 @@ function ComponentManager(type,context){
 	};
 
 	this.append = function(){
-		$(selector).append(this.getHtml());
+		App(selector).append(this.getHtml());
 	};
 
 }
 ComponentManager.prototype = {};
-
-
-
-
-
-
 
 
 /** @exports Pages
@@ -778,12 +815,6 @@ function Pages(){
 	};
 	var containerDiv = document.createElement('div');
 	containerDiv.id = this._props_._container_id;
-
-	
-	
-
-	
-	
 
 }
 
@@ -863,9 +894,6 @@ var ViewsHolder = [];
 * @constructor
 */
 function ViewManager(opt){
-	
-
-	
 	
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
@@ -1017,17 +1045,6 @@ ViewManager.prototype = {
 		var self = this;
 		var opt = self._props_._options;
 		
-		
-		
-		
-		
-		
-		
-
-		
-		
-
-		
 		if(opts.id==undefined){
 			opts.id = 'p'+Utils.randomGenerator(12);
 			console.log("View Component does not contain an id"); 
@@ -1057,16 +1074,7 @@ ViewManager.prototype = {
 	isRoutable: function(){
 		return this._props_._is_routable;
 	}
-
-
-
 };
-
-
-
-
-
-
 
 /** @exports LayoutManager
 * @classdesc A compoment that handles the layout of components.
@@ -1089,9 +1097,6 @@ LayoutManager.prototype = {
 		return new AppLayout(obj,this.Application);
 	}
 };
-
-
-
 
 /** @exports AppLayout
 * @classdesc The layout component that is returned by the LayoutManager.newLayout().
@@ -1306,10 +1311,6 @@ AudioComponent.prototype = {
 	}
 
 };
-
-
-
-
 
 /** @exports AudioPlayerBuilder
 * @classdesc Audio player creator container class 
@@ -1684,42 +1685,7 @@ function AudioPlayerBuilderComponent(opts,audioPlayerBuilder){
 		    }
 		});
 	}
-		
-
-
-
-
-
-
-
-		
-		
-		
-
-		
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-		
-		
-
+	
 
 	},self);
 
@@ -1787,45 +1753,45 @@ AudioPlayerBuilderComponent.prototype = {
 
 };
 
-
-
-
 function ImageComponent(opts){
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	gl_HandleAll(this,opts,'ImageComponent');
-
 
 	var createElement = Utils.createElement;
 	var isNull = Utils.isNull;
 	var self = this;
 
-	
-
-	var frag = document.createDocumentFragment();
 	var img = document.createElement('img');
 	img.id = this.ID;
 	img.className = (Utils.isNull(opts.className)) ? "" : opts.className; 
 	img.style = (Utils.isNull(opts.style)) ? "" : opts.style; 
 	img.src = opts.src;
-	if(opts.width) img.width = opts.width;
-	if(opts.height) img.height = opts.height;
+	img.alt = (opts.alt==undefined) ? "" : opts.alt;
 
-	frag.appendChild(img);
+	if(opts.width != undefined){ img.width = opts.width; } 
+	if(opts.height != undefined){ img.height = opts.height; }
 
-	self._props_._fragment = frag;
+	if(opts.height != undefined && opts.width != undefined){
+		tmpElement.setAttribute("style","width:"+opts.width+"px; height:"+opts.height+"px;");
+		tmpElement.style.display = "block";
+	}
+
+	
+	var tmpElement = document.createElement('div');
+	var container = new ContainerComponent({ body: tmpElement });
+	
+
+	gl_ImageManager.push({
+		el: img,
+		container: container,
+		isLoaded: false,
+		run: function(){
+			container.addComponent(img);
+		}
+	});
 
 	this.getHtml = function(){
-		return this._props_._fragment.cloneNode(true);
+		return container.getHtml();
 	};
 
 }
@@ -1834,27 +1800,9 @@ ImageComponent.prototype = {
 };
 
 
-
-
 function NavbarComponent(opts){
-
-	
-	
-	
-	
-	
-	
-
-	
-	
-
 	gl_HandleAll(this,opts,'NavbarComponent');
-
 	var self = this;
-
-
-
-
 
 	var createElement = Utils.createElement;
 
@@ -2018,6 +1966,8 @@ function NavbarComponent(opts){
 
 	_Utils_registerListenerCallbackForSelf('run','',function(){
 
+
+
 		setTimeout(function(){
 
 			$("#"+self._props_._brandLinkId).click(function(e){
@@ -2048,7 +1998,15 @@ NavbarComponent.prototype = {
 		$("#"+this._props_._brandLinkId).html(text);
 	},
 
+	/**
+	* Show the nav content with this id.
+	*
+	* @param {string} id of the view to be shown.
+	*/
 	show: function(id){
+
+		
+		
 
 		var self = this;
 
@@ -2206,25 +2164,9 @@ NavbarComponent.prototype = {
 
 };
 
-
-
-
-
-
- 
- 
- 
  
 
 function NavComponent(opts){
-	
-	
-	
-	
-	
-	
-	
-	
 	
 
 
@@ -2233,11 +2175,6 @@ function NavComponent(opts){
 
 	var isNull = Utils.isNull;
 	var self = this;
-
-	
-	
-	
-	
 
 
 	var view = new ViewManager();
@@ -2257,17 +2194,6 @@ function NavComponent(opts){
 	self._props_._view_mapper = {};
 	self._props_._route = (opts.route) ? opts.route : false;
 
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -2390,7 +2316,7 @@ NavComponent.prototype = {
 	/**
 	* Adds a navigation item to this component.
 	*
-	* @param {Object} - nav options
+	* @param {object} - nav options
 	*/
 	add: function(opts){
 		
@@ -2482,14 +2408,6 @@ NavComponent.prototype = {
 	build: function(){
 		var self = this;
 		
-		
-		
-		
-		
-		
-		
-		
-
 		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
@@ -2699,15 +2617,6 @@ function ListComponent(opts){
 	
 	opts = (Utils.isNull(opts)) ? {} : opts;
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	gl_HandleAll(this,opts,'ListComponent');
 
@@ -2866,10 +2775,6 @@ ListComponent.prototype = {
 
 };
 
-
-
-
-
 function FormEventsHandler(obj,formElement,self){
 	FormEventsHandler_constructor(obj,formElement,self,this);
 }
@@ -2899,14 +2804,6 @@ function FormComponentDefaults(obj,self){
 		this.tag = obj.tag;
 		this.name = obj.tag;
 		this.paramName = obj.tag;
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		
 		
@@ -3038,34 +2935,6 @@ FormValidationDefaults.prototype = {
 * @tutorial 04-building_forms
 */
 function FormComponent(obj){
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
-	
-	
-	
-	
 	
 	
 	var opts = obj;
@@ -3487,18 +3356,7 @@ FormSection.prototype = {
 }
 
 
-
-
-
-
-
-
 function FileUploaderComponent(opts){
-	
-	
-	
-	
-	
 	
 	
 
@@ -3898,28 +3756,6 @@ ContainerComponent.prototype = {
 			}
 		}
 	}
-	
-	
-	
-	
-	
-
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
 	
 
 };
@@ -4462,21 +4298,7 @@ function BrickComponent_make(element,opts,self){
 
 
 
-
-
-
-
- 
- 
- 
- 
-
 function NavigationComponent(obj){
-	
-	
-	
-	
-	
 	
 	
 	var opts = obj;
@@ -4592,12 +4414,6 @@ NavigationComponent.prototype = {
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
 				
-					
-				
-				
-				
-				
-				
 				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
@@ -4609,9 +4425,6 @@ NavigationComponent.prototype = {
 
 			}
 		}
-
-		
-		
 
 	},
 
@@ -4649,19 +4462,6 @@ NavigationComponent.prototype = {
 
 
 function _navigation1(self,view){
-
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
- 
-	
 	
 
 	var defaultBody;
@@ -4971,6 +4771,7 @@ TableComponent.prototype = {
 		var container = new ContainerComponent();
 
 		if(opts.filename){
+			
 			$.get(opts.filename,function(content){
 				mysetup(content);
 			});
@@ -5041,11 +4842,6 @@ TableComponent.prototype = {
 */
 function TableHandler(opts,tableComponent){
 
-	
-	
-	
-	
-	
 	
 
 	gl_HandleAll(this,opts,'TableHandler');
@@ -5196,17 +4992,6 @@ TableHandler.prototype = {
 	}
 };
 
-
-
-
- 
- 
- 
- 
- 
- 
- 
- 
 
 function TableComponent245 (obj){
 	
@@ -5420,11 +5205,6 @@ TableComponent245.prototype = {
 
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
-		
-		
-		
-		
-		
 		
 		
 		
@@ -5738,32 +5518,6 @@ TableComponent245.prototype = {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
 function TableComponent__add_col(obj,self,containerId){
 	var isNull = Utils.isNull;
 
@@ -5839,25 +5593,6 @@ function TableComponent__add_col(obj,self,containerId){
 						table.initializeListeners();
 					}
 
-
-
-
-
-					
-					
-					
-					
-					
-
-					
-					
-					
-					
-					
-
-					
-					
-
 					
 				});
 
@@ -5866,25 +5601,11 @@ function TableComponent__add_col(obj,self,containerId){
 		}
 	});
 	
-	
-	
-	
-	
-	
-
-
-	
 
 }
 function TableComponent__column_adjustment(self,obj,e){
 	var isNull = Utils.isNull;
 
-	
-	
-	
-
-	
-	
 
 	var tableEditMenu = new ContainerComponent();
 
@@ -6001,111 +5722,9 @@ function _editTableByGroup(button,self){
 		callback: {
 			type: 'run',
 			func: function(){
-				
-				
-				
-				
-				
-
-				
-				
-
-					
-
-				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-
-				
-
-
-				
-				
-				
-				
-
-				
-
-				
-
-
-					
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-
-					
-
-
-				
-				
-				
-				
-				
-				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-										
-				
-				
-
-				
-
-				
-								
-
-
-				
-				
-				
-
-				
-
-				
-
 			}
 		}
 	});
-
-	
-
-
-
-	
-
-	
-
-
-
 
 	cust.addComponent('<h4>'+button+'</h4>');
 
@@ -6153,51 +5772,14 @@ function TableComponent__add_row(self){
 			type: 'run',
 			func: function(){
 				
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
 				
 				
 			}
 		}
 	});
 	
-	
-	
-	
-	
-	
-	
 }
 function TableComponent_row(obj,self){
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	var isNull = Utils.isNull;
 
@@ -6288,71 +5870,6 @@ function TableComponent_row(obj,self){
 		_Utils_registerListenerCallbackForSelf("click",id,function(data){
 			data.e.stopPropagation();
 			data.e.preventDefault();
-
-
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-
-			
-			
-			
-			
-			
-			
-			
-				
-			
-
-			
-			
-			
-			
-
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-
-			
-			
-			
-			
-			
-									
-			
-								
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 				
 		},self,true);
 	}
@@ -6412,20 +5929,11 @@ function TableComponent_row(obj,self){
 						}
 
 						
-
-						
-
-						
-
-						
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
-		
-		
-		
 		
 		
 		
@@ -6443,33 +5951,6 @@ function TableComponent_row(obj,self){
 	}else{
 		self._props_._elements._tbody.appendChild(_tr);
 	}
-
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-		
-	
-	
-
-
-	
-	
- 
- 
- 
     	
 
 }
@@ -6477,16 +5958,6 @@ function TableComponent_row(obj,self){
 function TableComponent_getTableAsString(delemeter,self){
 
 	var isNull = Utils.isNull;
-
-	
-			
-			
-			
-			
-			
-
-
-		
 
 
 	if(isNull(delemeter)){
@@ -6515,87 +5986,10 @@ function TableComponent_getTableAsString(delemeter,self){
 	}
 
 	return str;
-
-	
-
-	
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
- 
- 
- 
 
 function CMSUsers(){
 
@@ -6620,10 +6014,6 @@ CMSUsers.prototype = {
 }
 
 
- 
- 
- 
- 
 
 function CMSManager(){
 
@@ -6642,6 +6032,15 @@ CMSUsers.prototype = {
 * @exports Utils
 */
 var Utils = {
+
+
+	findById: function(id){
+		return document.getElementById();
+	},
+
+	queryEl: function(selector){
+		return document.querySelector(selector)
+	},
 
 	createElement: function(type,options){
 		return Utils_createELement(type,options);
@@ -7052,27 +6451,6 @@ var _Utils = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
 	ApplicationManager_start_createDiv(self);
@@ -7161,6 +6539,26 @@ function ApplicationManager_start_runInterval(self){
 				}
 			}
 		}
+
+		
+		var completed_images = [];
+		for (var i = 0; i < gl_ImageManager.length; i++) {
+			var container = gl_ImageManager[i].container;
+			var image = gl_ImageManager[i].el;
+			var run = gl_ImageManager[i].run;
+			if(document.getElementById(container.getId())){
+				if(image.complete){
+					completed_images.push(i);
+					run();
+				}
+			}
+		}
+
+		for (var i = 0; i < completed_images.length; i++) {
+			if(!gl_ImageManager[completed_images[i]] != undefined)
+				gl_ImageManager.splice(completed_images[i], 1);
+		}
+		
 		
 	}, 42);
 
@@ -7274,12 +6672,6 @@ function startRouterApplication(self){
 
 	
 }
-
-
-
-
-
-
 
 
 /* 0000 - ComponentManager */
@@ -12902,6 +12294,10 @@ var gl_DEFAULT_FORM_VALUE = "_none_";
 
 
 
+var gl_ImageManager = [];
+
+
+
 function gl_getFormElementValue(type,selector){
 	if(type=='input'){
 		var val = $(selector).val();
@@ -13548,4 +12944,8 @@ return ApplicationContextManager;
 
 
 })); 
+
+
+
+
 
