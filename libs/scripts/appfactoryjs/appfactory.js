@@ -13,7 +13,7 @@
 *
 * 
 *
-* @requires jQuery
+* @requires jQuery 
 * @see {@link https://jquery.com/}
 * @requires BackboneJS
 * @see {@link http://backbonejs.org/}
@@ -24,9 +24,7 @@
 * @license MIT. 
 * @version 0.0.1   
 */
-(function (root, factory) {             
-	/*global define*/
-
+(function (root, factory) {  
 
 	if (typeof define === 'function' && define.amd) {
 		
@@ -45,128 +43,7 @@
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
 
-var App = function(context) {
-    
-    return new App.init(context);
-};
 
-
-App.init = function( selector ) {
-    
-    this.selector = selector;
-
-	if ( !selector ) {
-		return this;
-	}
-	if(isNode(selector) || isElement(selector)){
-		this._element = selector;
-	}else if(selector.charAt(0) == "#"){
-		this._element = document.getElementById(selector);
-	}else if(selector.charAt(0) == "."){
-		this._element =  document.querySelectorAll(selector);
-	}else if(selector=="body"){
-		this._element = document.body;
-	}
-	return this;
-};
-App.post = function(str) {
-    console.log(str);
-};
-
-App.init.prototype.print = function(contents) {
-     console.log(contents);
-};
-App.init.prototype.append = function(element){
-	this._element.appendChild(element);
-	return this;
-};
-App.init.prototype.html = function(){
-	return this._element;
-};
-App.init.prototype.attr = function(param,value){
-	 this._element.setAttribute(param, value);
-	 return this;
-};
-App.init.prototype.click = function(callback) {
-	this._method = function(e){ callback(e); }
-	this._type = "click";
-	
-	
-	this._element.addEventListener(this._type, this._method);
-    return this;
-};
-App.init.prototype.on = function(event, callback) {
-	this._method = function(e){ callback(e); }
-	this._type = event;
-	this._element.addEventListener(this._type, this._method);
-    return this;
-};
-App.init.prototype.removeListener = function() {
-	if(this._method!=undefined && this._type!=undefined)
-		this._element.removeEventListener(this._type, this._method);
-    return this;
-};
-App.init.prototype.css = function(propName,val) {
-	if(val==undefined && typeof propName === 'object'){
-		var style = "";
-		for(prop in propName){
-			style = style + prop +":"+ propName[prop] + ";";
-		}
-		this._element.setAttribute("style",style);
-	}else{
-		this._element.setAttribute(propNamm,val);
-	}
-    return this;
-};
-
-App.init.prototype.addClass = function(val){
-	this._element.classList.add(val);
-	return this;
-};
-App.init.prototype.removeClass = function(val){
-	this._element.classList.remove(val);
-	return this;
-};
-App.init.prototype.hasClass = function(val){
-	return this._element.classList.contains(val);
-};
-App.init.prototype.html = function(html){
-	this._element.innerHTML = html;
-	return this;
-};
-App.init.prototype.empty = function(){
-	
-	while (this._element.firstChild) {
-		this._element.removeChild(this._element.lastChild);
-	}
-	return this;
-};
-
-App.init.prototype.flash = function() {
-    document.body.style.backgroundColor = '#ffc';
-    setInterval(function() {
-        document.body.style.backgroundColor = '';
-    }, 5000);
-    return this;
-};
-
-function isNode(o){
-  return (
-    typeof Node === "object" ? o instanceof Node : 
-    o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName==="string"
-  );
-}
-
-
-function isElement(o){
-  return (
-    typeof HTMLElement === "object" ? o instanceof HTMLElement : 
-    o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
-);
-}
-function _addAppElementToList(self){
-
-}
 
 var Flags = Object.freeze({
 	Type: {view:"v",component:"c",layout:"l"},
@@ -238,9 +115,6 @@ ApplicationManager.prototype = {
 		
 		var self = this;
 		App("body").append(self.getRootElement());
-		App(self.getRootElement()).click(function(e){
-			console.log(e);
-		});
 		setTimeout(function(){
 			ApplicationManager_start_runInterval(self);
 			if(Array.isArray(pages)){
@@ -252,14 +126,21 @@ ApplicationManager.prototype = {
 
 			stateManager.buildRoutes();
 			stateManager.start();
+
 			var hash = gl_applicationContextManager.getHash();
+
 			if(hash!=undefined && hash!=null){
-				stateManager.go(hash,true);
+				
 			}else{
-				stateManager.go("",true);
+				
 			}
 		},100);
 	},  
+
+
+	setRootElement: function(element){
+		this._application_manager._root_element_component = element;
+	},
 
 	/**
 	* Register a method to be called later with in the app
@@ -324,6 +205,23 @@ ApplicationManager.prototype = {
 	*/
 	setAny: function(id,any){
 		this._application_manager._any[id] = any;
+	},
+
+	setupComponents: function(id,any){
+		this.setAny(id,any);
+		var comps = {};
+		function hello(any){
+			for(obj in any){
+				if(typeof any[obj] === 'function'){
+					comps[obj] = any[obj](gl_applicationContextManager);
+				}
+			}
+		}
+		hello.prototype = {
+
+		};
+		this.setAny('components', comps);
+		return new hello(any);
 	},
 
 	/**
@@ -431,11 +329,28 @@ ApplicationManager.prototype = {
 
 };
 
+
+
+
+
+ 
+ 
+ 
+ 
+
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
 
 }
 SessionManager.prototype = {};
+
+
+
+
+ 
+ 
+ 
+ 
 
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
@@ -463,13 +378,17 @@ StateManager.prototype = {
 		return window.location.hash;
 	},
 
-
 	mapRoute: function(route,layout){
+
+		
+		
+		
 
 		if(route=="") route = "_NOT_SET_";
 		this._state_manager._map_layout[route] = layout;
 
 	},
+	
 	
 	getMapRoute: function(route,mapper){
 		if(route=="") route = "_NOT_SET_";
@@ -515,10 +434,32 @@ StateManager.prototype = {
 	*/
 	go: function(path,trigger){
 		
-		if(Utils.isNull(trigger)){
-			trigger = true;
+		if(Utils.isNull(trigger)) trigger = true;
+		
+		var self = this;
+
+		path = (path.charAt(0)=="#") ? path.substring(1) : path;
+		
+		var paths = path.split("/");
+		
+		
+		if(paths.length > 1){
+			for (var i = 0; i < paths.length; i++) {
+				if(!paths[i].includes(":")){
+					
+
+					if(i<(paths.length-1)){
+						
+						
+					}
+				}
+			}
 		}
+		
+		
 		this.getRouter().navigate(path, {trigger: trigger});
+		
+		
 	},
 
 	/**
@@ -547,9 +488,110 @@ StateManager.prototype = {
 	},
 
 	start: function(){
-		startRouterApplication(this);
+		var self = this;
+		var Router = Backbone.Router.extend(self._state_manager._routerConfig);
+		self._state_manager._router = new Router();
+		Backbone.history.start();
 	}
 };
+
+function Router45(){
+
+
+
+}
+Router45.prototype = {
+	setRoutes: function(routes){
+		this.routes = routes;
+		this._loadInitialRoute();
+	},
+
+	navigate: function(){
+
+	},
+
+	
+	_loadRoute: function(...urlSegments){
+		
+		const matchedRoute = this._matchUrlToRoute(urlSegments);
+
+		
+		
+		
+		const url = `/${urlSegments.join('/')}`;
+		history.pushState({}, '', url);
+
+		
+		const routerOutletElement = document.body;
+		routerOutletElement.innerHTML = matchedRoute.getTemplate(matchedRoute.params);
+	},
+
+	_navigate: function(path = ""){
+		if (this.mode === "history"){
+			window.history.pushState(null, null, this.root + this.clearSlashes(path));
+		} else {
+			window.location.href = `${window.location.href.replace(/#(.*)$/, "")}#${path}`;
+		}
+		return this;
+	},
+
+	_matchUrlToRoute: function(urlSegments){
+		
+		const routeParams = {};
+		const matchedRoute = this.routes.find(route => {
+
+			
+			
+			
+			const routePathSegments = route.path.split('/').slice(1);
+
+			
+			if (routePathSegments.length !== urlSegments.length) {
+				return false;
+			}
+
+			
+			
+			const match = routePathSegments.every((routePathSegment, i) => {
+				return routePathSegment === urlSegments[i] || routePathSegment[0] === ':';
+			});
+
+			
+			if (match) {
+				routePathSegments.forEach((segment, i) => {
+					if (segment[0] === ':') {
+						const propName = segment.slice(1);
+						routeParams[propName] = decodeURIComponent(urlSegments[i]);
+					}
+				});
+			}
+			return match;
+		});
+
+		return { ...matchedRoute, params: routeParams };
+	},
+
+	_loadInitialRoute: function(){
+		
+		const pathnameSplit = window.location.pathname.split('/');
+		const pathSegments = pathnameSplit.length > 1 ? pathnameSplit.slice(1) : '';
+		
+		this.loadRoute(...pathSegments );
+	}
+
+};
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 function ApplicationExtensions(){
 	this._props_ = {};
@@ -587,6 +629,14 @@ ApplicationExtensions.prototype = {
 	}
 
 };
+
+
+
+
+ 
+ 
+ 
+ 
 
 function ApplicationPlugin(){
 	this.plugins = [];
@@ -628,9 +678,15 @@ ApplicationPlugin.prototype = {
 	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
+		
+		
+		
 
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
+
+		
+
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
 
@@ -662,6 +718,24 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+				
+		
+		
+
+		
+
+
 		return {
 			admin: adminTheme,
 			client: client,
@@ -673,6 +747,11 @@ ApplicationPlugin.prototype = {
 
 
 /* Components */
+
+ 
+ 
+ 
+ 
  
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
@@ -689,6 +768,8 @@ function ComponentManager(type,context){
 		_isEventsActive: false,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
 
+		
+		
 		
 		_args: null,
 		_object_config: null,
@@ -801,6 +882,11 @@ function ComponentManager(type,context){
 ComponentManager.prototype = {};
 
 
+
+
+
+
+
 /** @exports Pages
 * @classdesc handles the routing and mapping between component and routes 
 * @class
@@ -815,6 +901,12 @@ function Pages(){
 	};
 	var containerDiv = document.createElement('div');
 	containerDiv.id = this._props_._container_id;
+
+	
+	
+
+	
+	
 
 }
 
@@ -895,6 +987,9 @@ var ViewsHolder = [];
 */
 function ViewManager(opt){
 	
+
+	
+	
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
 		new ComponentManager(Flags.Type.component,this),
@@ -939,12 +1034,25 @@ function ViewManager(opt){
 				break;
 			}
 		}
+		if(obj==null){
+			for (var i = 0; i < objs.length; i++) {
+				var d = objs[i].default;
+				if(d){
+					obj = objs[i];
+					break;
+				}
+			}
+		}
 
 		if(obj){
 			var trigger = false;
 			self._props_._active_view = obj;
 			self._props_._current_view = obj.id;
+
+			
 			var container = buildBody(obj,self);
+			
+			
 			self._props_._containers.addComponent(container,true);
 			if(opt.routable){
 				var route = getNewRoute(obj.id,self);
@@ -962,14 +1070,9 @@ ViewManager.prototype = {
 	* Render the view
 	*
 	*
-	* @param {String} - (required) Id of the view to render.
-	* @param {Component} - (optional) component body to add.
-	* @param {Boolean} - (optional) When a body is added it will not replace the
-	* @param {Boolean} - trigger the router
-	* initial body but if this is set to true the component body supplied will
-	* replace the initial body.
-	* @param {Boolean} (optional) If this ViewManager is router capable then this
-	* will trigger it route.
+	* @param {string} - (required) Id of the view to render.
+	* @param {object} - (optional) data to pass to view.
+	* @param {object} - (optional) options
 	*/
 	render: function(id,params,opts){
 		ViewManager_render(id,params,opts,this);
@@ -1045,6 +1148,17 @@ ViewManager.prototype = {
 		var self = this;
 		var opt = self._props_._options;
 		
+		
+		
+		
+		
+		
+		
+
+		
+		
+
+		
 		if(opts.id==undefined){
 			opts.id = 'p'+Utils.randomGenerator(12);
 			console.log("View Component does not contain an id"); 
@@ -1074,7 +1188,16 @@ ViewManager.prototype = {
 	isRoutable: function(){
 		return this._props_._is_routable;
 	}
+
+
+
 };
+
+
+
+
+
+
 
 /** @exports LayoutManager
 * @classdesc A compoment that handles the layout of components.
@@ -1097,6 +1220,9 @@ LayoutManager.prototype = {
 		return new AppLayout(obj,this.Application);
 	}
 };
+
+
+
 
 /** @exports AppLayout
 * @classdesc The layout component that is returned by the LayoutManager.newLayout().
@@ -1263,9 +1389,199 @@ ComponentFactory.prototype = {
 	*/
 	audio: function(opts){
 		return new AudioComponent(opts);
-	}
+	},
+
+	/**
+	* Create a carousel
+	*
+	* @param {object} - options
+	* @return {CarouselComponent}
+	*/
+	carousel: function(opts){
+		return new CarouselComponent(opts);
+	},
 
 };
+
+
+
+/** @exports CarouselComponent
+* @classdesc Build a carousel.
+* @class
+* @constructor
+* @param {object} - options
+*/
+function CarouselComponent(opts){
+	gl_HandleAll(this,opts,'CarouselComponent');
+
+	var self = this;
+
+	opts = (opts==undefined) ? {} : opts;
+
+	self._props_._topcontainer = document.createElement('div');
+	self._props_._topcontainer.id = self.getId();
+
+	self._props_._opts = opts;
+	self._props_._indicators = opts.indicators;
+	self._props_._carouselId = "m"+Utils.randomGenerator(12,false);
+	var container = document.createElement('div');
+	container.id = self._props_._carouselId;
+	container.className = "carousel slide";
+	container.setAttribute("data-ride","carousel");
+	self._props_._topcontainer.appendChild(container);
+
+	var inner = document.createElement('div');
+	inner.className = "carousel-inner";
+
+	self._props_._inner = inner;
+
+	self._props_._container = container;
+	self._props_._container.style = (opts.style==undefined) ? "" : opts.style;
+
+	self._props_._isBuilt = false;
+
+	self._props_._slidesCount = 0;
+
+	self._props_._current_active = -1;
+
+	if(self._props_._indicators!=undefined && self._props_._indicators==true){
+		self._props_._ol = document.createElement('ol');
+		self._props_._ol.className = "carousel-indicators";
+		self._props_._container.appendChild(self._props_._ol);
+	}
+
+	_Utils_registerListenerCallbackForSelf('run','',function(){
+
+
+
+	},self);
+
+
+
+	this.getHtml = function(){
+		if(self._props_._isBuilt==false){
+			console.log("CarouselComponent has not been built, call carousel.build()");  
+		} 
+		return self._props_._topcontainer.cloneNode(true);
+	};
+
+
+}
+CarouselComponent.prototype = {
+
+	/**
+	* Add a carousel.
+	*
+	* @params {object} - options
+	*/
+	add: function(opts){
+		var self = this;
+	
+		var active = "";
+		if(opts.active!=undefined && opts.active==true){
+			active = "active";
+			self._props_._current_active = self._props_._slidesCount
+		}
+		var container = document.createElement('div');
+		container.className = "carousel-item "+active;
+
+		var img = document.createElement('img');
+		img.className = "d-block w-100";
+		img.src = (opts.src!=undefined) ? opts.src : "";
+		img.style = (opts.style==undefined) ? "" : opts.style;
+
+		container.appendChild(img);
+
+		self._props_._inner.appendChild(container);
+
+		self._props_._container.appendChild(self._props_._inner);
+
+		self._props_._slidesCount++;
+
+	},
+
+	/**
+	* Build this carousel.
+	*
+	* 
+	*/
+	build: function(){
+
+		var self = this;
+
+		self._props_._isBuilt = true;
+
+		if(self._props_._opts.controls!=undefined && self._props_._opts.controls==true){
+			var prev = createButton("carousel-control-prev","carousel-control-prev-icon","prev","Previous");
+			var next = createButton("carousel-control-next","carousel-control-next-icon","next","Next");
+
+			self._props_._container.appendChild(prev);
+			self._props_._container.appendChild(next);
+
+			_Utils_registerListenerCallbackForSelf('run','',function(){
+
+				App('#'+self._props_._carouselId + " a").click(function(e){
+					console.log(e);
+					e.preventDefault();
+				});
+
+			},self);
+
+		}
+
+		if(self._props_._indicators!=undefined && self._props_._indicators==true){
+			var currentActive = self._props_._current_active;
+			if(currentActive==-1)
+				currentActive = 0;
+
+			for (var i = 0; i < self._props_._slidesCount; i++) {
+
+				var count = i;
+				var li = document.createElement('li');
+				li.setAttribute('data-target','#'+self._props_._carouselId);
+				li.setAttribute('data-slide-to',count);
+				if(currentActive==i){
+					li.className = "active";
+				}
+				self._props_._ol.appendChild(li);
+			}
+		}
+
+		function createButton(class1,class2,dataSlide,name){
+			var hrefId = "#"+self._props_._carouselId;
+		
+			var container = document.createElement('a');
+			container.className = class1;
+			container.href = hrefId;
+			container.setAttribute("role","button");
+			container.setAttribute("data-slide",dataSlide);
+
+			var span1 = document.createElement('span');
+			span1.className = class2;
+			span1.setAttribute('aria-hidden','true');
+
+			var span2 = document.createElement('span');
+			span2.className = "sr-only";
+			span2.innerHTML = name;
+
+			container.appendChild(span1);
+			container.appendChild(span2);
+
+			return container;
+		}
+
+
+
+
+
+	}
+
+
+};
+
+
+
+
 
 
 
@@ -1311,6 +1627,10 @@ AudioComponent.prototype = {
 	}
 
 };
+
+
+
+
 
 /** @exports AudioPlayerBuilder
 * @classdesc Audio player creator container class 
@@ -1685,7 +2005,8 @@ function AudioPlayerBuilderComponent(opts,audioPlayerBuilder){
 		    }
 		});
 	}
-	
+		
+
 
 	},self);
 
@@ -1800,9 +2121,15 @@ ImageComponent.prototype = {
 };
 
 
+
+
 function NavbarComponent(opts){
 	gl_HandleAll(this,opts,'NavbarComponent');
 	var self = this;
+
+
+
+
 
 	var createElement = Utils.createElement;
 
@@ -1915,10 +2242,6 @@ function NavbarComponent(opts){
 		return _brandLink;
 	}
 
-
-
-
-
 	
 
 	var hamburgerMenuPosition = (opts.hamburgerMenuPosition!=undefined) ? opts.hamburgerMenuPosition : "left";
@@ -1966,8 +2289,6 @@ function NavbarComponent(opts){
 
 	_Utils_registerListenerCallbackForSelf('run','',function(){
 
-
-
 		setTimeout(function(){
 
 			$("#"+self._props_._brandLinkId).click(function(e){
@@ -1987,8 +2308,36 @@ function NavbarComponent(opts){
 	},self);
 
 
+	this._props_._active_class = "appfac-navbar-active";
+
+
 }
 NavbarComponent.prototype = {
+
+
+	
+	render: function(id){
+		var self = this;
+		var map = null;
+		for(prop in self._props_._view_mapper){
+			if(self._props_._view_mapper[prop]==id){
+				map = prop;
+				break;
+			}
+		}
+
+		var current = self._props_._active_item;
+
+		if(current == map) return;
+		if(current!=""){
+			$("."+current).removeClass(self._props_._active_class);
+		}
+		$("."+map).addClass(self._props_._active_class);
+		self._props_._active_item = map;
+
+
+		self._props_._view.render(id);
+	},
 
 	/**
 	* Change the brand text
@@ -2027,16 +2376,19 @@ NavbarComponent.prototype = {
 
 		if(current == map) return;
 		if(current!=""){
-			$("."+current).removeClass('active');
+			$("."+current).removeClass(self._props_._active_class);
 		}
-		$("."+map).addClass('active');
+		$("."+map).addClass(self._props_._active_class);
 		self._props_._active_item = map;
 
 
 		self._props_._view.render(id);
 		if(self._props_._route && map!=null){
-			stateManager.go(id,false);
+			stateManager.go(id,true);
 		}
+
+		$('#'+self.getId() + ' .nav-item').removeClass(self._props_._active_class);
+		$("."+map).addClass(self._props_._active_class);
 
 		},100);
 
@@ -2047,6 +2399,7 @@ NavbarComponent.prototype = {
 
 
 	add: function(opts){
+		var self = this;
 
 		opts = (opts!=undefined) ? opts : {};
 
@@ -2073,13 +2426,11 @@ NavbarComponent.prototype = {
 
 		var createElement = Utils.createElement;
 
-		var active = (opts.init!=undefined && opts.init==true) ? "appfac-navbar-active" : "";
+		var active = (opts.init!=undefined && opts.init==true) ? self._props_._active_class : "";
 
 		if(label=="") {
 			active = "";
 		}
-
-		var self = this;
 
 		var id = "gp"+Utils.randomGenerator(16,false);
 
@@ -2164,7 +2515,6 @@ NavbarComponent.prototype = {
 
 };
 
- 
 
 function NavComponent(opts){
 	
@@ -2347,7 +2697,6 @@ NavComponent.prototype = {
 		if(!isNull(opts.id)){
 			self._props_._view_mapper[opts.id] = id;
 		}
-		
 
 		var style = (opts.style) ? opts.style : "";
 		var className = (opts.className) ? opts.className : "";
@@ -2407,7 +2756,7 @@ NavComponent.prototype = {
 	*/
 	build: function(){
 		var self = this;
-		
+
 		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
@@ -2423,7 +2772,6 @@ NavComponent.prototype = {
 };
 function NavComponent_initialize_tab_click(self,id){
 	var current = self._props_._active_item;
-
 	if(current == id) return;
 	if(current!=""){
 		$("#"+current).removeClass('active');
@@ -2433,16 +2781,6 @@ function NavComponent_initialize_tab_click(self,id){
 	self._props_._elements._view.render(id);
 	
 }
-
-
-
-
-
-
-
-
-
-
 
 
 function ModalComponent(opts){
@@ -2488,6 +2826,9 @@ ModalComponent.prototype = {
 	*/
 	toggle: function(show){
 		$("#"+this._props_._modal_id).modal('toggle');
+		if(!document.getElementById(this._props_._modal_id)){
+			console.log('not showing')
+		}
 	},
 
 	/**
@@ -2498,12 +2839,6 @@ ModalComponent.prototype = {
 		ModalComponent_setContent(opts,this);
 	}
 }
-
-
-
-
-
-
 
 function ModalComponent_setContent(opts,self){
 	if(Utils.isNull(opts.type)){
@@ -2550,12 +2885,6 @@ function ModalComponent_setContent(opts,self){
 			innerHTML: opts.title
 		});		
 
-		
-		
-		
-		
-		
-		
 
 		var exitBtn = Utils.convertStringToHTMLNode(`
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -2573,7 +2902,7 @@ function ModalComponent_setContent(opts,self){
 		});
 		modalDiv.appendChild(modalContent);
 		if(!Utils.isNull(opts.body)){	
-			var mBody = getModalBody();
+			var mBody = buildBody(opts);
 			modalBody.appendChild(mBody.cloneNode(true));
 			modalContent.appendChild(modalBody);
 		}
@@ -2617,9 +2946,18 @@ function ListComponent(opts){
 	
 	opts = (Utils.isNull(opts)) ? {} : opts;
 
+	
+	
+	
+	
+	
+	
+	
+	
 
 	gl_HandleAll(this,opts,'ListComponent');
 
+	var main_container = Utils.createElement({ id:this.getId() });
 
 	var self = this;
 	var compDefaults = ComponentDefaults(opts,this);
@@ -2775,11 +3113,6 @@ ListComponent.prototype = {
 
 };
 
-function FormEventsHandler(obj,formElement,self){
-	FormEventsHandler_constructor(obj,formElement,self,this);
-}
-FormEventsHandler.prototype = {};
-
 
 function ComponentDefaults(obj,self){
 	return new FormComponentDefaults(obj,self);
@@ -2804,7 +3137,6 @@ function FormComponentDefaults(obj,self){
 		this.tag = obj.tag;
 		this.name = obj.tag;
 		this.paramName = obj.tag;
-		
 		
 		
 	}
@@ -2935,13 +3267,14 @@ FormValidationDefaults.prototype = {
 * @tutorial 04-building_forms
 */
 function FormComponent(obj){
-	
-	
+	if(obj==undefined) obj = {};
+
 	var opts = obj;
 	gl_HandleAll(this,opts,'FormComponent');
 
 	var self = this;
 
+	self._props_._isFormSection = false;
 
 	FormComponent_constructor(obj,this);
 
@@ -2985,12 +3318,10 @@ function FormComponent(obj){
 
 
 
+
 }
 FormComponent.prototype = {
 
-	
-	
-	
 
 	/**
 	* Begin a section
@@ -3000,6 +3331,8 @@ FormComponent.prototype = {
 	*/
 	beginSection: function(section_id,opts){
 		var self = this;
+
+		self._props_._isFormSection = true;
 		
 		
 		if(self._props_._form_sections._section_has_ended==false){
@@ -3081,6 +3414,10 @@ FormComponent.prototype = {
 		this._props_._prevent_remember = remember;
 	},
 
+	
+	wait: function(){},
+	proceed: function(){},
+
 
 	/**
 	* Update and/or change value of form element. A tag must be assigned
@@ -3150,6 +3487,8 @@ FormComponent.prototype = {
 		FormComponent_datePicker(opts,this);
 	},
 
+	
+
 	/**
 	* Builds the form. Must be called before form can be used.
 	*
@@ -3202,11 +3541,6 @@ function FormSection(){
 
 	};
 
-	
-	
-	
-	
-
 	self._props_._buttons = [];
 
 	self._props_._layout = null;
@@ -3220,6 +3554,7 @@ function FormSection(){
 			var form = self._props_._formComponent;
 			var section_id = self.getSectionId();
 			var ids = form._props_._form_sections._form_ids[section_id];
+			
 			if(ids!=undefined){
 				for (var i = 0; i < ids.length; i++) {
 					if(self.values[ids[i][1]]!=undefined){
@@ -3356,7 +3691,22 @@ FormSection.prototype = {
 }
 
 
+
+
+
+
+
+
 function FileUploaderComponent(opts){
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 
@@ -3421,13 +3771,6 @@ function gl_HandleAll(self,opts,type){
 * @constructor
 */
 function ButtonComponent(opts){
-	
-	
-	
-	
-	
-	
-	
 
 	gl_HandleAll(this,opts,'ButtonComponent');
 
@@ -3490,10 +3833,28 @@ function ContainerComponent(obj){
 	var opts = obj;
 	gl_HandleAll(this,opts,'ContainerComponent');
 	
-	obj = (obj) ? obj :{};
-	if(Utils.isNull(obj.template)){
-		obj.template = {};
+	var objWasSet = false;
+	if(obj==undefined){
+		objWasSet = true;
+		obj = {};
 	}
+	
+	
+	
+
+
+	
+
+	if(obj.body==undefined && obj.TYPE!=undefined){
+		obj.body = obj;
+	}else if(typeof obj === 'string'){
+		var tmp = obj;
+		var obj = {};
+		obj.body = Utils.convertStringToHTMLNode(tmp);
+	}
+
+	
+
 	this._props_._obj = obj;
 	this._props_._object_config = obj;
 	_Utils.registerListenerCallback(obj,this);
@@ -3521,7 +3882,7 @@ function ContainerComponent(obj){
 
 	if(obj.body!=undefined && obj.body!=null){
 		var b = buildBody(obj,self);
-		self._props_._container.appendChild(b);
+		self._props_._container.appendChild(b.cloneNode(true));
 	}
 
 	this._props_._component_html = null;
@@ -3604,6 +3965,10 @@ ContainerComponent.prototype = {
 			}
 			
 		}
+	},
+
+	showLoader: function(opts){
+		this.addLoader(opts);
 	},
 
 	/**
@@ -3708,8 +4073,7 @@ ContainerComponent.prototype = {
 			setComponent = component;
 		}
 
-
-		
+		self._props_._component_html = setComponent;
 		
 		
 
@@ -3756,11 +4120,7 @@ ContainerComponent.prototype = {
 			}
 		}
 	}
-	
-
 };
-
-
 
 
 function ElementAttributes(attrs){
@@ -3909,9 +4269,6 @@ BrickComponent.prototype = {
 
 		return this;
 	},
-
-
-
 
 	
 	/**
@@ -4240,9 +4597,6 @@ BrickComponent.prototype = {
 	}
 
 
-
-
-
 };
 function BrickComponent_make(element,opts,self){
 
@@ -4299,7 +4653,6 @@ function BrickComponent_make(element,opts,self){
 
 
 function NavigationComponent(obj){
-	
 	
 	var opts = obj;
 	gl_HandleAll(this,opts,'NavigationComponent');
@@ -4414,15 +4767,13 @@ NavigationComponent.prototype = {
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
 				
+					
 				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
 					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
 					$("#"+obj.id).addClass('appfactory-sidenav-active');
 					});
-				
-
-
 			}
 		}
 
@@ -4463,12 +4814,10 @@ NavigationComponent.prototype = {
 
 function _navigation1(self,view){
 	
-
 	var defaultBody;
 
 	var container = Utils.createElement({});
 
-	
 	
 	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
@@ -4816,19 +5165,9 @@ TableComponent.prototype = {
 		}
 
 
-
-
-		
-
 		return container;
 
-		
-
-		
-
 	}
-
-
 
 };
 
@@ -4993,6 +5332,8 @@ TableHandler.prototype = {
 };
 
 
+
+
 function TableComponent245 (obj){
 	
 	var isNull = Utils.isNull;
@@ -5036,16 +5377,6 @@ function TableComponent245 (obj){
 	_tbody.className = "uieb-table-tbody";
 	_thead.className = "uieb-table-thead";
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
-
-	
-	
-	
-	
-	
-	
-	
-
-
 
 	
 	var _columnNames = [];
@@ -5173,14 +5504,6 @@ function TableComponent245 (obj){
 	ap.id = this.ID;
 	this._props_._elements._fragment.appendChild(ap);
 
-	
-	
-	
-	
-	
-	
-	
-	
 	
 
 	this._props_._extensionObject.push(this._props_._modalDialog);
@@ -5359,13 +5682,6 @@ TableComponent245.prototype = {
 		var isNull = Utils.isNull;
 		
 			
-			
-			
-			
-			
-
-
-		
 		var self = this;
 		var found = false;  
 		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
@@ -5417,23 +5733,8 @@ TableComponent245.prototype = {
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
 
-		
 			
-			
-				
-			
-			
-			
-			
-			
-			
-			
-			
-		
-			
-		console.log(obj);
-
-		
+		//console.log(obj);
 
 		
 		var file_rows = obj.content.split("\n");
@@ -5483,10 +5784,6 @@ TableComponent245.prototype = {
 		for(var i=1; i<file_rows.length; i++){
 			var row = file_rows[i].split("\t");
 			
-			
-			
-
-
 
 			for (var p = 0; p < row.length; p++) {
 				columnsData[p] = {
@@ -5570,8 +5867,6 @@ function TableComponent__add_col(obj,self,containerId){
 					console.log(newOldTable);
 
 					
-
-					
 					var v = new ComponentFactory();
 					var table = v.table().createTable(false,{
 						updatable: obj.updatable,
@@ -5592,24 +5887,20 @@ function TableComponent__add_col(obj,self,containerId){
 						$("#"+containerId).append(table.getHtml());
 						table.initializeListeners();
 					}
-
 					
 				});
-
 				
 			}
 		}
 	});
+	
 	
 
 }
 function TableComponent__column_adjustment(self,obj,e){
 	var isNull = Utils.isNull;
 
-
 	var tableEditMenu = new ContainerComponent();
-
-
 
 	var id = "table-columns-dialog-"+Utils.randomGenerator(22,false);
 	
@@ -5630,14 +5921,6 @@ function TableComponent__column_adjustment(self,obj,e){
 		id: id,
 		body: cont
 	});
-
-
-	
-	
-	
-	
-	
-	
 
 }
 function _x1(self,cont,tableEditMenu){
@@ -5662,10 +5945,6 @@ function _x1(self,cont,tableEditMenu){
 		});
 	}
 
-	
-	
-	
-	
 
 	var cust = comp.container({
 		body: buttons
@@ -5722,9 +6001,12 @@ function _editTableByGroup(button,self){
 		callback: {
 			type: 'run',
 			func: function(){
+				
+
 			}
 		}
 	});
+
 
 	cust.addComponent('<h4>'+button+'</h4>');
 
@@ -5760,8 +6042,6 @@ function TableComponent__add_row(self){
 		_form += '<input type="text" id="'+_form_row_ids[i]+'" /><br>';
 	}
 
-	
-
 	var r = "add-row-"+Utils.randomGenerator(7,false);
 	_form += "<button id='"+r+"'>Add Row</button>";
 
@@ -5773,17 +6053,15 @@ function TableComponent__add_row(self){
 			func: function(){
 				
 				
-				
 			}
 		}
 	});
 	
 }
 function TableComponent_row(obj,self){
+	
 
 	var isNull = Utils.isNull;
-
-
 	
 	var _row_names = [];
 	var rowCount = self._props_._row_count++;
@@ -5870,7 +6148,8 @@ function TableComponent_row(obj,self){
 		_Utils_registerListenerCallbackForSelf("click",id,function(data){
 			data.e.stopPropagation();
 			data.e.preventDefault();
-				
+
+			
 		},self,true);
 	}
 	
@@ -5929,12 +6208,17 @@ function TableComponent_row(obj,self){
 						}
 
 						
+
+						
+
+						
+
+						
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
-		
 		
 		
 	},self,true);
@@ -5990,6 +6274,7 @@ function TableComponent_getTableAsString(delemeter,self){
 }
 
 
+ 
 
 function CMSUsers(){
 
@@ -6014,6 +6299,10 @@ CMSUsers.prototype = {
 }
 
 
+ 
+ 
+ 
+ 
 
 function CMSManager(){
 
@@ -6032,6 +6321,15 @@ CMSUsers.prototype = {
 * @exports Utils
 */
 var Utils = {
+
+	
+	
+
+
+	validateEmail: function(email) {
+    	const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    	return re.test(String(email).toLowerCase());
+	},
 
 
 	findById: function(id){
@@ -6286,7 +6584,7 @@ var Utils = {
 	* @return {Number}
 	*/
 	truncateDecimalNumber: function(number,decimalPlaces){
-		if(typeof Number.prototype.toFixedDown !== "undefined"){
+		if(typeof Number.prototype.toFixedDown === "undefined"){
 			Number.prototype.toFixedDown = function(digits) {
 			    var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
 			        m = this.toString().match(re);
@@ -6347,9 +6645,19 @@ var Utils = {
 	*/
 	validatefilesize: function(file, maxSize){
 		
-		var sizeAmount = maxSize.split(" ")[0];
-		var sizeType = maxSize.split(" ")[1];
-	     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	    var s = null;
+		for (var i = 0; i < sizes.length; i++) {
+			if(maxSize.includes(sizes[i])){
+				s = sizes[i];
+				break;
+			}
+		}
+		
+		if(s==null){ s = sizes[2]; }
+		var sizeAmount = maxSize.split(s)[0];
+		var sizeType = s;
+		
 		var maxsize = "incorrect size";
 		var sizeIndex;
 		for(var i=0; i<sizes.length; i++){
@@ -6421,13 +6729,8 @@ var Utils = {
 				}
 			}
 		}
-		
-
 
 	}
-
-
-
 
 };
 
@@ -6448,8 +6751,6 @@ var _Utils = {
 		_Utils_registerListenerCallback(obj,self);
 	}
 };
-
-
 
 /* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
@@ -6614,7 +6915,6 @@ function ApplicationManager_templateParser(htmlString,replacements,opts,self){
 	}
 
 	var matched = regex.exec(htmlString);
-	console.log(matched)
 	while(matched != null){
 		if(matched[1]==replacements[0]){
 			res = res.replace(matched[0],replacements[1]);
@@ -6665,23 +6965,11 @@ function StateManager_buidRoutes(self){
 
 }
 
-function startRouterApplication(self){
-	var Router = Backbone.Router.extend(self._state_manager._routerConfig);
-	self._state_manager._router = new Router();
-	Backbone.history.start();
-
-	
-}
-
 
 /* 0000 - ComponentManager */
 function AppComponent_getHtml(self,route){
 
 	return document.createElement('div');
-	
-	
-	
-	
 	
 	
 	
@@ -6812,13 +7100,6 @@ function _getView(body,obj){
 }
 function AppComponent_initializeListeners(self,myComponent){
 
-	
-	
-	
-	
-	
-	
-	
 
 	if(self._props_._isEventsActive == true) return;
 	self._props_._isEventsActive = true;
@@ -6829,37 +7110,78 @@ function AppComponent_initializeListeners(self,myComponent){
 
 	self._props_._event_flag = true; 
 	function _initialize_event(eventObj){
+
 		if(eventObj.type=="run"){
 			eventObj.func({
 				data: eventObj,
 				self: self,
 				args: self._props_._args
 			});
+
 		}else{
 			
 			
-			$(eventObj.selector).on(eventObj.type,function(e){
-				if(!Utils.isNull(eventObj.preventDefault) && eventObj.preventDefault==true){
-					e.preventDefault();
-				}
-				if(!Utils.isNull(eventObj.stopPropagation) && eventObj.stopPropagation==true){
-					e.stopPropagation();
-				}
-				var d = {
-					data: eventObj,
-					self: self,
-					args: self._props_._args
-				};
-				d["event"] = e;
-				if(!Utils.isNull(eventObj.func)){
-					eventObj.func(d);
-				}else
-				if(!Utils.isNull(eventObj.callback)){
-					eventObj.callback(d);
-				}
-			});
+
+			if(document.getElementById(document.getElementById(eventObj.selector.substring(1)))){
+				_runsetupinitializelistener(eventObj,self);
+			}else{
+				checkagain(eventObj,self);
+			}
 		}
 	}
+}
+function checkagain(eventObj,self){
+	setTimeout(function(){ 
+		
+		if(self._props_._count_event_check_runs==undefined){
+			self._props_._count_event_check_runs = 0;
+		}
+		if(self._props_._count_event_check_runs >= 10){
+			self._props_._count_event_check_runs = 0;
+			return;
+		}
+
+		if(document.getElementById(eventObj.selector.substring(1))){
+			self._props_._count_event_check_runs = 0;
+			_runsetupinitializelistener(eventObj,self);
+			return;
+		}else{
+			self._props_._count_event_check_runs++;
+			checkagain(eventObj,self);
+		}
+	},500);
+}
+function _runsetupinitializelistener(eventObj,self){
+	$(eventObj.selector).on(eventObj.type,function(e){
+		if(!Utils.isNull(eventObj.preventDefault) && eventObj.preventDefault==true){
+			e.preventDefault();
+		}
+		if(!Utils.isNull(eventObj.stopPropagation) && eventObj.stopPropagation==true){
+			e.stopPropagation();
+		}
+		var d = {
+			data: eventObj,
+			self: self,
+			args: self._props_._args
+		};
+		d["event"] = e;
+		
+		for(prop in eventObj){
+			if(typeof eventObj[prop] === 'function'){
+				if(document.getElementById( eventObj.selector.substring(1) )){
+					var value = document.getElementById(eventObj.selector.substring(1)).value;
+					if(eventObj.obj!=undefined && eventObj.obj.repsonseEventHandler){
+						eventObj.obj.repsonseEventHandler._props_._value = value;
+						eventObj.obj.repsonseEventHandler._props_._event = e;
+						eventObj[prop](eventObj.obj.repsonseEventHandler);
+					}else{
+						eventObj[prop](d);
+					}
+				}
+				break;
+			}
+		}
+	});
 }
 function AppComponent_deInitializeListener(self){
 	self._props_._isEventsActive = false;
@@ -6900,11 +7222,8 @@ function ContainerComponent_setActive(active,stillSet,self){
 }
 
 
-
-
-
-
 /* 0000 - Pages */
+
 function Pages_init(self){
 	var obj = self._props_._initial_view
 	var hash = window.location.hash.substring(1);
@@ -6918,11 +7237,6 @@ function Pages_init(self){
 }
 function Pages_newPageView(obj,self){
 
-	
-	
-	
-	
-	
 	
 
 	var baseRoute = "";
@@ -6941,9 +7255,10 @@ function Pages_newPageView(obj,self){
 		obj.init = false;
 	}
 	
+	
 	function setupRoutes(){
 		for (var i in obj.routes) {
-			var route = baseRoute;
+			var route = "";
 			if(i != ""){
 				route = i;
 			} 
@@ -6962,6 +7277,7 @@ function Pages_newPageView(obj,self){
 	}
 
 	function _setRouteWithMethod(route,layout,transition){
+
 		stateManager.mapRoute(route,layout);
 		if(!Utils.isNull(transition)){
 			stateManager.mapTransition(route,layout);
@@ -7027,8 +7343,8 @@ function Pages_newPageView(obj,self){
 				var layoutComponent = applicationManager.retrieve(_registeredLayout,Flags.Method)(obj);
 				if(layoutComponent){
 					
-					$(applicationManager.getRootElement()).empty();
-					$(applicationManager.getRootElement()).append(layoutComponent.getHtml());
+					App(applicationManager.getRootElement()).empty();
+					App(applicationManager.getRootElement()).append(layoutComponent.getHtml());
 				}
 				
 					
@@ -7129,10 +7445,10 @@ function ViewManager_render(id,params,opts,self){
 		var mBody = buildBody(_options,self);
 		self._props_._containers.addComponent(mBody,replace);
 		self._props_._current_view = id;
-		if(mOpts.routable==true){
-			var route = getNewRoute(id,self);
-			stateManager.go(route,trigger);
-		}
+		
+		
+		
+		
 	}
 }
 function ViewManager_next(opts,self){
@@ -7300,6 +7616,8 @@ function FormComponent_constructor(obj,self){
 	
 	
 
+	if(obj==undefined) obj = {};
+
 	var formhandler = new ContainerComponent();
 	var formId = self.getId();
 
@@ -7422,6 +7740,7 @@ function FormComponent_constructor(obj,self){
 		}
 	}
 
+	
 	self._props_._form_handler.on(self._props_._triggers.submit, function(){
 		var yes = run2();
 		if(!yes) run();
@@ -7450,6 +7769,7 @@ function FormComponent_update(tag,value,self){
 	var form_element = self._props_._form_data[tag];
 	if(Utils.isNull(form_element)) return false;
 	var type = form_element.type;
+	
 	if(type=='input'){
 		var selector = form_element.formElement.selector
 		$(selector).val(value);
@@ -7508,6 +7828,7 @@ __FormSectionHandler.prototype = {
 
 };
 
+
 function handleFormNormalBuild(self){
 	var formSectionHandler = new __FormSectionHandler();
 
@@ -7515,6 +7836,7 @@ function handleFormNormalBuild(self){
 	formSectionHandler.all_elements = f_create_all_elements(formSectionHandler.elements,self);
 	formSectionHandler.formSectionViewIDs = [];
 	formSectionHandler.layout = layoutManager.newLayout().row();
+
 
 	for (var i = 0; i < formSectionHandler.all_elements.length; i++) {
 		if(Array.isArray(formSectionHandler.all_elements[i])){
@@ -7524,8 +7846,7 @@ function handleFormNormalBuild(self){
 			var layRow = formSectionHandler.all_elements[i].layout.row;
 			var layCol = formSectionHandler.all_elements[i].layout.col;
 			var comp = formSectionHandler.all_elements[i].element;
-
-			if(!Utils.isNull(layRow) && layRow==true){
+			if(layRow!=undefined && layRow==true){
 				formSectionHandler.layout.row();
 			}
 			formSectionHandler.layout.col(layCol,comp);
@@ -7533,14 +7854,19 @@ function handleFormNormalBuild(self){
 	}
 
 	if(formSectionHandler.formSectionView!=null){
-		console.log(formSectionHandler.formSectionView);
+		
 		formSectionHandler.layout.row();
 		formSectionHandler.layout.col({md:12},formSectionHandler.formSectionView);
 		self._props_._form_sections._view_ids = formSectionHandler.formSectionViewIDs;
 	}
 
-	formSectionHandler.layout.row();
-	formSectionHandler.layout.col({md:12},[self._props_._submit_button]);
+	
+	if(self._props_._isFormSection==false){
+		formSectionHandler.layout.row();
+		formSectionHandler.layout.col({md:12},[self._props_._submit_button]);		
+	}
+	
+	
 	formSectionHandler.layout.build();
 	self._props_._form.appendChild(formSectionHandler.layout.getHtml());
 
@@ -7642,7 +7968,7 @@ function f_handle_formSection(formSectionHandler,index,self){
 		}
 
 		var form_handler = self._props_._form_handler;
-		var event_trigger_submit = self._props_._triggers.submit;
+		var event_trigger_submit = self._props_._triggers.submit; 
 		var event_trigger_reset = self._props_._triggers.reset;
 	
 		var form_section_layout = layoutManager.newLayout().row();
@@ -7652,12 +7978,28 @@ function f_handle_formSection(formSectionHandler,index,self){
 			var layCol = form_view[n].layout.col;
 			var comp = form_view[n].element;
 
-			if(!Utils.isNull(layRow) && layRow==true){
-				formSectionHandler.layout.row();
+			if(layRow!=undefined && layRow==true){
+				form_section_layout.row();
 			}
 			form_section_layout.col(layCol,comp);
 			_tothegame(comp,form_view,n);
 		}	
+
+		if(formSection.getButtons().length>0){
+			var buttons = formSection.getButtons();
+			for (var i = 0; i < buttons.length; i++) {
+				if(formSection._props_._layout!=null){
+					var def = {md:12};
+					if(formSection._props_._layout[i]!=undefined){
+						def = formSection._props_._layout[i]
+					}
+					form_section_layout.col(def,buttons[i]);
+				}else{
+					form_section_layout.col(def,buttons[i]);
+				}
+				
+			}
+		}
 
 		
 		function _tothegame(comp,form_view,n){
@@ -7739,6 +8081,13 @@ function f_handle_formSection(formSectionHandler,index,self){
 			});
 			form_section_layout.col({md:6},btn2);
 		}
+
+		if(formSection.submit!=undefined && formSection.submit==true){
+
+			form_section_layout.row();
+			form_section_layout.col({md:12},self._props_._submit_button);
+
+		}
 		
 		form_section_layout.build();
 
@@ -7762,19 +8111,6 @@ function f_handle_formSection(formSectionHandler,index,self){
 		formSectionHandler.formSectionViewIDs.push(form_section_view_id);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -7973,7 +8309,7 @@ function FormComponent_onSubmit(opts,callback,self){
 		callback: function(obj){
 			obj.event.preventDefault();
 			
-			self._props_._form_handler.trigger(self._props_._triggers.submit);
+			self._props_._form_handler.trigger(self._props_._triggers.submit); 
 			
 				
 			
@@ -7984,6 +8320,70 @@ function FormComponent_onSubmit(opts,callback,self){
 }
 
 
+
+/** @exports FormInputEventHandler
+* @classdesc An internal object passed through to the formInput for manipulation of this input the events such as focusout, focusin etc. 
+* @class
+* @constructor
+* @tutorial GettingStarted
+*/
+function FormInputEventHandler(){
+	this._props_ = {
+		_value: null,
+		_id: null,
+		_errorMethod: null,
+		_successMethod: null,
+		_statusId: null,
+		_event: null
+	};
+}
+FormInputEventHandler.prototype = {
+
+	/**
+	* Get the value of this input.
+	* @param
+	*/
+	getValue: function(){ return this._props_._value; },
+
+	/**
+	* Returns the event.
+	* 
+	* @return {event}
+	*/
+	getEvent: function(){ return this._props_._event; },
+
+	/**
+	* Add an error to this input with an optional message. Changes the input's style. 
+	* @param {string} - message
+	*/
+	addErrorStatus: function(errorMessage){
+		if(this._props_._errorMethod){
+			this._props_._errorMethod(errorMessage);
+		}
+	},
+
+	/**
+	* Add success to this input with an optional message. Changes the input's style. 
+	* @param {string} - message
+	*/
+	addSuccessStatus: function(successMessage){
+		if(this._props_._successMethod){
+			this._props_._successMethod(successMessage);
+		}
+	},
+
+	/**
+	* Removes status styles and message from this input.
+	* @param {string} - message
+	*/
+	removeStatus: function(){
+		if(this._props_._removeStatus){
+			this._props_._removeStatus();
+		}
+	}
+
+
+};
 
 
 
@@ -8005,7 +8405,7 @@ function FormComponent_addInput(opts,self){
 	layoutContainer.appendChild(label);
 	layoutContainer.appendChild(input);
 	layoutContainer.appendChild(status);
-	var default_value = (!Utils.isNull(opts.defaultValue)) ? opts.defaultValue : gl_DEFAULT_FORM_VALUE;
+	var default_value = (opts.defaultValue!=undefined && opts.defaultValue!="") ? opts.defaultValue : gl_DEFAULT_FORM_VALUE;
 	if(default_value!=""){
 		self._props_._values[formElement.paramName] = default_value;
 		
@@ -8039,7 +8439,7 @@ function FormComponent_addInput(opts,self){
 		_match_cache_count: 0
 	};
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 
 	
@@ -8052,10 +8452,24 @@ function FormComponent_addInput(opts,self){
 		gl_event_trigger_reset('input',self,tag);
 	});
 	compContainer.addListener(function(e){
+		if(formElement.selector.length <= 1){
+			
+			console.log("form addInput tag should not be blank");
+		}
 		$(formElement.selector).focusout(function(e){
 			initializeValidationAndValues();
 		});
 	});
+
+	
+	
+	var f = new FormInputEventHandler();
+	f._props_._errorMethod = _add_error_;
+	f._props_._successMethod = _add_success_;
+	f._props_._removeStatus = _remove_message_;
+	f._props_._statusId = statusId;
+	opts.repsonseEventHandler = f;
+	FormComponent_addInput_registerEvents(opts,formElement,self);
 
 	_Utils_registerListenerCallbackForSelf("run","",function(b){
 
@@ -8529,23 +8943,6 @@ function FormComponent_addInput(opts,self){
 		}
 
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 		function runSetupDefualts(){
 
 			if(!Utils.isNull(validation.characters.trim)){
@@ -8668,19 +9065,20 @@ function FormComponent_addInput(opts,self){
 		}
 		return _isvalid;
 	}
-
+	
 	function _add_error_(errorMsg){
 		if(!$("#"+statusId).hasClass("invalid-feedback")){
 			_add_error_1();
 		}else if($("#"+statusId).hasClass("valid-feedback")){
-			$("#"+statusId).removeClass("valid-feedback")
+			
 			_add_error_1();
 		}else{
 			_add_error_1();
 		}
 		function _add_error_1(){
 			_isvalid = false;
-			$(formElement.selector).removeClass("is-valid");
+			_remove_message_();
+			
 			$(formElement.selector).addClass("is-invalid");
 			$("#"+statusId).addClass("invalid-feedback");
 			$("#"+statusId).text(errorMsg);
@@ -8690,18 +9088,26 @@ function FormComponent_addInput(opts,self){
 		if(!$("#"+statusId).hasClass("valid-feedback")){
 			_add_success_1();
 		}else if($("#"+statusId).hasClass("invalid-feedback")){
-			$("#"+statusId).removeClass("invalid-feedback")
+			
 			_add_success_1();
 		}else{
 			_add_success_1();
 		}
 		function _add_success_1(){
 			_isvalid = true;
-			$(formElement.selector).removeClass("is-invalid");
+			_remove_message_();
+			
 			$(formElement.selector).addClass("is-valid");
 			$("#"+statusId).addClass("valid-feedback");
 			$("#"+statusId).text(successMsg);	
 		}
+	}
+	function _remove_message_(){
+		$(formElement.selector).removeClass("is-valid");
+		$(formElement.selector).removeClass("is-invalid");
+		$("#"+statusId).removeClass("valid-feedback");
+		$("#"+statusId).removeClass("invalid-feedback");
+		$("#"+statusId).text("");	
 	}
 	function validation_set_defaults(validation){
 		validation = (!Utils.isNull(validation)) ? validation : {};
@@ -8826,7 +9232,7 @@ function FormComponent_addSelection(opts,self){
 
 	var compContainer = new ContainerComponent({body:topDiv});
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(){
 		self._props_._form_data[tag].status = 2;
@@ -8906,7 +9312,7 @@ function FormComponent_addTextarea(opts,self){
 
 	var compContainer = new ContainerComponent({body:topDiv});
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(){
 		self._props_._form_data[tag].status = 2;
@@ -8952,7 +9358,7 @@ function FormComponent_addStateSelection(opts,self){
 
 	var compContainer = new ContainerComponent({body:topDiv});
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(){
 		self._props_._form_data[tag].status = 2;
@@ -9081,9 +9487,15 @@ function FormComponent_addRadioButtonGroup(opts,self){
 	
 	var topLabelStr = (!Utils.isNull(opts.label)) ? opts.label : "";
 
+	var inline_class = "";
+	if(opts.inline!=undefined && opts.inline==true){
+		inline_class = "form-check-inline";
+	}
+
+	var class_name = (opts.className==undefined) ? "" : opts.className;
 	var topDiv = createElement({
 		el: 'div',
-		className: 'form-group'
+		className: 'form-group '+ class_name 
 	});
 	var topLabel = createElement({
 		el: 'label',
@@ -9092,6 +9504,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 		innerHTML: topLabelStr
 	});
 	topDiv.appendChild(topLabel);
+	topDiv.appendChild(Utils.convertStringToHTMLNode("<br>"));
 	if(!Utils.isNull(opts.buttons)){
 		var buttons = opts.buttons;
 		var btnElements = [];
@@ -9099,7 +9512,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 			var button = buttons[i];
 			var defaults = new FormComponentDefaults(button,self);
 			var div = createElement({
-				className: 'form-check'
+				className: 'form-check '+inline_class
 			});
 			var label = createElement({
 				el: 'label',
@@ -9133,7 +9546,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 		var compContainer = new ContainerComponent({body:topDiv});
 
 		var form_handler = self._props_._form_handler;
-		var event_trigger_submit = self._props_._triggers.submit;
+		var event_trigger_submit = self._props_._triggers.submit; 
 		var event_trigger_reset = self._props_._triggers.reset;
 		compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 			self._props_._form_data[tag].status = 2;
@@ -9154,37 +9567,21 @@ function FormComponent_addRadioButtonGroup(opts,self){
 			}
 		}
 
+
+		
+		var _current_section_id = self._props_._form_sections._current_section_id;
 		self._props_._form_data[tag] = {
 			paramName: formElement.paramName,
 			component: compContainer,
 			type: 'radio',
 			formElement: formElement,
+			layout: opts.layout,
 			status: 0,
 			statusId: statusId,
+			section: _current_section_id,
 			isValid: true
 		};
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 function FormComponent_addCheckBoxGroup(opts,self){
@@ -9237,7 +9634,7 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	var compContainer = new ContainerComponent({body:topDiv});
 
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 		self._props_._form_data[tag].status = 2;
@@ -9267,51 +9664,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		}
 	}
 
-
-	
-
-	
-	
-	
-	
-	
-	
-
-	
-
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	
-	
 	self._props_._form_data[tag] = {
 		paramName: formElement.paramName,
 		component: compContainer,
@@ -9321,23 +9673,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		statusId: statusId,
 		isValid: true
 	};
-	
-	
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
 
@@ -9467,7 +9802,7 @@ function FormComponent_datePicker(obj,self){
 	var compContainer = new ContainerComponent({body:topDiv});
 
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit;
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 		self._props_._form_data[tag].status = 2;
@@ -9591,14 +9926,9 @@ function FormComponent_datePicker(obj,self){
 		  }
 
 		  
-		  
-		  
 		  if(previousDay) {
 		    daySelect.value = previousDay;
 
-		    
-		    
-		    
 		    
 		    if(daySelect.value === "") {
 		      daySelect.value = previousDay - 1;
@@ -9658,24 +9988,24 @@ function FormComponent_datePicker(obj,self){
 function FormComponent_addFileUpload(opts,self){
 
 	if(Utils.isNull(opts.url)){
-		console.error("Please provide a URL");
-		return;
+		
+		
 	}
 
 	var url = opts.url;
 
-	var showPercent = false;
-	if(Utils.isNull(opts.percent)){
-		opts.percent = {};
-	}else{
-		showPercent = true;
+	if(opts.percent!=undefined && opts.percent==true){
+		showPercent = opts.percent;
+		opts.percent = _handle_percent_defaults({});
+	}else if(opts.percent!=undefined && typeof opts.percent === 'object'){
+		opts.percent = _handle_percent_defaults(opts.percent);
 	}
-	opts.percent = _handle_percent_defaults(opts.percent);
+	
 	function _handle_percent_defaults(p){
 		if(Utils.isNull(p.id)){
-			id: Utils.randomGenerator(12,false);
+			p.id = "m"+Utils.randomGenerator(12,false);
 		}
-		if(Utils.isNull(p.classes)){
+		if(Utils.isNull(p.className)){
 			p.classes = "";
 		}
 		if(Utils.isNull(p.style)){
@@ -9690,13 +10020,25 @@ function FormComponent_addFileUpload(opts,self){
 		return p;
 	}
 
+	if(opts.complete!=undefined){
+		self._loadcallback = opts.complete;
+	}
 	
 
+	var name = "m"+Utils.randomGenerator(7,false);
 
 	var containerDefaults = new ComponentDefaults(opts,self);
 	var formDefaults = new ComponentDefaults(opts.form,self);
-	var inputDefaults = new ComponentDefaults(opts.input,self);
-	var submitDefaults = new ComponentDefaults(opts.submit,self);
+	var inputDefaults = {
+		name: (opts.name==undefined) ? name : opts.name,
+		style: (opts.inputStyle==undefined) ? "" : opts.inputStyle
+	};
+	var submitDefaults = {
+		label: (opts.label==undefined) ? "" : opts.label,
+		style: (opts.style==undefined) ? "" : opts.style,
+		className: (opts.className==undefined) ? "" : opts.className,
+		id: (opts.id==undefined) ? "m"+Utils.randomGenerator(7,false) : opts.id
+	};
 
 	var createElement = Utils.createElement;
 	var topDiv = createElement({
@@ -9728,20 +10070,29 @@ function FormComponent_addFileUpload(opts,self){
 	var submitElement = createElement({
 		type: "submit",
 		value: submitDefaults.label,
-		name: submitDefaults.name,
+		
+		name: inputDefaults.name,
 		id: submitDefaults.id,
 		className: submitDefaults.className,
-		style: submitDefaults.style
+		style: submitDefaults.style +" margin-top:4%;"
 	});
 	var percentElement = createElement({
 		el: opts.percent.el,
 		id: opts.percent.id,
 		className: opts.percent.classes,
-		style: opts.percent.style
+		style: opts.percent.style +" margin-top:3%;"
+	});
+	var messageElementId = "m"+Utils.randomGenerator(14,false);
+	var messageElement = createElement({
+		el: "div",
+		id: messageElementId,
+		className: "",
+		style: "color: red; margin-top:3%;"
 	});
 
 	formElement.appendChild(labelElement);
 	formElement.appendChild(inputElement);
+	formElement.appendChild(messageElement);
 	formElement.appendChild(submitElement);
 	topDiv.appendChild(formElement);
 	if(showPercent){
@@ -9767,7 +10118,15 @@ function FormComponent_addFileUpload(opts,self){
 				}
 				if(!Utils.isNull(opts.limit)){
 					var isOver = _handle_file_size_limit(fileInput);
-					if(isOver) return;
+					if(isOver){
+						if(opts.limit!=undefined && opts.limit.errorMsg!=undefined){
+							document.getElementById(messageElementId).innerHTML = opts.limit.errorMsg;
+						}else{
+							document.getElementById(messageElementId).innerHTML = "File size too large";
+						}
+						return;
+					} 
+					document.getElementById(messageElementId).innerHTML = "";
  				}else{
 					document.getElementById(labelId).innerHTML = fileInput.files[0].name;
 				}
@@ -9790,7 +10149,7 @@ function FormComponent_addFileUpload(opts,self){
 			e.preventDefault();
 
 
-			if(typeof url === "boolean"){
+			if(typeof url === "boolean" && url==true){
 				if(!Utils.isNull(opts.submit) && !Utils.isNull(opts.submit.func)){
 					var fileInput = document.getElementById(inputId);
 					opts.submit.func(fileInput);
@@ -9855,21 +10214,21 @@ function FormComponent_addFileUpload(opts,self){
 				
 				if(e.lengthComputable){
 					var percent = e.loaded / e.total;
-					console.log(percent);
 			
-					if(!showPercent) return;
-					if(opts.percent.handle==false){
+					
+					
 						var progress = document.getElementById(opts.percent.id);
+						console.log(progress);
 						
 						while(progress.hasChildNodes()){
 							progress.removeChild(progress.firstChild);
 						}
 						progress.appendChild(document.createTextNode(Math.round(percent * 100) + " %" ));
-					}else{
-						if(!Utils.isNull(opts.percent.func)){
-							opts.percent.func(percent,e);
-						}
-					}
+					
+					
+					
+					
+					
 				}
 			});
 
@@ -10097,24 +10456,6 @@ function charactersValidation(val,validation){
 		return _is_num;			
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	function runSetupDefualts(){
 
 		if(!Utils.isNull(validation.characters.trim)){
@@ -10195,19 +10536,12 @@ function charactersValidation(val,validation){
 			}
 		}
 	}
-
-
-
-
-
 	return _isvalid;
 }
 
-
-
-
 /* 0000 - FormEventsHandler */
-function FormEventsHandler_constructor(obj,formElement,self){
+
+function FormComponent_addInput_registerEvents(obj,formElement,self){
 	var preventDefault = false;
 	var stopPropagation = false;
 	if(!Utils.isNull(obj.focusin)){
@@ -10217,28 +10551,30 @@ function FormEventsHandler_constructor(obj,formElement,self){
 			obj.focusin,
 			self,
 			preventDefault,
-			stopPropagation
+			stopPropagation,
+			obj
 		);
 	}
 	if(!Utils.isNull(obj.focusout)){
 		_Utils_registerListenerCallbackForSelf(
 			"focusout",
 			formElement.selector,
-			obj.focusin,
+			obj.focusout,
 			self,
 			preventDefault,
-			stopPropagation
+			stopPropagation,
+			obj
 		);
-		
 	}
 	if(!Utils.isNull(obj.keyup)){
 		_Utils_registerListenerCallbackForSelf(
 			"keyup",
 			formElement.selector,
-			obj.focusin,
+			obj.keyup,
 			self,
 			preventDefault,
-			stopPropagation
+			stopPropagation,
+			obj
 		);
 		
 	}
@@ -10246,7 +10582,7 @@ function FormEventsHandler_constructor(obj,formElement,self){
 		_Utils_registerListenerCallbackForSelf(
 			"keydown",
 			formElement.selector,
-			obj.focusin,
+			obj.keydown,
 			self,
 			preventDefault,
 			stopPropagation
@@ -10257,7 +10593,7 @@ function FormEventsHandler_constructor(obj,formElement,self){
 		_Utils_registerListenerCallbackForSelf(
 			"mouseover",
 			formElement.selector,
-			obj.focusin,
+			obj.mouseover,
 			self,
 			preventDefault,
 			stopPropagation
@@ -10265,11 +10601,6 @@ function FormEventsHandler_constructor(obj,formElement,self){
 		
 	}
 }
-
-
-
-
-
 
 
 /* 0000 - ListComponent */
@@ -10850,17 +11181,6 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 					}
 				}
 
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
 
 				for(var v=0;v<s.length;v++){
 					if(s[v]==special_character){
@@ -11122,8 +11442,6 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 
 	}
 
-	
-	
 	var currentRow = self._props_._current_row_id;
 	var len = self._props_._layout_container[currentRow].columns.length;
 	self._props_._layout_container[currentRow].columns[len] = [
@@ -11215,11 +11533,6 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 
 	var divRow = null;
 
-	
-	
-	
-	
-
 	for(var i=0;i<arrayOfItems.length;i++){
 		if(typeof arrayOfItems[i]=="string"){
 			if(arrayOfItems[i].includes("row")){
@@ -11274,16 +11587,6 @@ function _getComponentFromRout(obj123,self){
 	}else if(arrayOfItems[i].charAt(0) == "@"){
 		
 		mycomp = buildBody(arrayOfItems[i]);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 	}
 	return mycomp;
@@ -11793,25 +12096,6 @@ function _layoutMake(obj,arrayOfItems){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function buildBody(object,self){
 	var body = null;
 
@@ -11865,7 +12149,14 @@ function buildBody(object,self){
 		
 	}else
 	if(typeof body === "string"){
-		return _build_from_string(body,self,null,object);
+		
+		if(body.charAt(0)=="@" || body.charAt(0)=="#"){
+			return _build_from_string(body,self,null,object);
+		}else{
+			
+			var newbody = Utils.convertStringToHTMLNode(body);
+			return newbody.cloneNode(true);
+		}
 	}else 
 	if(typeof body === "object"){
 		return _build_from_object(body,self,null,object);
@@ -11993,6 +12284,10 @@ function _build_view(body,params,self,obj){
 		applicationManager.setAny(anyid,v);
 	}
 
+	if(body=='@membershipView:signup:view'){
+		
+	}
+
 	
 	return v;
 }
@@ -12057,26 +12352,6 @@ function getView(body,obj,self){
 	return v;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
@@ -12095,7 +12370,7 @@ function isEventRegistered(selector,self){
 
 
 
-function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation){
+function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation,obj){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
 	stopPropagation = (Utils.isNull(stopPropagation)) ? false : stopPropagation;
 	var alreadyRegistered = isEventRegistered(selector,self);
@@ -12104,8 +12379,10 @@ function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventD
 		type: type,
 		func: func,
 		preventDefault: preventDefault,
-		stopPropagation: stopPropagation
+		stopPropagation: stopPropagation,
+		obj: obj
 	});
+	
 }
 
 
@@ -12158,61 +12435,6 @@ function _Utils_registerListenerCallback(obj,self){
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function setBaseURL(self,url){
@@ -12312,6 +12534,7 @@ function gl_setFromValue(type,selector,value){
 	}
 	
 }
+
 function gl_handle_event_trigger_onSubmit(type,self,_current_section_id,tag){
 	self._props_._form_data[tag].status = 2;
 	if(type=='input'){
@@ -12336,7 +12559,175 @@ function gl_event_trigger_reset(type,self,tag){
 }
 
 
+var App = function(context) {
+    
+    return new App.init(context);
+};
 
+
+App.init = function( selector , all) {
+    this.selector = selector;
+
+	if ( !selector ) {
+		return this;
+	}
+	if(isNode(selector) || isElement(selector)){
+		this._element = selector;
+	}else if(selector=="body"){
+		this._element = document.body;
+	}else{
+		this._element =  document.querySelector(selector);
+	}
+	return this;
+};
+App.post = function(url,data,callback) {
+	if(typeof data === "function"){
+		callback = data;
+		data = null;
+	}
+	request(url,data,callback,"POST");
+};
+App.get = function(url,data,callback){
+	if(typeof data === "function"){
+		callback = data;
+		data = null;
+	}
+	request(url,data,callback,"GET");
+};
+
+function request(url,data,callback,type){
+    var xhttp = new XMLHttpRequest();
+
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			if(callback!=undefined && callback!=null && typeof callback === "function"){
+				callback(this.responseText, this.status, this);
+			}
+		}
+		
+	}; 
+	var urlParams = "";
+	if(data!=undefined && data!=null){
+		urlParams = new URLSearchParams(data).toString();
+	}
+
+	if(type=="POST"){
+		xhttp.open(type, url, true);
+		
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+		xhttp.send(urlParams);
+	}else{
+		if(urlParams=="") urlParams = "?"+urlParams;
+		
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+		xhttp.open(type, url+urlParams, true);
+		xhttp.send();
+	}
+}
+
+App.init.prototype.print = function(contents) {
+     console.log(contents);
+};
+App.init.prototype.append = function(element){
+	if(typeof element === 'string' && element.trim()!="body"){
+		element = Utils.convertStringToHTMLNode(element);
+	}
+	this._element.appendChild(element);
+	return this;
+};
+App.init.prototype.attr = function(param,value){
+	 this._element.setAttribute(param, value);
+	 return this;
+};
+App.init.prototype.click = function(callback) {
+	this._method = function(e){ callback(e); }
+	this._type = "click";
+	
+	
+	if(this._element)
+		this._element.addEventListener(this._type, this._method);
+    return this;
+};
+App.init.prototype.on = function(event, callback) {
+	this._method = function(e){ callback(e); }
+	this._type = event;
+	this._element.addEventListener(this._type, this._method);
+    return this;
+};
+App.init.prototype.removeListener = function() {
+	if(this._method!=undefined && this._type!=undefined)
+		this._element.removeEventListener(this._type, this._method);
+    return this;
+};
+App.init.prototype.css = function(propName,val) {
+	if(val==undefined && typeof propName === 'object'){
+		var style = "";
+		for(prop in propName){
+			style = style + prop +":"+ propName[prop] + ";";
+		}
+		this._element.setAttribute("style",style);
+	}else{
+		this._element.setAttribute(propNamm,val);
+	}
+    return this;
+};
+
+App.init.prototype.addClass = function(val){
+	this._element.classList.add(val);
+	return this;
+};
+App.init.prototype.removeClass = function(val){
+	this._element.classList.remove(val);
+	return this;
+};
+App.init.prototype.hasClass = function(val){
+	return this._element.classList.contains(val);
+};
+App.init.prototype.html = function(html){
+	if(html==undefined){
+		return this._element;
+	}else{
+		this._element.innerHTML = html;
+	}
+	return this;
+};
+App.init.prototype.htmlAsStringCopy = function(selector){
+	var str = Utils.convertFragmentToHTMLText( this._element.cloneNode(true) );
+	return str;
+};
+App.init.prototype.empty = function(){
+	
+	while (this._element.firstChild) {
+		this._element.removeChild(this._element.lastChild);
+	} 
+	return this;
+};
+
+App.init.prototype.flash = function() {
+    document.body.style.backgroundColor = '#ffc';
+    setInterval(function() {
+        document.body.style.backgroundColor = '';
+    }, 5000);
+    return this;
+};
+
+function isNode(o){
+  return (
+    typeof Node === "object" ? o instanceof Node : 
+    o && typeof o === "object" && typeof o.nodeType === "number" && typeof o.nodeName==="string"
+  );
+}
+
+
+function isElement(o){
+  return (
+    typeof HTMLElement === "object" ? o instanceof HTMLElement : 
+    o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
+);
+}
+function _addAppElementToList(self){
+
+}
 
 
 
@@ -12396,7 +12787,7 @@ function ApplicationContextManager(config,plugins,baseUrl){
 
 	this.Pages = this._props_._Pages;
 	this.Manager = this._props_._ApplicationManager;
-	this.Factory = this._props_._ComponentFactory;
+	this.factory = this._props_._ComponentFactory;
 	this.View = this._props_._ViewManager;
 	this.StateManager = this._props_._StateManager;
 	this.Layout = this._props_._LayoutManager;
@@ -12501,26 +12892,6 @@ ApplicationContextManager.prototype = {
 		return url;
 	},
 
-
-	LoadClientTheme(){
-
-	},
-
-	SetSockitIO: function(socketio){
-		this.socketio = socketio;
-		if(this.socketio){
-			var socket = this.socketio('localhost:9005', {
-			    reconnection: false
-			});
-		    socket.on('reload-page',function(){
-		    	document.location.reload(true);
-		    });
-		    socket.on('diconnect',function(){
-		    	console.log("diconnected");
-		    });
-		}
-	},
-
 	setApplicationPlugins: function(plugins){
 		this._props_._application_plugins = plugins;
 	},
@@ -12619,13 +12990,22 @@ ApplicationContextManager.prototype = {
 
 
 var _main_includes = {};
+var _main_includes_html = {};
 
 /** 
 * @exports Include
+* 
+* @param prop {string} - the ContainerComponent to return, this is an empty container component
+* being returned and then when the container is added to the DOM the html will be
+* added by calling addComponent.
+* @param get_html {boolean} - get just the html
 * @classdesc A component that handles.
 */
-function AFInclude(prop){
-	return _main_includes[prop];
+function AFInclude(prop,get_html){
+	if(get_html)
+		return _main_includes_html[prop];
+	else
+		return _main_includes[prop];
 }
 
 window.Include = AFInclude;
@@ -12642,7 +13022,7 @@ function initializeApplication(isClient,activePlugin,self){
 	var baseUrl = self._props_._baseUrl;
 
 	if(self._props_._application_config['application']['prod']==false){
-		console.log(config_appfac);
+		
 	}
 
 	if(isClient==false){
@@ -12650,8 +13030,6 @@ function initializeApplication(isClient,activePlugin,self){
 		_start_admin_app();
 		return;
 	}
-
-
 
 	var app = self;
 
@@ -12663,30 +13041,39 @@ function initializeApplication(isClient,activePlugin,self){
 
 	if(config_appfac['includes']){
 		for(prop in config_appfac['includes']){
-			_main_includes[prop] = self.Factory.container();
+			_main_includes[prop] = self.factory.container();
 		}
 	}
 
-	_start_app();
+
+	var _count = 0;
+	var _size = 0;
 
 	setTimeout(function(){
 		if(config_appfac['includes']){
+			for(prop in config_appfac['includes']) _size++;
+
 			for(prop in config_appfac['includes']){
 				var filepath = config_appfac['includes'][prop];
 				_xyzABC(filepath,prop);
 			}
 		}	
-	},500);
+	},50);
 
 	function _xyzABC(filepath,prop){
 		_callRequest(filepath,function(result){
-			
-			
-			_xyz123(prop,result)
+			_main_includes[prop].addComponent(result);
+			_main_includes_html[prop] = result;
+			_count++;
+			if(_size == _count){
+
+				
+				
+				
+				
+				_start_app();
+			}
 		});
-	}
-	function _xyz123(prop,result){
-		_main_includes[prop].addComponent(result);
 	}
 
 
@@ -12794,7 +13181,6 @@ function initializeApplication(isClient,activePlugin,self){
 }
 
 function _callRequest(filePath,callback){
-
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
@@ -12803,8 +13189,6 @@ function _callRequest(filePath,callback){
 	};
 	xhttp.open("GET", filePath, true);
 	xhttp.send();
-
-
 }
 
 
@@ -12818,52 +13202,6 @@ function a1(configFile){
 } 
 
 
-
-function LoadDependencies(baseUrl,classes,views,dependencies){ 
-	
-	
-	
-	
-
-	if(baseUrl.includes("/client")){
-		for(var i=0; i < classes.length; i++){
-			if(IsAdmin){
-				classes[i] = "../../classes/" + classes[i];
-			}else{
-				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
-			}
-		}
-		for (var i=0; i < views.length; i++) {
-			var theme = views[i].split("/")[0];
-			var view = views[i].split("/")[1] + "/" +views[i].split("/")[2];
-			if(IsAdmin){
-				views[i] = "../../themes/"+theme+"/components/"+view;
-			}else{
-				views[i] = "js/plugins/"+baseUrl+"/themes/"+theme+"/components/"+view;
-			}
-		}
-	}else if(baseUrl.includes("/admin")){
-		for(var i=0; i < classes.length; i++){
-			if(IsAdmin){
-				classes[i] = "../../classes/" + classes[i];
-			}else{
-				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
-			}
-		}
-		for (var i=0; i < views.length; i++) {
-			var theme = views[i].split("/")[0];
-			var view = views[i].split("/")[1];
-			views[i] = "../../themes/"+theme+"/components/"+view;
-		}
-	}
-
-	var deps = classes.concat(views).concat(dependencies);
-	return deps;
-}
-
-function LoadActivePlugin(){
-
-}
 
 function GetLoadedConfiguration(app){
 	var config = gl_app_configuration;
@@ -12889,48 +13227,27 @@ function LoadConfiguration(config){
 	gl_app_configuration = config;
 }
 
-function GetClientPath(app,path,plugin,theme){
-	var activeTheme = app._props_._application_config['application']['client-active-theme'];
-	var _plugin = "";
-	var _theme = "";
-	if(plugin==undefined){
-		var _pluginAndTheme = [];
-		if(activeTheme.includes("|")){
-			_pluginAndTheme = activeTheme.split("|");
-		}else if(activeTheme.includes(" ")){
-			_pluginAndTheme = activeTheme.split(" ");
-		}
-		_plugin = _pluginAndTheme[0];
-		_theme = _pluginAndTheme[1];
-	}else{
-		_plugin = plugin;
-		_theme = theme;
-	}
-	return "js/plugins/"+_plugin+"/client/themes/"+_theme+"/"+path;
-}
 
-
-window.AFIsApp = function(obj){
+var GetApp = function(obj){
 	if(obj.app!=undefined && obj.app!=null){
 		return obj.app;
 	}else{
 		return obj;
 	}
-}
+};
 
-window.AFLoadDependencies = LoadDependencies;
 
-window.AFLoadActivePlugin = LoadActivePlugin;
+window.AFIsApp = function(obj){
+	return GetApp(obj);
+};
+
+window.GetApp = GetApp;
 
 window.AFGetLoadedConfiguration = GetLoadedConfiguration;
 
 window.AFLoadConfiguration = LoadConfiguration;
 
-window.AFGetClientPath = GetClientPath;
-
-
-
-
+window.App = App;
 
 window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
 
@@ -12944,8 +13261,5 @@ return ApplicationContextManager;
 
 
 })); 
-
-
-
 
 
