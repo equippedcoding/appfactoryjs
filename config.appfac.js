@@ -33,9 +33,8 @@
                 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">"
             ],
             "head": [
-                "<link rel=\"stylesheet\" type=\"text/css\" href=\"{libs/styles/bootstrap4/bootstrap.css}\">",
-                "<link rel=\"stylesheet\" type=\"text/css\" href=\"{libs/scripts/appfactoryjs/appfactory.css}\">",
-                "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Shrikhand&display=swap\">"
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"{static/bootstrap/bootstrap.css}\">",
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"{static/appfactoryjs/appfactory.css}\">"
             ],
             "body": []
         },
@@ -48,7 +47,7 @@
             "meta": [],
             "head": [],
             "body": [
-                "<script data-main=\"plugins/main.js\" src=\"libs/scripts/requirejs/require.js\"></script>"
+                "<script data-main=\"static/main.js\" src=\"static/requirejs/require.js\"></script>"
             ]
         },
         "admin": {
@@ -60,10 +59,10 @@
             "meta": [],
             "head": [],
             "body": [
-                "<script data-main=\"js/main.js\" src=\"../../libs/scripts/requirejs/require.js\"></script>"
+                "<script data-main=\"js/main.js\" src=\"../../static/requirejs/require.js\"></script>"
             ]
         }
-    },
+    }, 
     "includes":{},
     "requirejs-config": {
         "waitSeconds": 35,
@@ -73,18 +72,12 @@
         "out": "build/bundle.js",
         "optimize": "none",
         "paths": {
-            "appfactory": "libs/scripts/appfactoryjs/appfactory",
-            "underscore": "libs/scripts/underscore/underscore",
-            "backbone": "libs/scripts/backbone/backbone",
-            "bootstrap": "libs/scripts/bootstrap/bootstrap.bundle",
-            "jquery": "libs/scripts/jquery/jquery",
-            "debug-addIndicators": "libs/scripts/scrollmagic/uncompressed/plugins/debug.addIndicators",
-            "scrollmagic": "libs/scripts/scrollmagic/uncompressed/ScrollMagic",
-            "animation-gsap": "libs/scripts/scrollmagic/uncompressed/plugins/animation.gsap",
-            "tweenmax": "libs/scripts/scrollmagic/greensock/TweenMax.min",
-            "TweenLite": "libs/scripts/scrollmagic/greensock/TweenLite.min",
-            "timelinemax": "libs/scrollmagic/greensock/TimelineMax.min",
-            "TimelineLite": "libs/scrollmagic/greensock/TimelineLite.min"
+            "appfactory": "static/appfactoryjs/appfactory",
+            "underscore": "static/underscore/underscore",
+            "backbone": "static/backbone/backbone",
+            "popper": "static/bootstrap/popper", 
+            "bootstrap": "static/bootstrap/bootstrap",
+            "jquery": "static/jquery/jquery"
         }
     }
 }

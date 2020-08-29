@@ -24,123 +24,19 @@
 * @license MIT. 
 * @version 0.0.1   
 */
-(function (root, factory) {             
-	/*global define*/
-	// if (typeof define === 'function' && define.amd) {
-	// 	define([], factory); // AMD
-	// } else if (typeof module === 'object' && module.exports) { 
-	// 	module.exports = factory(); // Node
-	// } else {
-	// 	root.appfactory = factory(); // Browser
-	// }
-
+(function (root, factory) {  
 
 	if (typeof define === 'function' && define.amd) {
-		// AMD
+		
 		define(['jquery','backbone','bootstrap'], factory);
 	} else if (typeof module !== 'undefined' && module.exports) {
-		// CommonJS
+		
 		module.exports = factory(require('jquery'));
 	} else {
-		// Global
+		
 		factory(jQuery);
 	}	
 }(this, function ($) {    
-
-
-// cd C:\ws\template\js\libs\appfactoryjs
-// jsdoc -c jsdoc.json -u tutorial appfactory.js
-// http://appfactoryjs.equippedcoding.net/js/libs/appfactoryjs/out/
-// or
-// http://localhost/template/js/libs/appfactoryjs/out/
-
-// macos
-// cd /Applications/XAMPP/xamppfiles/htdocs/template/js/libs/appfactoryjs/
-// npx jsdoc -c jsdoc.json -u tutorial appfactory.js
-
-// 9999 - components
-// 0000 - implemention
-// 4444 - TODO
-// 2222 - Utils
-// 9898 - ContainerComponent
-// 7676 - Pole
-// 5051 - buildBody
-// 4141 - mcxDialog
-// 2121 - FormComponent
-// 71717 - register event
-// 757575 - objects passed through register method
-// 797979 - ImageComponent
-
-// frfrfr - random
-
-
-
-// 4444 - 32 outstanding issues 
-// ---------------------------------------------------------------------
-// handle layout for small devices, example add col-3, 
-// instead of col-xm-3 which does not work
-// ---------------------------------------------------------------------
-// handle browser back and forward button, they dont activate router methods
-// ---------------------------------------------------------------------
-// FormComponent.clearForm() doesnt clear Selection form element
-// for that matter it probably ony clears an input element
-// ---------------------------------------------------------------------
-// FormComponent.addInput defaultValue does not work for type number
-// ---------------------------------------------------------------------
-// ---------------------------------------------------------------------
-// ---------------------------------------------------------------------
-
-
-
-
-
-
-// First default the incoming object
-//obj = (Utils.isNull(obj)) ? {} : obj;
-
-// extend any necassary classes
-//_.extend(this,
-//	new AppFactoryManager('FormComponent'), 
-//	new ComponentManager(Flags.Type.component,this), 
-//	new EventManager(this)
-//);
-
-// register this component
-//applicationManager.register(this);
-
-// give component unique id
-//this._props_._id = "d-"+Utils.randomGenerator(12,false);
-
-// add this.getId() to component element id
-//var topComponentElement = Utils.createElement({ id:this.getId() });
-
-// add this at end of constructor
-//applicationManager.setComponent(this);
-
-
-
-// other resources
-// https://www.hackdoor.io/articles/0XN6jANd/create-a-modern-vanilla-javascript-router
-// https://github.com/thecreazy/create-a-modern-javascript-router
-// this code resource
-// https://willtaylor.blog/client-side-routing-in-vanilla-js/
-// https://github.com/will093/client-side-routing-vanilla-js
-//class Router {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Global Variables */ 
 
@@ -148,8 +44,6 @@ var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
 
 
-
-// Application constants
 
 var Flags = Object.freeze({
 	Type: {view:"v",component:"c",layout:"l"},
@@ -179,7 +73,7 @@ function AppFactoryManager(type){
 AppFactoryManager.prototype = {};
 
 
-// 9999
+
 /** @exports ApplicationManager
 * @classdesc The ApplicationManager runs the application life cycle.
 * @class
@@ -190,7 +84,7 @@ function ApplicationManager(applicationContextManager,stateManager,sessionManage
 	_.extend(this, new AppFactoryManager('ApplicationManager'));
 	var rootElement = document.createElement('div');
 	rootElement.id = "root-element";
-	//rootElement.className = "container";
+	
 	this._stateManager = stateManager;
 	this._sessionManager = sessionManager;
 	this._application_manager = {
@@ -218,14 +112,14 @@ ApplicationManager.prototype = {
 	* running any application code.
 	*/
 	init: function(pages){
-		// 33333
+		
 		var self = this;
 		App("body").append(self.getRootElement());
 		setTimeout(function(){
 			ApplicationManager_start_runInterval(self);
 			if(Array.isArray(pages)){
-				// 4444
-				// loop through pages of arrays
+				
+				
 			}else{
 				pages.func(pages.obj,pages.self);
 			}
@@ -236,9 +130,9 @@ ApplicationManager.prototype = {
 			var hash = gl_applicationContextManager.getHash();
 
 			if(hash!=undefined && hash!=null){
-				//stateManager.go(hash,true);
+				
 			}else{
-				//stateManager.go("",true);
+				
 			}
 		},100);
 	},  
@@ -261,7 +155,7 @@ ApplicationManager.prototype = {
 				console.error("Element not registered, Must be a component");
 			}
 		}
-		// hhhhh
+		
 		if(anyId!=undefined){
 			if(typeof anyId === 'boolean'){
 				if(anyId==true) this._application_manager._any_id[id] = id; 
@@ -302,7 +196,7 @@ ApplicationManager.prototype = {
 	getAll: function(){
 		return this._application_manager._any;
 	},
-	// 757575
+	
 	/**
 	* Store an object to be retrieved later anywhere with in the app
 	*
@@ -367,13 +261,13 @@ ApplicationManager.prototype = {
 			this.setAny(anyid,component);
 		}
 		return component;
-	},// hhhhh
+	},
 
 	getComponents: function(){
 		return this._application_manager._components;
 	},
 
-	// 5555
+	
 	getMethod: function(id,params){
 		var method = this._application_manager._methods[id];
 		if(Utils.isNull(method)){
@@ -409,7 +303,7 @@ ApplicationManager.prototype = {
 		return component;
 	},
 
-	setComponent: function(tag){ // frfrfr
+	setComponent: function(tag){ 
 		this._application_manager._componentElements[tag];
 	},
 
@@ -438,11 +332,11 @@ ApplicationManager.prototype = {
 
 
 
-// 9999
- // @exports SessionManager
- // @classdesc The SessionManager handles user session.
- // @class
- // @constructor
+
+ 
+ 
+ 
+ 
 
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
@@ -452,15 +346,15 @@ SessionManager.prototype = {};
 
 
 
-// 9999
- // @exports StateManager
- // @classdesc The SessionManager handles the state of the application.
- // @class
- // @constructor
+
+ 
+ 
+ 
+ 
 
 function StateManager(){
 	_.extend(this, new AppFactoryManager('StateManager'));
-	//this._props_ = {
+	
 	this._state_manager = {
 		_routes: {},
 		_basePath: {},
@@ -486,23 +380,23 @@ StateManager.prototype = {
 
 	mapRoute: function(route,layout){
 
-		// layout mapper component,mapper component... 
-		// @layout #mapper @component,#mapper @component...
-		//stateManager.mapRoute(layout);
+		
+		
+		
 
 		if(route=="") route = "_NOT_SET_";
 		this._state_manager._map_layout[route] = layout;
 
 	},
-	// layout mapper component,mapper component, mapper component
-	// only being used in 1 location
+	
+	
 	getMapRoute: function(route,mapper){
 		if(route=="") route = "_NOT_SET_";
 		var layout = this._state_manager._map_layout[route];
 
 		if(Utils.isNull(layout)) return null;
 		layout = layout.split(' ');
-		// remove layout param
+		
 		layout.shift();
 		layout = layout.join(" ");
 		layout = layout.split(",");
@@ -539,32 +433,32 @@ StateManager.prototype = {
 	* 
 	*/
 	go: function(path,trigger){
-		// 4444 - add dynamic body
+		
 		if(Utils.isNull(trigger)) trigger = true;
-		// h1h1h1h1
+		
 		var self = this;
 
 		path = (path.charAt(0)=="#") ? path.substring(1) : path;
 		
 		var paths = path.split("/");
-		// console.log(paths);
-		// console.log(path);
+		
+		
 		if(paths.length > 1){
 			for (var i = 0; i < paths.length; i++) {
 				if(!paths[i].includes(":")){
-					//console.log(paths[i]);
+					
 
 					if(i<(paths.length-1)){
-						//console.log(paths[i])
-						//self.getRouter().navigate(paths[i], {trigger: true});
+						
+						
 					}
 				}
 			}
 		}
-		// console.log(path);
-		//setTimeout(() => {
+		
+		
 		this.getRouter().navigate(path, {trigger: trigger});
-		//},500);
+		
 		
 	},
 
@@ -579,7 +473,7 @@ StateManager.prototype = {
 	* 
 	*/
 	buildRoutes: function(){
-		return StateManager_buidRoutes(this); // 33333
+		return StateManager_buidRoutes(this); 
 	},
 
 	getRouterConfig: function(){
@@ -616,19 +510,19 @@ Router45.prototype = {
 
 	},
 
-	// m1m1m1m1
+	
 	_loadRoute: function(...urlSegments){
-		// Get the template for the given route.
+		
 		const matchedRoute = this._matchUrlToRoute(urlSegments);
 
-		// Push a history entry with the new url. We pass an empty object and an 
-		// empty string as the historyState and title arguments, but their values 
-		// do not really matter here.
+		
+		
+		
 		const url = `/${urlSegments.join('/')}`;
 		history.pushState({}, '', url);
 
-		// Append the given template to the DOM inside the router outlet.
-		const routerOutletElement = document.body;//.querySelectorAll('[data-router-outlet]')[0];
+		
+		const routerOutletElement = document.body;
 		routerOutletElement.innerHTML = matchedRoute.getTemplate(matchedRoute.params);
 	},
 
@@ -642,27 +536,27 @@ Router45.prototype = {
 	},
 
 	_matchUrlToRoute: function(urlSegments){
-		// Try and match the URL to a route.
+		
 		const routeParams = {};
 		const matchedRoute = this.routes.find(route => {
 
-			// We assume that the route path always starts with a slash, and so 
-			// the first item in the segments array  will always be an empty
-			// string. Slice the array at index 1 to ignore this empty string.
+			
+			
+			
 			const routePathSegments = route.path.split('/').slice(1);
 
-			// If there are different numbers of segments, then the route does not match the URL.
+			
 			if (routePathSegments.length !== urlSegments.length) {
 				return false;
 			}
 
-			// If each segment in the url matches the corresponding segment in the route path, 
-			// or the route path segment starts with a ':' then the route is matched.
+			
+			
 			const match = routePathSegments.every((routePathSegment, i) => {
 				return routePathSegment === urlSegments[i] || routePathSegment[0] === ':';
 			});
 
-			// If the route matches the URL, pull out any params from the URL.
+			
 			if (match) {
 				routePathSegments.forEach((segment, i) => {
 					if (segment[0] === ':') {
@@ -678,10 +572,10 @@ Router45.prototype = {
 	},
 
 	_loadInitialRoute: function(){
-		// Figure out the path segments for the route which should load initially.
+		
 		const pathnameSplit = window.location.pathname.split('/');
 		const pathSegments = pathnameSplit.length > 1 ? pathnameSplit.slice(1) : '';
-		// Load the initial route.
+		
 		this.loadRoute(...pathSegments );
 	}
 
@@ -689,15 +583,15 @@ Router45.prototype = {
 
 
 
-// 9999
- // @exports ApplicationExtensions
- // @classdesc A segment is a plugin thats can be tied to another plugin
- // but cannot be active by its self. In the plugin.config.json specify
- // the option segment:true. This allows for this plugin to be loaded before
- // non-segmented plugins. The segmented plugin is retreived by calling 
- // segments.get("plugin_name|plugin_theme")
- // @class
- // @constructor
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 function ApplicationExtensions(){
 	this._props_ = {};
@@ -738,12 +632,12 @@ ApplicationExtensions.prototype = {
 
 
 
-// 9999
- // @exports PluginManager
- // @classdesc The PluginManager creates plugins for the AppfactoryJS application.
- // @class
- // @constructor
-// 4444 - this is no longer needed delete
+
+ 
+ 
+ 
+ 
+
 function ApplicationPlugin(){
 	this.plugins = [];
 }
@@ -781,17 +675,17 @@ ApplicationPlugin.prototype = {
 		return client;
 	},
 
-	// 151515
+	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
-		//console.log(pluginId);
-		//console.log(pluginConfig);
-		//console.log(mainConfig);
+		
+		
+		
 
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
 
-		//console.log(plugin);
+		
 
 		var admin = plugin.admin(gl_applicationContextManager,config);
 		var client = plugin.client(gl_applicationContextManager,config);
@@ -824,22 +718,22 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
-		//console.log(plugin);
-		//console.log(pluginThemes);
 		
-		//if(!Utils.isNull(pluginThemes)){
-
-		//	var themes = [];
-		//	for(var i=0; i<pluginThemes.length; i++){
-		//		themes.push({
-		//			id: ,
-		//			component: pluginThemes[i](gl_applicationContextManager,config)
-		//		});
-				//console.log(pluginThemes[i](gl_applicationContextManager,config));
-		//	}
+		
+		
 		
 
-		//}
+		
+		
+		
+		
+		
+		
+				
+		
+		
+
+		
 
 
 		return {
@@ -853,12 +747,12 @@ ApplicationPlugin.prototype = {
 
 
 /* Components */
-// 9999
- // @exports ComponentManager
- // @classdesc The ComponentManager is the top component that every other component inherits from.
- // @class
- // @constructor
- // 1111
+
+ 
+ 
+ 
+ 
+ 
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
 	context.TYPE = type;
@@ -874,9 +768,9 @@ function ComponentManager(type,context){
 		_isEventsActive: false,
 		_uniqueId: "id_"+Utils.randomGenerator(12,false),
 
-		// data object thats passed through to an event
-		// the object can be anything that the component
-		// wants, the user just has to know what to expect
+		
+		
+		
 		_args: null,
 		_object_config: null,
 		_routes: null,
@@ -992,13 +886,13 @@ ComponentManager.prototype = {};
 
 
 
-// 9999
+
 /** @exports Pages
 * @classdesc handles the routing and mapping between component and routes 
 * @class
 * @constructor
 */
-function Pages(){ // ppppp
+function Pages(){ 
 	_.extend(this, new AppFactoryManager('Pages'));
 	this._props_ = {
 		_container_id: "app-factory-container",
@@ -1008,15 +902,15 @@ function Pages(){ // ppppp
 	var containerDiv = document.createElement('div');
 	containerDiv.id = this._props_._container_id;
 
-	// 4444 - something might break because i've removed this line
-	//document.body.appendChild(containerDiv);
+	
+	
 
-	// var collection = new ViewCollectionController("#app-factory-container");
-	// this._props_._collection = collection;
+	
+	
 
 }
 
-// 33333
+
 Pages.prototype = {
 
 	/**
@@ -1024,7 +918,7 @@ Pages.prototype = {
 	*
 	*/
 	newPageView: function(obj){
-		//return Pages_newPageView(obj,this);
+		
 		return {
 			func: Pages_newPageView,
 			obj: obj,
@@ -1085,21 +979,21 @@ Pages.prototype = {
 
 var ViewsHolder = [];
 
-// 9999
+
 /** @exports ViewManager
 * @classdesc A component that handles multiple components with in one view.
 * @class
 * @constructor
 */
 function ViewManager(opt){
-	//ComponentManager.call(this,arguments);
+	
 
-	// 4444 - classifing this component as Flags.Type.view instead of
-	// Flags.Type.component causes problems in the layoutmanager
+	
+	
 	_.extend(this, 
 		new AppFactoryManager('ViewManager'), 
 		new ComponentManager(Flags.Type.component,this),
-		//new ComponentManager(Flags.Type.view,this),
+		
 		new EventManager()
 	);
 	applicationManager.register(this);
@@ -1113,8 +1007,8 @@ function ViewManager(opt){
 	if(Utils.isNull(opt.routable)){
 		opt.routable = false;
 	}
-	// 4444
-	// routable by view component
+	
+	
 	opt.routable = false;
 	self._props_._is_routable = opt.routable;
 	self._props_._containers = new ContainerComponent();
@@ -1126,11 +1020,11 @@ function ViewManager(opt){
 
 	ViewsHolder.push(self);
 
-	// 5555
+	
 	self.getHtml = function(){
 
-		//var parent = self._props_._component_containers.parent;
-		// 5050 hhhhh
+		
+		
 		var objs = self._props_._views_objects;
 		var obj = null;
 		for (var i = 0; i < objs.length; i++) {
@@ -1155,10 +1049,10 @@ function ViewManager(opt){
 			self._props_._active_view = obj;
 			self._props_._current_view = obj.id;
 
-			//console.log(obj);
+			
 			var container = buildBody(obj,self);
-			// p2p2p2p2
-			//console.log(container);
+			
+			
 			self._props_._containers.addComponent(container,true);
 			if(opt.routable){
 				var route = getNewRoute(obj.id,self);
@@ -1196,7 +1090,7 @@ ViewManager.prototype = {
 		ViewManager_goTo(index,opts,this);
 	},
 
-	// 333444 - ViewManager
+	
 
 	/**
 	*	Go back 1 view
@@ -1254,15 +1148,15 @@ ViewManager.prototype = {
 		var self = this;
 		var opt = self._props_._options;
 		
-		// if(opt.routable==true){
-		// 	if(Utils.isNull(opts.route)){
-		// 		opts.route = opts.id;
-		// 	}
-		// 	var v = buildBody(opts,self);
-		// 	if(!Utils.isNull(v) && v.TYPE && v.TYPE == "v"){
+		
+		
+		
+		
+		
+		
 
-		// 	}
-		// }
+		
+		
 
 		
 		if(opts.id==undefined){
@@ -1304,14 +1198,14 @@ ViewManager.prototype = {
 
 
 
-// 9999
+
 /** @exports LayoutManager
 * @classdesc A compoment that handles the layout of components.
 * @class
 * @constructor
 */
 function LayoutManager(){
-	//ComponentManager.call(this,arguments);
+	
 	_.extend(this, new AppFactoryManager('LayoutManager'));
 
 }
@@ -1329,7 +1223,7 @@ LayoutManager.prototype = {
 
 
 
-// 9999
+
 /** @exports AppLayout
 * @classdesc The layout component that is returned by the LayoutManager.newLayout().
 * @class
@@ -1389,18 +1283,18 @@ AppLayout.prototype = {
 };
 
 
-// 9999
-// 9898
+
+
 /** @exports ComponentFactory
 * @classdesc A top-level component that handles all other components except ViewManager component and AppLayout component.
 * @class
 * @constructor
 */
 function ComponentFactory(){
-	// _.extend(this, new AppFactoryManager('ComponentFactory'));
+	
 	
 
-}// 33333
+}
 ComponentFactory.prototype = {
 
 
@@ -1448,7 +1342,7 @@ ComponentFactory.prototype = {
 		return new FormComponent(obj);
 	},
 
-	// 4444
+	
 	fileUploader: function(obj){
 		return new FileUploaderComponent(obj);
 	},
@@ -1510,7 +1404,7 @@ ComponentFactory.prototype = {
 };
 
 
-// 9898
+
 /** @exports CarouselComponent
 * @classdesc Build a carousel.
 * @class
@@ -1696,7 +1590,7 @@ function gl_assets_icons(){
 }
 
 
-// 9999
+
 /** @exports AudioComponent
 * @classdesc Audio player creator container class 
 * @class
@@ -1718,26 +1612,26 @@ AudioComponent.prototype = {
 	* @return {AudioPlayerBuilderComponent}
 	*/
 	builder: function(callback){
-		// bbbbb
+		
 		var audioPlayerBuilder = new AudioPlayerBuilder();
 		var c = callback(audioPlayerBuilder);
 		audioPlayerBuilder._props_._set_html(c);
-		//return new AudioPlayerComponent(c,true);
+		
 		return new AudioPlayerBuilderComponent({},audioPlayerBuilder);
 	},
 
 
 	create: function(opts){
-		//return new AudioPlayerComponent(opts,false);
+		
 
 	}
 
 };
 
-// function AudioPlayerComponent(opts,isCustom){}
-// AudioPlayerComponent.prototype = {};
 
-// 9999
+
+
+
 /** @exports AudioPlayerBuilder
 * @classdesc Audio player creator container class 
 * @class
@@ -1749,9 +1643,9 @@ function AudioPlayerBuilder(opts){
 	self._props_ = {};
 
 	self._props_._isBuilt = false;
-	//self._props_._fragment = document.createDocumentFragment();
+	
 	self._props_._element = document.createElement("div");
-	//self._props_._container = document.createElement("div");
+	
 
 	self._props_._default_media_btns = {
 		"play": gl_assets_icons()+"/png/media-play-6x.png",
@@ -1766,14 +1660,14 @@ function AudioPlayerBuilder(opts){
 	self._props_._element2 = null;
 
 	self._props_._set_html = function(el){
-		// el is a Brick component
+		
 		self._props_._element2 = el.getHtml();
-		//self._props_._element.appendChild(el.getHtml());
+		
 	}
 
 	this.getHtml = function(){
 		return self._props_._element2.cloneNode(true);
-		//return self._props_._element.cloneNode(true);
+		
 	}
 
 
@@ -1802,7 +1696,7 @@ function AudioPlayerBuilder_create_btn_element(opts,defaultImage,param,self){
 	btn.className = "appfac-media-player-btn "+btnclassname;
 	btn.innerHTML = '<img src="'+img+'" height="60%" width="60%">';
 
-	//self._props_._element.appendChild(btn);
+	
 
 	self._props_._event_ids[param] = btn.id;
 
@@ -1823,7 +1717,7 @@ AudioPlayerBuilder.prototype = {
 			"play",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1838,7 +1732,7 @@ AudioPlayerBuilder.prototype = {
 			"prev",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1853,7 +1747,7 @@ AudioPlayerBuilder.prototype = {
 			"next",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1868,7 +1762,7 @@ AudioPlayerBuilder.prototype = {
 			"pause",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1883,7 +1777,7 @@ AudioPlayerBuilder.prototype = {
 			"stop",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1898,7 +1792,7 @@ AudioPlayerBuilder.prototype = {
 			"skipBackward",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1913,7 +1807,7 @@ AudioPlayerBuilder.prototype = {
 			"skipForward",
 			this
 		);
-		//return this;
+		
 	},
 
 	/**
@@ -1946,7 +1840,7 @@ AudioPlayerBuilder.prototype = {
 		self._props_._event_ids['fill'] = fill.id;
 
 		return Utils.convertFragmentToHTMLText(seek_bar);
-		//return this;
+		
 
 	},
 
@@ -1957,7 +1851,7 @@ AudioPlayerBuilder.prototype = {
 	timeCurrent: function(opts){
 		var self = this;
 		opts = (opts==undefined) ? {} : opts;
-		var timeText = Utils_createELement('div',opts);//document.createElement('div');
+		var timeText = Utils_createELement('div',opts);
 		timeText.id = "mp"+Utils.randomGenerator(16);
 		timeText.textContent = "00:00:00";
 		self._props_._element.appendChild(timeText);
@@ -1965,8 +1859,8 @@ AudioPlayerBuilder.prototype = {
 		self._props_._event_ids['time_current'] = timeText.id;
 
 		return Utils.convertFragmentToHTMLText(timeText);
-		//return timeText;
-		//return this;
+		
+		
 	},
 
 	/**
@@ -1976,7 +1870,7 @@ AudioPlayerBuilder.prototype = {
 	timeMax: function(opts){
 		var self = this;
 		opts = (opts==undefined) ? {} : opts;
-		var timeText = Utils_createELement('div',opts);//document.createElement('div');
+		var timeText = Utils_createELement('div',opts);
 		timeText.id = "mp"+Utils.randomGenerator(16);
 		timeText.textContent = "00:00:00";
 		self._props_._event_ids['time_max'] = timeText.id;
@@ -1985,8 +1879,8 @@ AudioPlayerBuilder.prototype = {
 		self._props_._event_ids['time_max'] = timeText.id;
 
 		return Utils.convertFragmentToHTMLText(timeText);
-		//return timeText;
-		//return this;
+		
+		
 	},
 
 	/**
@@ -2003,13 +1897,13 @@ AudioPlayerBuilder.prototype = {
 		self._props_._event_ids['time_both'] = timeText.id;
 
 		return timeText;
-		//return this;
+		
 	}
 
 };
 
 
-// 9999
+
 /** @exports AudioPlayerBuilderComponent
 * @classdesc Audio player creator container class 
 * @class
@@ -2017,7 +1911,7 @@ AudioPlayerBuilder.prototype = {
 */
 function AudioPlayerBuilderComponent(opts,audioPlayerBuilder){
 
-	//opts = (opts==undefined) ? {} : opts;
+	
 	gl_HandleAll(this,opts,'AudioPlayerBuilderComponent');
 
 
@@ -2114,40 +2008,6 @@ function AudioPlayerBuilderComponent(opts,audioPlayerBuilder){
 		
 
 
-
-
-
-
-
-		// document.getElementById(playPause.id).addEventListener('click',function(e){
-		// 	console.log("Play");
-		// });
-
-		// if(opts.custom.isStopButton){
-		// 	document.getElementById(stopBtn.id).addEventListener('click',function(e){
-		// 		console.log("stopBtn");
-		// 	});
-		// }
-
-		// if(opts.custom.navigate){
-		// 	document.getElementById(prevBtn.id).addEventListener('click',function(e){
-		// 		console.log("prevBtn");
-		// 	});
-		// 	document.getElementById(nextBtn.id).addEventListener('click',function(e){
-		// 		console.log("nextBtn");
-		// 	});
-		// }
-
-		// if(opts.custom.skip){
-		// 	document.getElementById(skipBackward.id).addEventListener('click',function(e){
-		// 		console.log("skipBackward");
-		// 	});
-		// 	document.getElementById(skipForward.id).addEventListener('click',function(e){
-		// 		console.log("skipForward");
-		// 	});
-		// }
-
-
 	},self);
 
 	return this;
@@ -2237,10 +2097,10 @@ function ImageComponent(opts){
 		tmpElement.style.display = "block";
 	}
 
-	// 797979
+	
 	var tmpElement = document.createElement('div');
 	var container = new ContainerComponent({ body: tmpElement });
-	//_Utils_registerListenerCallbackForSelf('run','',function(){},self);
+	
 
 	gl_ImageManager.push({
 		el: img,
@@ -2252,7 +2112,7 @@ function ImageComponent(opts){
 	});
 
 	this.getHtml = function(){
-		return container.getHtml();// this._props_._fragment.cloneNode(true);
+		return container.getHtml();
 	};
 
 }
@@ -2262,13 +2122,13 @@ ImageComponent.prototype = {
 
 
 
-// 4444 - document
+
 function NavbarComponent(opts){
 	gl_HandleAll(this,opts,'NavbarComponent');
 	var self = this;
 
-//7771
-// 4444 979797
+
+
 
 
 	var createElement = Utils.createElement;
@@ -2323,7 +2183,7 @@ function NavbarComponent(opts){
 		collapseBtn.setAttribute("aria-controls", navbarId,);
 		collapseBtn.setAttribute("aria-expanded", "false",);
 		collapseBtn.setAttribute("aria-label", "Toggle navigation");
-		//collapseBtn.setAttribute();
+		
 	}
 	for(prop in hamburgerButtonAttributes){
 		if(prop!="overwrite"){
@@ -2382,7 +2242,7 @@ function NavbarComponent(opts){
 		return _brandLink;
 	}
 
-	//self._props_._mainDiv.appendChild(brandLink);
+	
 
 	var hamburgerMenuPosition = (opts.hamburgerMenuPosition!=undefined) ? opts.hamburgerMenuPosition : "left";
 
@@ -2396,7 +2256,7 @@ function NavbarComponent(opts){
 
 	var ulClassName = (opts.ulClassName!=undefined) ? opts.ulClassName : "";
 
-	// float-right text-right pr-2
+	
 	var hamburgerLinkPosition = (opts.hamburgerLinkPosition!=undefined) ? opts.hamburgerLinkPosition : "";
 	if(hamburgerLinkPosition.toLowerCase()=="left"){
 		hamburgerLinkPosition = "";
@@ -2417,14 +2277,14 @@ function NavbarComponent(opts){
 
 	self._props_._frag = document.createDocumentFragment();
 
-	//frag.appendChild(self._props_._navbar);
+	
 	self._props_._frag.appendChild(navbarDIVContainer);
 	self._props_._frag.appendChild(self._props_._view.getHtml());
 
 	this.getHtml = function(){
 		return self._props_._frag.cloneNode(true);
-		//return self._props_._navbar.cloneNode(true);
-		//return Utils.convertStringToHTMLNode(r); //
+		
+		
 	};
 
 	_Utils_registerListenerCallbackForSelf('run','',function(){
@@ -2455,7 +2315,7 @@ function NavbarComponent(opts){
 NavbarComponent.prototype = {
 
 
-	// h1h1h1h1
+	
 	render: function(id){
 		var self = this;
 		var map = null;
@@ -2494,14 +2354,14 @@ NavbarComponent.prototype = {
 	*/
 	show: function(id){
 
-		// 4444 - on page reload with #page3 this method
-		// first blinks and shows #page1
+		
+		
 
 		var self = this;
 
-		// 4444 - 
-		// giving time for elements to be loaded on to page
-		// so that this functionality can work
+		
+		
+		
 		setTimeout(function(){
 
 		var map = null;
@@ -2608,7 +2468,7 @@ NavbarComponent.prototype = {
 			self._props_._view_mapper[id] = viewId;
 		}
 
-		// 979797
+		
 		_Utils_registerListenerCallbackForSelf('run','',function(){
 
 			setTimeout(function(){
@@ -2656,25 +2516,8 @@ NavbarComponent.prototype = {
 };
 
 
-
-
-
-// 9999
- // @exports NavComponent
- // @classdesc Creates a Nav component
- // @class
- // @constructor
-// 7771
 function NavComponent(opts){
-	// opts = (Utils.isNull(opts)) ? {} : opts;
-	// _.extend(this,
-	// 	new AppFactoryManager('NavComponent'), 
-	// 	new ComponentManager(Flags.Type.component,this), 
-	// 	new EventManager(this)
-	// );
-	// applicationManager.register(this);
-	// //var main_container = new ContainerComponent({ id:this.getId() });//createElement({ id:this.getId() });
-	// applicationManager.setComponent(this);
+	
 
 
 	gl_HandleAll(this,opts,'NavComponent');
@@ -2682,11 +2525,6 @@ function NavComponent(opts){
 
 	var isNull = Utils.isNull;
 	var self = this;
-
-	// top [default]
-	// top-center
-	// top-left
-	// side
 
 
 	var view = new ViewManager();
@@ -2697,26 +2535,15 @@ function NavComponent(opts){
 	self._props_._elements = {
 		_view: view,
 		_ul: null,
-		_navbar_container: new ContainerComponent(), //createElement(),
-		_content_container: new ContainerComponent(), //createElement(),
-		_container: new ContainerComponent({ id:self.getId() }), //createElement(),
+		_navbar_container: new ContainerComponent(), 
+		_content_container: new ContainerComponent(), 
+		_container: new ContainerComponent({ id:self.getId() }), 
 		_fragment: frag,
 		_layout: null
 	};
 	self._props_._view_mapper = {};
 	self._props_._route = (opts.route) ? opts.route : false;
 
-	// frfrfr
-	//console.log("self.getId(): "+self.getId())
-
-	// {
-	// 	//top[default], top-center, top-left, right, left
-	// 	position: "",
-	// 	layout: {
-	// 		navbar: {},
-	// 		content: {}
-	// 	}
-	// }
 
 	var positionTopNavbarLayout = {md:12};
 	var positionTopContentLayout = {md:12};
@@ -2842,7 +2669,7 @@ NavComponent.prototype = {
 	* @param {object} - nav options
 	*/
 	add: function(opts){
-		// 9090
+		
 		var self = this;
 		var isNull = Utils.isNull;
 		var createElement = Utils.createElement;
@@ -2929,19 +2756,11 @@ NavComponent.prototype = {
 	*/
 	build: function(){
 		var self = this;
-		// self._props_._elements = {
-		// 	_view: view,
-		// 	_ul: ul,
-		// 	_navbar_container: createElement(),
-		// 	_content_container: createElement(),
-		// 	_container: createElement(),
-		// 	_fragment: frag
-		// }; p2p2p2p2
 
-		// add navbar to its container
+		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
-		// add content to its container
+		
 		self._props_._elements._content_container
 			.addComponent(self._props_._elements._view,true);
 
@@ -2960,19 +2779,9 @@ function NavComponent_initialize_tab_click(self,id){
 	$("#"+id).addClass('active');
 	self._props_._active_item = id;
 	self._props_._elements._view.render(id);
-	// frfrfr
+	
 }
 
-
-
-
-// 4444 - create modal dialog
-// 9999
-//  @exports DialogComponent
-// * @classdesc Creates a dialog component
-// * @class
-// * @constructor
-// * @tutorial 04-building_forms
 
 function ModalComponent(opts){
 	opts = (Utils.isNull(opts)) ? {} : opts;
@@ -2989,9 +2798,9 @@ function ModalComponent(opts){
 
 	this._props_._container_id = this._props_._id;
 
-	// 4444 - append modal to dom
-	// this creates 2 div's that are siblings 
-	// to #root-element and I dont like it :(
+	
+	
+	
 	$('body').append(Utils.createElement({
 		id: this._props_._container_id
 	}));
@@ -3031,12 +2840,6 @@ ModalComponent.prototype = {
 	}
 }
 
-
-
-
-
-
-// 4444 - dynamically change content of dialog
 function ModalComponent_setContent(opts,self){
 	if(Utils.isNull(opts.type)){
 		opts.type = 'normal';
@@ -3082,12 +2885,6 @@ function ModalComponent_setContent(opts,self){
 			innerHTML: opts.title
 		});		
 
-		// var exitBtn = createElement({
-		// 	el: 'button',
-		// 	className: 'close',
-		// 	'data-dismiss': 'modal',
-		// 	innerHTML: '<span aria-hidden="true">&times;</span>'
-		// });
 
 		var exitBtn = Utils.convertStringToHTMLNode(`
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -3105,12 +2902,12 @@ function ModalComponent_setContent(opts,self){
 		});
 		modalDiv.appendChild(modalContent);
 		if(!Utils.isNull(opts.body)){	
-			var mBody = buildBody(opts);// getModalBody();
+			var mBody = buildBody(opts);
 			modalBody.appendChild(mBody.cloneNode(true));
 			modalContent.appendChild(modalBody);
 		}
 
-		// 1212
+		
 
 		topDiv.appendChild(modalDiv);
 		self._props_._dialog = topDiv;
@@ -3137,7 +2934,7 @@ function ModalComponent_setContent(opts,self){
 
 
 
-// 9999
+
 /** @exports ListComponent
 * @classdesc Creates a list component
 * @class
@@ -3146,17 +2943,17 @@ function ModalComponent_setContent(opts,self){
 */
 function ListComponent(opts){
 
-	// First default the incoming object
+	
 	opts = (Utils.isNull(opts)) ? {} : opts;
 
-	// extend any necassary classes
-	// _.extend(this,
-	// 	new AppFactoryManager('ListComponent'), 
-	// 	new ComponentManager(Flags.Type.component,this), 
-	// 	new EventManager(this)
-	// );
-	// applicationManager.register(this);
-	// applicationManager.setComponent(this);
+	
+	
+	
+	
+	
+	
+	
+	
 
 	gl_HandleAll(this,opts,'ListComponent');
 
@@ -3218,13 +3015,13 @@ function ListComponent(opts){
 	}
 
 	self._props_._initialize_item = function(item_obj,indexItem,index){
-		//item_obj = (Utils.isNull(item_obj)) ? {} : item_obj;
+		
 
 		var compDefaults = ComponentDefaults(item_obj,self);
 		var createElement = Utils.createElement;
 
 		var active = "";
-		///console.log(opts);
+		
 
 		if(!Utils.isNull(item_obj.active)){
 			if(item_obj.active){
@@ -3236,9 +3033,9 @@ function ListComponent(opts){
 
 		self._props_._list_container.appendChild(a);
 
-		//<span class="badge badge-primary badge-pill">14</span>
+		
 
-		//_Utils_registerListenerCallback(opts,self);
+		
 
 		var def = false;
 		if(!Utils.isNull(item_obj.preventDefault)){
@@ -3271,9 +3068,9 @@ function ListComponent(opts){
 	}
 	self._props_._item_function = opts.item;
 	function callme(listItem,index,self){
-		var n;// = opts.item( index, listItem[index] );
+		var n;
 
-		//console.log(n);
+		
 		if(!Utils.isNull(opts.item)){
 			n = opts.item( listItem[index], index );
 		}else if(!Utils.isNull(opts.items)){
@@ -3287,7 +3084,7 @@ function ListComponent(opts){
 		self._props_._initialize_item( n, listItem[index], index );
 	}
 
-	//self._props_._initialize_item
+	
 	
 
 
@@ -3321,7 +3118,7 @@ function ComponentDefaults(obj,self){
 	return new FormComponentDefaults(obj,self);
 }
 
-// 9999
+
 function FormComponentDefaults(obj,self){
 	if(Utils.isNull(obj)){
 		obj = {};
@@ -3340,17 +3137,8 @@ function FormComponentDefaults(obj,self){
 		this.tag = obj.tag;
 		this.name = obj.tag;
 		this.paramName = obj.tag;
-		// if(id.charAt(0)!="#" && id.charAt(0)!="."){
-		// 	selector = "#"+id;
-		// 	tag = id;
-		// 	name = id;
-		// 	paramName = tag;
-		// }else{
-		// 	selector = id;
-		// 	tag = id.substr(1);
-		// 	id = tag;
-		// 	name = tag;
-		// }
+		
+		
 	}
 
 	if(obj.paramName!=undefined){
@@ -3471,7 +3259,7 @@ FormValidationDefaults.prototype = {
 };
 
 
-// 9999
+
 /** @exports FormComponent
 * @classdesc Creates a form component
 * @class
@@ -3479,37 +3267,6 @@ FormValidationDefaults.prototype = {
 * @tutorial 04-building_forms
 */
 function FormComponent(obj){
-	
-	// 4444 - manage adding a tag attribute
-	// if(Utils.isNull(obj)){
-	// 	//console.error("Tag is required for form component!");
-	// 	//return;
-
-	// }
-	// var tag = "";
-	// if(typeof obj === 'string'){
-	// 	tag = obj;
-	// 	obj = {};
-	// }else{
-	// 	if(Utils.isNull(obj.tag)){
-	// 		console.error("Tag is required for form component!");
-	// 		return;
-	// 	}else{
-	// 		tag = obj.tag;
-	// 	}
-	// }
-	
-	// obj = (Utils.isNull(obj)) ? {} : obj;
-
-
-	// _.extend(this,
-	// 	new AppFactoryManager('FormComponent'), 
-	// 	new ComponentManager(Flags.Type.component,this), 
-	// 	new EventManager(this)
-	// );
-	// applicationManager.register(this);
-	// applicationManager.setComponent(this);
-
 	if(obj==undefined) obj = {};
 
 	var opts = obj;
@@ -3565,9 +3322,6 @@ function FormComponent(obj){
 }
 FormComponent.prototype = {
 
-	// 4444 - 
-	// add functionality to contain a normal
-	// section within a page section
 
 	/**
 	* Begin a section
@@ -3579,8 +3333,8 @@ FormComponent.prototype = {
 		var self = this;
 
 		self._props_._isFormSection = true;
-		// 333444
-		// make sure previous section has an end before begining a new section
+		
+		
 		if(self._props_._form_sections._section_has_ended==false){
 			console.error("Form Section has no end. Must endSection() before begining a new section.");
 			return;			
@@ -3638,8 +3392,8 @@ FormComponent.prototype = {
 	*
 	*/
 	stopRemembering: function(){
-		// 4444 - insure that form is cleared and cant remember
-		// when this method is called
+		
+		
 		sessionStorage.setItem(this._props_._tag,JSON.stringify({}));
 		var form_data = this._props_._form_data;
 		for(var i in form_data){
@@ -3660,7 +3414,7 @@ FormComponent.prototype = {
 		this._props_._prevent_remember = remember;
 	},
 
-	// 55555
+	
 	wait: function(){},
 	proceed: function(){},
 
@@ -3733,7 +3487,7 @@ FormComponent.prototype = {
 		FormComponent_datePicker(opts,this);
 	},
 
-	// p1p1p1p1
+	
 
 	/**
 	* Builds the form. Must be called before form can be used.
@@ -3763,7 +3517,7 @@ FormComponent.prototype = {
 	}
 };
 
-// 9999
+
 /** @exports FormSection
 * @classdesc Creates a form section
 * @class
@@ -3787,11 +3541,6 @@ function FormSection(){
 
 	};
 
-	// self._props_._form_sections = {
-	// 	_current_section_id: null,
-	// 	_sections: {}
-	// };
-
 	self._props_._buttons = [];
 
 	self._props_._layout = null;
@@ -3805,7 +3554,7 @@ function FormSection(){
 			var form = self._props_._formComponent;
 			var section_id = self.getSectionId();
 			var ids = form._props_._form_sections._form_ids[section_id];
-			// 4444 - get values for other form elements
+			
 			if(ids!=undefined){
 				for (var i = 0; i < ids.length; i++) {
 					if(self.values[ids[i][1]]!=undefined){
@@ -3828,7 +3577,7 @@ FormSection.prototype = {
 	*
 	*
 	*/
-	type: 'normal', //normal,page
+	type: 'normal', 
 
 	/**
 	* Remember values
@@ -3889,7 +3638,7 @@ FormSection.prototype = {
 		var v = {};
 		if(ids!=undefined){
 			for (var i = 0; i < ids.length; i++) {
-				v[ids[i][1]] = gl_getFormElementValue(ids[i][0],'#'+ids[i][1]);//
+				v[ids[i][1]] = gl_getFormElementValue(ids[i][0],'#'+ids[i][1]);
 			}
 		}
 		self.values = v;
@@ -3942,24 +3691,24 @@ FormSection.prototype = {
 }
 
 
-// 4444 - make sure
-// 9999
-// @exports FileUploader
-// @classdesc Creates a file upload component
-// @class
-//* @constructor
+
+
+
+
+
+
 function FileUploaderComponent(opts){
-	// url
-	// label
-	// name
-	// // show upload percentage
-	// percent: true,
-	// opts.limit = {
-	// 	size: "12 GB" // 'Bytes', 'KB', 'MB', 'GB'
-	// 	errorMsg: "File size not to exceed 1mb"
-	// },
-	// // run function after upload completes
-	// complete: function(){}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	gl_HandleAll(this,opts,'FileUploaderComponent');
 
@@ -3995,15 +3744,15 @@ FileUploaderComponent.prototype = {
 };
 
 function gl_HandleAll(self,opts,type){
-	// type is the name of the function example ButtonComponent
-	// in case I need to do something specific for that component.
+	
+	
 
 	_.extend(self, 
 		new AppFactoryManager(type), 
 		new ComponentManager(Flags.Type.component,self), 
 		new EventManager(self)
 	);	
-	applicationManager.register(self);// frfrfr
+	applicationManager.register(self);
 	applicationManager.setComponent(self);
 
 
@@ -4015,20 +3764,13 @@ function gl_HandleAll(self,opts,type){
 }
 
 
-// 9999
+
 /** @exports ButtonComponent
 * @classdesc .
 * @class
 * @constructor
 */
 function ButtonComponent(opts){
-	// _.extend(this, 
-	// 	new AppFactoryManager('ButtonComponent'), 
-	// 	new ComponentManager(Flags.Type.component,this), 
-	// 	new EventManager(this)
-	// );	
-	// applicationManager.register(this);// frfrfr
-	// applicationManager.setComponent(this);
 
 	gl_HandleAll(this,opts,'ButtonComponent');
 
@@ -4039,7 +3781,7 @@ function ButtonComponent(opts){
 	var self = this;
 
 
-	var id = self.getId();//(opts.id==undefined) ? Utils.randomGenerator(12,false) : opts.id;
+	var id = self.getId();
 	var selector = (opts.selector==undefined) ? "#"+id : opts.selector;
 	var label = (opts.label==undefined) ? "" : opts.label;
 	var style = (opts.style==undefined) ? "" : opts.style;
@@ -4071,7 +3813,7 @@ ButtonComponent.prototype = {
 };
 
 
-// 9999
+
 /** @exports ContainerComponent
 * @classdesc A top-level component that.
 * @class
@@ -4087,7 +3829,7 @@ function inhertFrom(self,type,flag){
 }
 function ContainerComponent(obj){
 	var self = this;
-	// inhertFrom(this,'ContainerComponent',Flags.Type.component);
+	
 	var opts = obj;
 	gl_HandleAll(this,opts,'ContainerComponent');
 	
@@ -4096,9 +3838,9 @@ function ContainerComponent(obj){
 		objWasSet = true;
 		obj = {};
 	}
-	// if(Utils.isNull(obj.template)){
-	// 	obj.template = {};
-	// }
+	
+	
+	
 
 
 	
@@ -4111,7 +3853,7 @@ function ContainerComponent(obj){
 		obj.body = Utils.convertStringToHTMLNode(tmp);
 	}
 
-	//onsole.log(obj) // 444444
+	
 
 	this._props_._obj = obj;
 	this._props_._object_config = obj;
@@ -4126,7 +3868,7 @@ function ContainerComponent(obj){
 	myspan.id = self.getId();
 	self._props_._container = document.createElement('div');
 	self._props_._container.id = (obj.id!=undefined) ? obj.id : "j"+Utils.randomGenerator(12,false);
-	self._props_._container.appendChild(myspan);// frfrfr
+	self._props_._container.appendChild(myspan);
 	var spiiner = Utils_createELement('div',{id:self._props_._container.id+'-spinner'});
 	self._props_._container.appendChild(spiiner);
 	if(!Utils.isNull(obj.classes)){
@@ -4145,12 +3887,12 @@ function ContainerComponent(obj){
 
 	this._props_._component_html = null;
 
-	// ppppp
+	
 	var fragment = document.createDocumentFragment();
 	fragment.appendChild(self._props_._container);
 	self._props_._elements._fragment = fragment;
 
-	// nnnnn
+	
 	
 	this.getHtml = function(route){
 		return self._props_._elements._fragment.cloneNode(true);
@@ -4270,13 +4012,13 @@ ContainerComponent.prototype = {
 	* false then all other previous components will still be attached.
 	*/ 
 	addComponent: function(component,empty){
-		//return ContainerComponent_addComponent(component,empty,this);
+		
 		var self = this;
 
 		var delay = undefined;
 		var attachOnce = false;
 		var callback = undefined;
-		var isEmpty = true;//(!Utils.isNull(empty)) ? empty : true;
+		var isEmpty = true;
 		if(typeof empty === "boolean"){
 			isEmpty = empty;
 		}else if(typeof empty === 'object'){
@@ -4293,7 +4035,7 @@ ContainerComponent.prototype = {
 
 		var setComponent;
 
-		// 33333
+		
 		if(typeof component === 'string'){
 
 			var obj123 = {  
@@ -4301,16 +4043,16 @@ ContainerComponent.prototype = {
 				"app": gl_applicationContextManager
 			};
 
-			//var p = gl_applicationContextManager.Manager.retrieve(component);
+			
 
 			var setComponent = buildBody(component);
 
 			self._props_._component_html = setComponent.cloneNode(true);
-			// if(p==undefined){
-			// 	console.error('Method Not found: '+component);
-			// }else{
-			// 	setComponent = p(obj123);
-			// }
+			
+			
+			
+			
+			
 
 		}else if(Array.isArray(component)){
 			var params = [];
@@ -4323,7 +4065,7 @@ ContainerComponent.prototype = {
 			};
 
 			setComponent = gl_applicationContextManager.Manager.retrieve(component[0])(obj123);
-			//console.log(setComponent);
+			
 			if(Utils.isNull(setComponent)){
 				console.error("Component does Not exist: "+component[0])
 			}
@@ -4332,8 +4074,8 @@ ContainerComponent.prototype = {
 		}
 
 		self._props_._component_html = setComponent;
-		//console.log(self.getId());
-		// 898989
+		
+		
 
 		if( document.getElementById(self.getId()) ){
 			addToDOM(setComponent);
@@ -4342,7 +4084,7 @@ ContainerComponent.prototype = {
 			self.onAttachOnceListener(function(){
 				addToDOM(setComponent);
 			});
-		}else{ // nnnnn
+		}else{ 
 			self.onAttachListener(function(){
 				addToDOM(setComponent);
 			});
@@ -4361,7 +4103,7 @@ ContainerComponent.prototype = {
 
 				if(Utils.isNull(setComponent1)) return;
 
-				var id = self.getId();//self._props_._component_element_container_id;
+				var id = self.getId();
 				if(isEmpty==true){
 					$("#"+id).empty();
 				}
@@ -4378,35 +4120,9 @@ ContainerComponent.prototype = {
 			}
 		}
 	}
-	
-	// * 
-	// *
-	// * @return {Boolean} - The current state of the component.
-	// *
-
-	// getActive: function(){
-	// 	return self._props_._active;
-	// },
-
-	
-	// * A ContainerComponent can activate a loading screen for this this container
-	// * setting the state to true will show a loading icon with a half transparent black
-	// * background.
-	// *
-	// * @param {ComponentManager} component
-	// * @param {Boolean} stillSet - Set the state of the component even if not appended to the 
-	// * 	DOM. 
-	// *
-
-	// setActive: function(active,stillSet){
-	// 	ContainerComponent_setActive(active,stillSet,this);
-	// }
-
 };
 
 
-
-// 9999
 function ElementAttributes(attrs){
 	_.extend(this, new AppFactoryManager('ElementAttributes'));
 	this._elementAttributes = {
@@ -4421,7 +4137,7 @@ ElementAttributes.prototype = {
 	}
 };
 
-// 9999
+
 function EventManager(self){
 	_.extend(this, Backbone.Events);
 
@@ -4432,7 +4148,7 @@ EventManager.prototype = {
 
 
 
-// 151515
+
 /** 
 * @exports Brick
 */
@@ -4460,7 +4176,7 @@ var Brick = {
 };
 
 
-// 9999
+
 /** @exports BrickComponent
 * @classdesc A top-level component that.
 * @class
@@ -4501,7 +4217,7 @@ BrickComponent.prototype = {
 	*
 	*/
 	array: function(type,arrayObjs){
-		// bbbbb
+		
 		if(typeof type === 'string'){
 			for (var i = 0; i < arrayObjs.length; i++) {
 				arrayObjs[i]['_el'] = type;
@@ -4554,10 +4270,7 @@ BrickComponent.prototype = {
 		return this;
 	},
 
-
-
-
-	// 151515
+	
 	/**
 	*
 	* @return {BrickComponent}
@@ -4884,9 +4597,6 @@ BrickComponent.prototype = {
 	}
 
 
-
-
-
 };
 function BrickComponent_make(element,opts,self){
 
@@ -4942,29 +4652,14 @@ function BrickComponent_make(element,opts,self){
 
 
 
-
-
-
-// 9999
- // @exports NavigationComponent
- // @classdesc A top-level component that.
- // @class
- // @constructor
-
 function NavigationComponent(obj){
-	// _.extend(this, 
-	// 	new AppFactoryManager('NavigationComponent'), 
-	// 	new ComponentManager(Flags.Type.component,this), 
-	// 	new EventManager()
-	// );
-	// applicationManager.register(this);
-	//this._props_._id = "NavigationComponent-"+Utils.randomGenerator(16,false);
+	
 	var opts = obj;
 	gl_HandleAll(this,opts,'NavigationComponent');
 
 	var self = this;
 	obj = (obj) ? obj :{};
-	//self.TYPE = Flags.Type.component;
+	
 	if(Utils.isNull(obj.type)){
 		obj.type = Flags.Navigation.nav;
 	}
@@ -4981,7 +4676,7 @@ function NavigationComponent(obj){
 	self._props_._container_id = "NavigationComponent-"+Utils.randomGenerator(16,false);
 	self._props_._viewManager = null;
  	self._props_.view_id = "NavigationComponent-"+Utils.randomGenerator(16,false);
- 	// options
+ 	
  	self._props_._nav_type = (obj.type==undefined) ? 1 : obj.type;
  	self._props_._container_class = "mycontainer";
  	self._props_._closable = (obj.closable==undefined) ? false : obj.closable;
@@ -4989,7 +4684,7 @@ function NavigationComponent(obj){
  	self._props_._container_main_class = (obj.container==undefined) ? "container" : obj.container;
 
  	self._props_._is_built = false;
- 	//this.build = function(){};
+ 	
 
 	this.getHtml = function(){
 		return this._props_._html;
@@ -5042,7 +4737,7 @@ NavigationComponent.prototype = {
 		var id = obj.id;
 		var defaultBody = new ContainerComponent({ body: "<div></div>" });
 
-		// set defualts
+		
 		if(Utils.isNull(obj.init)){
 			obj.init = false;
 		}
@@ -5071,27 +4766,16 @@ NavigationComponent.prototype = {
 
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
-				//console.log(page)
+				
 					
-				// if(!Utils.isNull(page.init) && page.init==true){
-				// 	defaultBody.onAttachOnceListener(function(){
-				// 		$("#"+page.id).addClass('appfactory-sidenav-active');
-				// 	});
-				// }
-				//_Utils.registerListenerCallbackForSelf("click","#"+obj.id,function(){
+				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
 					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
 					$("#"+obj.id).addClass('appfactory-sidenav-active');
 					});
-				//},self,true);
-
-
 			}
 		}
-
-		//console.log(obj);
-		//_Utils.registerListenerCallback(obj,this);
 
 	},
 
@@ -5129,43 +4813,28 @@ NavigationComponent.prototype = {
 
 
 function _navigation1(self,view){
-
 	
-	// <div id="mySidenav" class="sidenav">
-	//   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-	//   <a href="#">About</a>
-	//   <a href="#">Services</a>
-	//   <a href="#">Clients</a>
-	//   <a href="#">Contact</a>
-	// </div>
-
-	// <div id="main">
- //  	...
-	// </div>
-	
-
 	var defaultBody;
 
 	var container = Utils.createElement({});
 
-	//var container_main = Utils.createElement({id: self._props_._container_id});
-	// container_main.id = self._props_.view_id;
-	self._props_._container.className = self._props_._container_class;//"container";
+	
+	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
 
 	self._props_._container_main = Utils.createElement({className: self._props_._container_main_class });
 	self._props_._container_main.appendChild(view.getHtml());
 	self._props_._container.appendChild(self._props_._container_main);
 
-	// document.getElementById("mySidenav").style.width = "250px";
- //     document.getElementById("main").style.marginLeft = "250px";
 	
-	//self._props_._container.appendChild(view.getHtml());
+ 
+	
+	
 
 	var container_nav = Utils.createElement({ id:"mySidenav", className: "appfactory-sidenav" });
 
-	//<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-	//console.log(self._props_._opts.closable);
+	
+	
 	if(self._props_._opts.closable){
 		var a2 = Utils.createElement('a',{ href:'#', className:'appfactory-close', innerHTML: "&times;" });
 		var close = defaultBody = new ContainerComponent({ body: a2 });
@@ -5190,7 +4859,7 @@ function _navigation1(self,view){
 	function _setup(page){
 		var a1 = Utils.createElement('a',{ id: page.id, href:'#', className:"appfactory-sidenav-item", innerHTML: page.label });
 		container_nav.appendChild(a1);
-		//console.log(page)
+		
 			
 		if(!Utils.isNull(page.init) && page.init==true){
 			defaultBody.onAttachOnceListener(function(){
@@ -5248,7 +4917,7 @@ function _side_navigation(self){
 	self._props_._elements._fragment.appendChild(ap);
 
 	self._props_._elements._body.className = (isNull(obj.bodyClasses)) ? "" : obj.bodyClasses;
-	//this._props_._body._id = (isNull(obj.bodyId)) ? Support.Utils.randomGenerator(9,false) : obj.bodyId;
+	
 	
 	self._props_._elements._body2 = document.createElement('div');
 	self._props_._elements._body2.style = "margin-left:110px;width:80%;";
@@ -5287,11 +4956,11 @@ function _side_navigation(self){
 	self._props_._nav_id = self._props_._elements._container.id;
 	
 
-	// Nav want hide
+	
 	if(sticky){
 		containerClasses = "sidenav-nohide "+(isNull(obj.classes)) ? "" : obj.classes;
 		self._props_._elements._body.id = "appfactory-main-container-content-nohide";
-		//console.log("containerClasses1: "+containerClasses);
+		
 	}else{
 		self._props_._elements._body.id = "appfactory-sidenav-content-container";
 		containerClasses = " appfactory-sidenav";
@@ -5307,7 +4976,7 @@ function _side_navigation(self){
 			a.style = (isNull(obj.exitColor)) ? "" : "color:"+obj.exitColor;
 			a.id = Support.Utils.randomGenerator(9,false);
 			a.innerHTML = "&times;";
-			//a.onclick = function(){ self.close(); }
+			
 
 			
 
@@ -5319,15 +4988,15 @@ function _side_navigation(self){
 		}
 		
 
-		//console.log("containerClasses2: "+containerClasses);
+		
 	}
 
 	self._props_._body_id = self._props_._elements._body.id;
 
-	//console.log("containerClasses: "+containerClasses);
+	
 
 	self._props_._elements._container.className = "side_nav "+containerClasses;
-	//this._props_._elements._container.style = "background-color:white;";
+	
 
 
 	self._props_._collection = new ViewCollectionController("#"
@@ -5338,7 +5007,7 @@ function _side_navigation(self){
 }
 
 
-// 9999
+
 /** @exports TableComponent
 * @classdesc Wrapper for TableHandler class 
 * @class
@@ -5363,7 +5032,7 @@ function TableComponent(opts){
 
 }
 
-// 9999
+
 TableComponent.prototype = {
 
 	/**
@@ -5451,7 +5120,7 @@ TableComponent.prototype = {
 		var container = new ContainerComponent();
 
 		if(opts.filename){
-			// 4444 - change from using jquery
+			
 			$.get(opts.filename,function(content){
 				mysetup(content);
 			});
@@ -5475,7 +5144,7 @@ TableComponent.prototype = {
 			};
 
 			var columnsData = [];
-			//console.log(file_rows);
+			
 			for(var i=1; i<file_rows.length; i++){
 				var column = file_rows[i].split(seperator);
 				columnsData.push(column);
@@ -5485,7 +5154,7 @@ TableComponent.prototype = {
 				id: (opts.id) ? opts.id : "",
 				className: opts.className,
 				_createTableOptions: opts
-				//,scoped: {content: "Num"}
+				
 			});
 			var p = table1
 			.headers(headerData)
@@ -5496,24 +5165,14 @@ TableComponent.prototype = {
 		}
 
 
-
-
-		
-
 		return container;
 
-		//var table = new TableHandler(opts,this);
-
-		//return table.build();
-
 	}
-
-
 
 };
 
 
-// 9999
+
 /** @exports TableHandler
 * @classdesc Creates a table, Cannot be accessed directly but through 
 * the TableComponent class.
@@ -5522,12 +5181,7 @@ TableComponent.prototype = {
 */
 function TableHandler(opts,tableComponent){
 
-	// _.extend(this, 
-	// 	new AppFactoryManager('TableHandler'), 
-	// 	new ComponentManager(Flags.Type.component,this), 
-	// 	new EventManager()
-	// );
-	// applicationManager.register(this);
+	
 
 	gl_HandleAll(this,opts,'TableHandler');
 
@@ -5550,11 +5204,11 @@ function TableHandler(opts,tableComponent){
 	_table.className = tableClassName;
 	_tbody.className = "";
 	_thead.className = "";
-	_thead.id = "";// "uieb-table-thead-"+Utils.randomGenerator(16,false);
+	_thead.id = "";
 
 	_container.appendChild(_table);
 
-	// do this if table is scoped
+	
 	var tmpRow = [];
 	if(tableComponent._props_._opts.scoped){
 		var content = tableComponent._props_._opts.scoped.content;
@@ -5581,8 +5235,8 @@ function TableHandler(opts,tableComponent){
 
 
 		}else{
-			//content = opts._rows[i];
-			//var element = Utils_createELement();
+			
+			
 
 			opts._rows[i]._type = "th";
 			opts._rows[i].innerHTML = opts._rows[i].content;
@@ -5679,18 +5333,9 @@ TableHandler.prototype = {
 
 
 
-// 9999 1001
- // @exports TableComponent
- // @classdesc Instatiated by the  {@link ViewLayoutController} class
- // @class
- // @constructor
- // @param {Object} obj
- // @param {string} obj.id
- // @param {string} obj.classes
- // @param {string} obj.styles
 
 function TableComponent245 (obj){
-	// 3333
+	
 	var isNull = Utils.isNull;
 
 	_.extend(this, 
@@ -5706,14 +5351,14 @@ function TableComponent245 (obj){
 		obj.columns = [];
 	}
 
-	// 3333
+	
 
 
 	this.TYPE = Flags.Type.component;
 	this.ID = "d-"+Utils.randomGenerator(13,false);
 	var randomId = Utils.randomGenerator(10,false);
 	this._tableBodyId = Utils.randomGenerator(10,false);
-	var id = this.ID;//(obj.id == null || obj.id==undefined) ? randomId : obj.id;
+	var id = this.ID;
 	var classes = (obj.classes == null || obj.classes==undefined) ? "" : obj.classes;
 
 	applicationManager.setComponent(this);
@@ -5734,16 +5379,6 @@ function TableComponent245 (obj){
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
 
 	
-	// self._props_._tableStructure._rows.push({
-	// 	column_line_num: self._props_._tableStructure._rowCount,
-	// 	rowId: _tr.id,
-	// 	rows: _rows, [id,val]..
-	// });
-	
-
-
-
-	// Head elements
 	var _columnNames = [];
 	var _columnNameHeader = document.createElement('tr');
 	var _column_ = [];
@@ -5753,12 +5388,12 @@ function TableComponent245 (obj){
 		_th.innerHTML = obj.columns[i].name;
 		_th.id = "column-"+Utils.randomGenerator(22,false);
 		var lastChar = obj.columns[i].name.substr(obj.columns[i].name.length - 1);
-		var _type = "normal";// normal|remote
+		var _type = "normal";
 		if(lastChar=="&"){
 			_type = "remote";
 		}
 
-		//console.log(obj.columns[i].name);
+		
 		_column_[i] = { 
 			id: _th.id,
 			name: obj.columns[i].name,
@@ -5770,7 +5405,7 @@ function TableComponent245 (obj){
 	}
 	_thead.appendChild(_columnNameHeader);
 
-	//console.log(obj.columns);
+	
 
 	this._props_ = {
 		_elements: {
@@ -5831,7 +5466,7 @@ function TableComponent245 (obj){
 
 		this._props_._delemeter = (isNull(obj.delemeter)) ? "\t" : obj.delemeter;
 
-		//_Utils_registerListenerCallbackForSelf(this,"run","",function(data){
+		
 		_Utils_registerListenerCallbackForSelf("run","",function(data){
 			$("#"+_thead.id).click(function(e){
 				TableComponent__column_adjustment(self,obj,e);
@@ -5846,13 +5481,13 @@ function TableComponent245 (obj){
 				elementTextDownloadAsFile("houstonvote_downloaded_file.txt", self.getTableAsString());
 			})
 			$("#"+addSaveBtn.id).click(function(e){
-				//Utils.toggleFullScreenLoader();
+				
 				if(!isNull(obj.save)){
 					obj.save(self);
 				}
-				//setTimeout(function(){
-				//	Utils.toggleFullScreenLoader();
-				//},1500);
+				
+				
+				
 			});
 
 		},self,true);
@@ -5869,18 +5504,10 @@ function TableComponent245 (obj){
 	ap.id = this.ID;
 	this._props_._elements._fragment.appendChild(ap);
 
-	// this._props_._modalDialog = compFactory.modalDialog({
-	// 	content: {
-	// 		id: "",
-	// 		title: "",
-	// 		styles: "",
-	// 		classes: "",
-	// 		fade: true
-	// 	}
-	// });
+	
 
 	this._props_._extensionObject.push(this._props_._modalDialog);
-	//this._props_._elements._fragment.appendChild(Utils.convertStringToHTMLNode( this._props_._modalDialog.getHtml() ));
+	
 
 	this.getHtml = function(){
 		return this._props_._elements._fragment.cloneNode(true);
@@ -5901,13 +5528,8 @@ TableComponent245.prototype = {
 
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
-		// setConnectedData: function(cellId,connectId,type,value,available,modified)
 		
-		// _column_[i] = { 
-		// 	id: _th.id,
-		// 	name: obj.columns[i].name,
-		// 	type: _type //remote|normal
-		// };
+		
 		
 		if(isNull(columnIndex)){
 			return this._props_._tableStructure._column;
@@ -5988,7 +5610,7 @@ TableComponent245.prototype = {
 		return d;
 	},
 
-	// setConnectedData(id,connect_id,_type,val)
+	
 
 	/**
 	*  cellId:String - The DOM id of the cell
@@ -6051,22 +5673,15 @@ TableComponent245.prototype = {
 	},
 
 	updateCell : function(cellId,newValue,updateOnDOM){
-		//console.log(cellId);
-		//console.log(newValue);
+		
+		
 		this.updateRow(cellId,newValue,updateOnDOM);
 	},
 
 	updateRow: function(cellId,newValue,updateOnDOM){
 		var isNull = Utils.isNull;
 		
-			// self._props_._tableStructure._rows.push({
-			// 	column_line_num: self._props_._tableStructure._rowCount,
-			// 	rowId: _tr.id,
-			// 	rows: _rows,
-			// });
-
-
-		
+			
 		var self = this;
 		var found = false;  
 		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
@@ -6118,28 +5733,13 @@ TableComponent245.prototype = {
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
 
-		
-			// table({
-			// 	updatable: true,
-				
-			// 	// add this if you only want columns
-			// 	// this is overridden by content
-			// 	columns: columns,
-			// 	content: content,
-			// 	delemeter: delemeter,
-			// 	no_conents_error_message: no_conents_error_message,
-			// 	filename: filename
-			// });
-		
-			// 3333
-		console.log(obj);
+			
+		//console.log(obj);
 
-		// get the file contents then spilt by newline
-
-		///console.log(obj);
+		
 		var file_rows = obj.content.split("\n");
-		//var file_rows = d.trim().split("\n");
-		//var t = table(file_rows,"polling_locations.cvs");
+		
+		
 
 		if(file_rows.length==0){
 			var cust = new ContainerComponent({
@@ -6164,7 +5764,7 @@ TableComponent245.prototype = {
 
 		var updatable = (isNull(obj.updatable)) ? false : obj.updatable;
 
-		// mode = mormal|edit|present
+		
 		var mode = (isNull(obj.mode)) ? "normal" : obj.mode;
 		var tm = new ComponentFactory();
 		var table = tm.table({
@@ -6176,18 +5776,14 @@ TableComponent245.prototype = {
 			cellRequestForConnectedData: obj.cellRequestForConnectedData
 		});
 
-		//console.log(file_rows);
+		
 	
 
 		var columnsData = [];
-		//console.log(file_rows);
+		
 		for(var i=1; i<file_rows.length; i++){
 			var row = file_rows[i].split("\t");
-			//console.log(row);
-			//row.shift();
-			//console.log(row);
-
-
+			
 
 			for (var p = 0; p < row.length; p++) {
 				columnsData[p] = {
@@ -6199,7 +5795,7 @@ TableComponent245.prototype = {
 				columnsData: columnsData
 			});
 
-			//console.log(columnsData);
+			
 		}
 		
 		
@@ -6218,32 +5814,6 @@ TableComponent245.prototype = {
 	}
 };
 
-
-
-
-// 	 Returns an object with the table object and the holder object.
-// 	 The holder object is a uieb CUstomizerComponent
-// 	
-// 	 If contents is nothing then this method will return a
-// 	 uieb element with the no_conents_error_message displayed.
-// 	 
-// 	 
-// 	 @param {String } delemeter
-	
-// 	createTable: function(obj){
-
-
-// table({
-// 	updatable: true,
-	
-// 	// add this if you only want columns
-// 	// this is overridden by content
-// 	columns: columns,
-// 	content: content,
-// 	delemeter: delemeter,
-// 	no_conents_error_message: no_conents_error_message,
-// 	filename: filename
-// });
 
 function TableComponent__add_col(obj,self,containerId){
 	var isNull = Utils.isNull;
@@ -6282,29 +5852,27 @@ function TableComponent__add_col(obj,self,containerId){
 					r1.push(r);
 					for(var i=1; i<ot.length; i++){
 						var g1 = ot[i].split(delemeter);
-						//console.log(defaultValue);
+						
 						g1.push(defaultValue);
 						var g3 = g1.join(delemeter);
 						r1.push(g3);
 					}
-					//console.log(r1);
+					
 					r1.pop();
-					//console.log(r1);
+					
 					var newOldTable = r1.join("\n");
 
-					//console.log(obj.columns);
+					
 
 					console.log(newOldTable);
 
 					
-
-					//var v = new ViewComponentController();
 					var v = new ComponentFactory();
 					var table = v.table().createTable(false,{
 						updatable: obj.updatable,
 						
-						// add this if you only want columns
-						// this is overridden by content
+						
+						
 						columns: obj.columns,
 						content: newOldTable,
 						delemeter: obj.delemeter,
@@ -6312,67 +5880,30 @@ function TableComponent__add_col(obj,self,containerId){
 						filename: obj.filename,
 						save: obj.save
 					});
-					// 5555
+					
 
 					if(document.getElementById(containerId)){
 						$("#"+containerId).empty();
 						$("#"+containerId).append(table.getHtml());
 						table.initializeListeners();
 					}
-
-
-
-
-
 					
-					// var new_row_data = [];
-					// for(var b=0; b<row_items.length; b++){
-					// 	dosome(b);
-					// }
-
-					// function dosome(indx){
-					// 	var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
-					// 	new_row_data[indx] = val;
-					// }
-					// _updateRow(new_row_data);
-
-					//console.log(table.getRows());
-					
-
-					// self._props_._modalDialog.toggle();
 				});
-
 				
 			}
 		}
 	});
-	// self._props_._modalDialog.set({
-	// 	title: "Update",
-	// 	body: c,
-	// 	styles: "padding:5%;"
-	// });
-	// self._props_._modalDialog.toggle(); 
-
-
+	
 	
 
 }
 function TableComponent__column_adjustment(self,obj,e){
 	var isNull = Utils.isNull;
 
-	// self._props_._tableStructure._columnNames;
-	// self._props_._tableStructure._rows;
-	// var comp = new ViewComponentController();
-
-	// var tableEditMenu = comp.cust();
-	// tableEditMenu.make({});
-
 	var tableEditMenu = new ContainerComponent();
 
-
-
 	var id = "table-columns-dialog-"+Utils.randomGenerator(22,false);
-	//var cont = new ViewCollectionController("#"+id);
+	
 	var cont = new ViewManager();
 	cont.newSubView({
 		id: "edit-select",
@@ -6391,17 +5922,9 @@ function TableComponent__column_adjustment(self,obj,e){
 		body: cont
 	});
 
-
-	// self._props_._modalDialog.set({
-	// 	title: "Edit Table",
-	// 	body: cust,
-	// 	styles: "padding:5%;"
-	// });
-	// self._props_._modalDialog.toggle();
-
 }
 function _x1(self,cont,tableEditMenu){
-	var comp = new ComponentFactory();// ViewComponentController();
+	var comp = new ComponentFactory();
 
 	var rows = self._props_._tableStructure._rows;
 	var columns = self._props_._tableStructure._columnNames;
@@ -6422,10 +5945,6 @@ function _x1(self,cont,tableEditMenu){
 		});
 	}
 
-	// var cust = comp.cust();
-	// cust.make({
-	// 	body: buttons
-	// });
 
 	var cust = comp.container({
 		body: buttons
@@ -6441,9 +5960,9 @@ function _x1(self,cont,tableEditMenu){
 }
 function _editTableByGroup(button,self){
 	var isNull = Utils.isNull;
-	var comp = new ComponentFactory();// ViewComponentController();
+	var comp = new ComponentFactory();
 	var cust = comp.container();
-	// get the button position
+	
 	var matchColumnIndex = -1;
 	var colNames = self.getColumnNames();
 	for(var i=0; i<colNames.length; i++){
@@ -6465,7 +5984,7 @@ function _editTableByGroup(button,self){
 	    return self.indexOf(value) === index;
 	}
 	var a = ['a', 1, 'a', 2, '1'];
-	var unique = select.filter( onlyUnique ); // returns ['a', 1, 2, '1']
+	var unique = select.filter( onlyUnique ); 
 
 	var selectElement = "<select id='select-something'><option></option>";
 	for(var i=0; i<unique.length; i++){
@@ -6482,116 +6001,17 @@ function _editTableByGroup(button,self){
 		callback: {
 			type: 'run',
 			func: function(){
-				// var sel = document.getElementById('select-something');
-				// sel.addEventListener('change',function(e){
-				// 	var sel_item = sel.options[sel.selectedIndex].text;
-				// 	//console.log(strUser);
-				//     	//console.log('changed');
-
-				// 	var collectedRows = [];
-				// 	var count = 0;
-
-					
-
-				//     	var b1 = [];
-
-				//     	for(var i=0; i<rows.length; i++){
-				// 		var row = rows[i];
-				// 		var val = row[matchColumnIndex];
-				// 		if(val==sel_item){
-				// 			b1.push(row);
-				// 			collectedRows[count] = _rows[i];
-				// 			count++;
-				// 		}
-				// 	}
-
-				// 	//console.log(collectedRows);
-
-
-				// 	var compuForm = '<br><br><div style="width:550px;max-height:400px;"><div style="overflow:scroll;display:Block;white-space: nowrap;    height: 260px;">';
-				// 	for(var i=0; i<colNames.length; i++){
-				// 		compuForm += '<div style="width:20%;display:inline-block"><strong> #'+colNames[i]+'</strong></div>';
-				// 	}
-
-				// 	compuForm += '<br><br>';
-
-				// 	var formElementIds = [];
-
-
-					
-				// 	for(var i=0; i<collectedRows.length; i++){
-				// 		var b2 = collectedRows[i].rows;
-				// 		var form = '<div>';
-				// 		for(var g=0; g<b2.length; g++){
-				// 			var id = b2[g].id+'---cell'
-				// 			formElementIds.push(id);
-				// 			form += ''
-				// 			+'<div style="width:20%;display:inline-block" class="">'
-				// 			//+'	<label for="exampleInputName2">Name</label>'
-				// 			+'	<input style="width:115px;" type="text" value="'+b2[g].val+'" class="" id="'+id+'" >'
-				// 			+'</div>';
-				// 		}
-				// 		form += '</div><br>';
-				// 		compuForm = compuForm+""+form;
-				// 	}
-				// 	compuForm = compuForm+"</div></div></div><br><button id='update-as-group-btn' style='width:35%;'>Update</button>";
-
-					
-
-
-				// 	var cust5 = comp.cust();
-				// 	cust5.make({
-				// 		body: compuForm,
-				// 		callback: {
-				// 			type: 'run',
-				// 			func: function(){
-
-				// 				//console.log(collectedRows);
-				// 				$("#update-as-group-btn").click(function(e){
-				// 					e.preventDefault();
-				// 					for(var i=0; i<formElementIds.length; i++){
-				// 						var newVal = $("#"+formElementIds[i]).val();
-				// 						var _cell_id = formElementIds[i].split('---')[0];
-				// 						var el = document.getElementById(_cell_id);
-				// 						el.innerHTML = newVal;
-				// 						self.updateRow(_cell_id,newVal);
-										
-				// 					}
-				// 					self._props_._modalDialog.toggle();
-
-				// 					//console.log(self.getTableAsString());
-
-				// 				});
-								
-
-
-				// 			}
-				// 		}
-				// 	});
-
-				// 	c2.addComponent(cust5,true);
-
-				//});
+				
 
 			}
 		}
 	});
 
-	
-
-
-
-	// grab all values in that position
-
-	// sort out same values
-
-
-
 
 	cust.addComponent('<h4>'+button+'</h4>');
 
 
-	var layout = LayoutManager.newLayout() //new ViewLayoutController()
+	var layout = LayoutManager.newLayout() 
 		.row()
 		.col({},[cust])
 		.row()
@@ -6622,73 +6042,32 @@ function TableComponent__add_row(self){
 		_form += '<input type="text" id="'+_form_row_ids[i]+'" /><br>';
 	}
 
-	//console.log(_form_row_ids);
-
 	var r = "add-row-"+Utils.randomGenerator(7,false);
 	_form += "<button id='"+r+"'>Add Row</button>";
 
-	var c = new ComponentFactory(); //ViewComponentController();
+	var c = new ComponentFactory(); 
 	var cust = c.container({
 		body: _form,
 		callback: {
 			type: 'run',
 			func: function(){
-				// var columnsData = [];
-
-				// //console.log("NO - WAY _HOSEA");
-				// $("#"+r).click(function(e){
-				// 	var row = _form_row_ids;
-				// 	for (var p = 0; p < row.length; p++) {
-				// 		//console.log(row[p]);
-				// 		var val = $("#"+row[p]).val();
-				// 		//console.log(val);
-				// 		columnsData[p] = {
-				// 			html: val
-				// 		};
-				// 	}
 				
-				// 	//console.log(columnsData);
-				// 	self.row({
-				// 		columnsData: columnsData
-				// 	});
-				// 	self._props_._modalDialog.toggle();
-				// });
+				
 			}
 		}
 	});
 	
-	// self._props_._modalDialog.set({
-	// 	title: "Add A Row",
-	// 	body: cust,
-	// 	styles: "padding:5%;"
-	// });
-	// self._props_._modalDialog.toggle();
 }
 function TableComponent_row(obj,self){
 	
-	// table.row({
-	// 	id:"",
-	// 	columnsData:[
-	// 		{
-	// 			html: "",
-	// 			callback: {
-	// 				type: '',
-	// 				func: function(data){}
-	// 			}
-	// 		}
-	// 	]
-	// });
-	
 
 	var isNull = Utils.isNull;
-
-
 	
 	var _row_names = [];
 	var rowCount = self._props_._row_count++;
 	var row_items = [];
 	var row_ids = [];
-	//var self = this;
+	
 	var _tr = document.createElement('tr');
 	_tr.id = "table-"+Utils.randomGenerator(22,false);
 	var col_names = self._props_._tableStructure._columnNames;
@@ -6706,7 +6085,7 @@ function TableComponent_row(obj,self){
 
 	self._props_._tableStructure._row_cell_data[_tr.id] = [];
 	
-	//console.log(obj.columnsData);
+	
 	var _rows = {
 		ids:[],
 		id: ""
@@ -6719,7 +6098,7 @@ function TableComponent_row(obj,self){
 		_td.innerHTML = col.html;
 		_row_names[index] = col.html;
 		_td.id = "table-row-"+Utils.randomGenerator(22,false);
-		//_td.style = "overflow:hidden;";
+		
 		_td.className = "uieb-table-cell";
 		_rows.ids.push(_td.id);
 		_tr.appendChild(_td);
@@ -6731,7 +6110,7 @@ function TableComponent_row(obj,self){
 			cellValue: col.html
 		});
 
-		// setConnectedData: function(cellId,connectId,type,value,available,modified)
+		
 		var j = self.getColumnData(index);
 		if(!isNull(j)){
 			if(j.type=="remote"){
@@ -6745,7 +6124,7 @@ function TableComponent_row(obj,self){
 	self._props_._tableStructure._rowData[rc] = _row_names;
 	self._props_._tableStructure._rowCount++;
 
-	//console.log(self.getColumns());
+	
 	var _rows = [];
 	for(var i=0; i<row_ids.length; i++){
 		_rows[i] = {
@@ -6762,79 +6141,15 @@ function TableComponent_row(obj,self){
 		
 	}
 	function registerAllCells(id){
-		//registerListenerCallbackForSelf(self,"click",id,function(data){}
+		
 	}
 	function registerRemoteCells(id){
-		//_Utils_registerListenerCallbackForSelf(self,"click",id,function(data){
+		
 		_Utils_registerListenerCallbackForSelf("click",id,function(data){
 			data.e.stopPropagation();
 			data.e.preventDefault();
 
-
-			// var v = document.getElementById(id).innerHTML;
-			// if(v!=""){
-			// 	// cellRequestForConnectedData
-			// 	var connectIdObj = self.getConnectedData(id);
-			// 	if(!isNull(connectIdObj)){
-			// 		//console.log(connectIdObj)
-			// 		if(!connectIdObj.available){
-			// 			Utils.toggleFullScreenLoader();
-			// 			self._props_._tableStructure._cellRequestForConnectedData(v,function(responseData){
-			// 				//console.log(responseData);
-			// 				Utils.toggleFullScreenLoader();
-			// 				if(responseData=="_NOT_SET_"){
-			// 					var connect_id = Utils.randomGenerator(18,false);
-			// 					attachcomponent("",connect_id);
-			// 				}else{
-
-			// 					//{"id":1,"connected_data":"","type":"text","connected_id":""}
-			// 					responseData = JSON.parse(responseData);
-			// 					attachcomponent(responseData.connected_data,responseData.connected_id);
-			// 				}
-			// 			});
-			// 		}
-			// 	}
-				
-			// }
-
-			// function attachcomponent(responseData,connect_id){
-			// 	var form = '<input type="radio" name="optionss" checked value="text" > Text<br>';
-			// 	form += '<textarea cols="70" rows="12" id="table-stored-text-data-'+id+'">'+responseData+'</textarea><br>';
-			// 	form += '<button id="add-cell-data-'+id+'">Submit</button>';
-
-			// 	var c = compFactory.cust();
-			// 	c.make({ 
-			// 		body: form,
-			// 		callback: {
-			// 			type:'run',
-			// 			func: function(){
-			// 				$("#add-cell-data-"+id).click(function(e){
-			// 					var _type = $("input[name='optionss']:checked").val();
-			// 					if(_type=="text"){
-			// 						//  
-			// 						var val = $("#table-stored-text-data-"+id).val();
-			// 						if(val==""){
-
-			// 						}else{                 // cellId,connectId,type,value
-			// 							self.setConnectedData(id,connect_id,_type,val,true,true);
-			// 							self.updateCell(id,connect_id,true);
-			// 							self._props_._modalDialog.toggle();
-			// 						}
-									
-			// 					}							
-								
-			// 				});
-			// 			}
-			// 		}
-			// 	});
-			// 	self._props_._modalDialog.set({
-			// 		title: "Add Data",
-			// 		body: c,
-			// 		styles: "padding:5%;"
-			// 	});
-			// 	self._props_._modalDialog.toggle();
-			// }
-				
+			
 		},self,true);
 	}
 	
@@ -6853,7 +6168,7 @@ function TableComponent_row(obj,self){
 		
 	}
 
-	//_Utils_registerListenerCallbackForSelf(self,"click",_tr.id,function(data){
+	
 	_Utils_registerListenerCallbackForSelf("click",_tr.id,function(data){
 
 
@@ -6887,7 +6202,7 @@ function TableComponent_row(obj,self){
 						function dosome(indx){
 							var val = $("#table-single-row-"+rowCount+"-"+indx).val().trim();
 							new_row_data[indx] = val;
-							//console.log(self.getRowCellData()[indx]);
+							
 							var cellId = self.getRowCellData()[_tr.id][indx].cellId;
 							self.updateCell(cellId,val,true);
 						}
@@ -6896,20 +6211,16 @@ function TableComponent_row(obj,self){
 
 						
 
-						//_updateRow(new_row_data);
+						
 
-						//console.log(table.getRows());
+						
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
-		// self._props_._modalDialog.set({
-		// 	title: "Update",
-		// 	body: c,
-		// 	styles: "padding:5%;"
-		// });
-		// self._props_._modalDialog.toggle();
+		
+		
 	},self,true);
 
 	_Utils_registerListenerCallback(obj,self,_tr.id,{
@@ -6924,33 +6235,6 @@ function TableComponent_row(obj,self){
 	}else{
 		self._props_._elements._tbody.appendChild(_tr);
 	}
-
-	
-	
-	
-	
-
-	
-	
-	// console.log(self._props_._elements._tbody.id);
-	// findComponent(self._props_._elements._tbody.id,_tr,function(elem){
-	// 	console.log(self._props_._elements._tbody.lastChild);
-	// 	//$(self._props_._elements._tbody).children()[0].append(_tr);
-
-	// 	if(document.getElementById(self._props_._elements._tbody.id)){
-	// 		document.getElementById(self._props_._elements._tbody.id)
-	// 		.lastChild.appendChild(_tr);
-	// 	}
-		
-	// });
-	
-
-
-	
-	// registerListenerCallbackForSelf(self,"click",start.id,function(data){
- //    		data.e.preventDefault();
- //    		self.start();
- //    	});
     	
 
 }
@@ -6959,16 +6243,6 @@ function TableComponent_getTableAsString(delemeter,self){
 
 	var isNull = Utils.isNull;
 
-	
-			// self._props_._tableStructure._rows.push({
-			// 	column_line_num: self._props_._tableStructure._rowCount,
-			// 	rowId: _tr.id,
-			// 	rows: _rows, [id,val]..
-			// });
-
-
-		
-
 
 	if(isNull(delemeter)){
 		delemeter = "\t";
@@ -6976,7 +6250,7 @@ function TableComponent_getTableAsString(delemeter,self){
 
 	var rows = [];
 	var rows1 = self.getRows(true);
-	//console.log(rows1);
+	
 	for(var i=0; i<rows1.length; i++){
 		var r = rows1[i].rows;
 		var setRow = [];
@@ -6996,87 +6270,11 @@ function TableComponent_getTableAsString(delemeter,self){
 	}
 
 	return str;
-
-	
-
-	
-
-
-	
-	// var builtTableStr = "";
-	// for(var p=0; p<rows.length; p++){
-	// 	var rowSplit = rows[p];
-	// 	var rowString = "";
-	// 	var start = 0;
-	// 	for(var h=0; h<rowSplit.length; h++){
-	// 		if(start==0){
-	// 			rowString += rowSplit[h];
-	// 		}else{
-	// 			rowString += delemeter+rowSplit[h];
-	// 		}
-	// 		start++;
-	// 	}
-	// 	rowString += "\n";
-	// 	builtTableStr += rowString;
-	// }
-
-	// // add column name
-	// var colNames = self._props_._tableStructure._columnNames;
-	// var start = 0;
-	// var names = "";
-	// for(var i=0; i<colNames.length; i++){
-	// 	if(start==0){
-	// 		names += colNames[i];
-	// 	}else{
-	// 		names += delemeter+colNames[i];
-	// 	}
-	// 	start++;
-	// }
-	// builtTableStr = names+"\n"+delemeter+builtTableStr;
-	// return builtTableStr
 	
 }
 
 
-// 1001
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-
-
-
-
-
-// 9999
- // @exports CMSUsers
- // @classdesc A component that handles multiple components with in one view.
- // @class
- // @constructor
+ 
 
 function CMSUsers(){
 
@@ -7100,11 +6298,11 @@ CMSUsers.prototype = {
 
 }
 
-// 9999
- // @exports CMSManager
- // @classdesc A component that handles multiple components with in one view.
- // @class
- // @constructor
+
+ 
+ 
+ 
+ 
 
 function CMSManager(){
 
@@ -7116,7 +6314,7 @@ CMSUsers.prototype = {
 
 
 
-// 2222
+
 /* Utils */
 
 /** 
@@ -7124,8 +6322,8 @@ CMSUsers.prototype = {
 */
 var Utils = {
 
-	// 55555
-	// https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+	
+	
 
 
 	validateEmail: function(email) {
@@ -7160,10 +6358,10 @@ var Utils = {
 	    m = (m<10) ? "0" + m : m;
 	    s = (s<10) ? "0" + s : s
 
-	    // var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-	    // var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-	    // var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-	    //return hDisplay + mDisplay + sDisplay; 
+	    
+	    
+	    
+	    
 
 	    return h + ":" + m + ":" + s;
 	},
@@ -7290,7 +6488,7 @@ var Utils = {
 		var _URL = window.URL || window.webkitURL;
 		var img;
 		var obj = {};
-		//if ((file = this.files[0])) {
+		
 	          img = new Image();
 	          img.onload = function () {
 	             console.log(this.width + " " + this.height);
@@ -7299,7 +6497,7 @@ var Utils = {
 	             callback(obj);
 	          };
 	         	img.src = _URL.createObjectURL(file1);
-		//}
+		
 
 		return obj;
 	},
@@ -7322,9 +6520,9 @@ var Utils = {
 	* @param {Date} - birthday
 	* @return {Number} - age
 	*/ 
-	calculateAge: function(birthday) { // birthday is a date object
+	calculateAge: function(birthday) { 
 	    var ageDifMs = Date.now() - birthday.getTime();
-	    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+	    var ageDate = new Date(ageDifMs); 
 	    return Math.abs(ageDate.getUTCFullYear() - 1970);
 	},
 
@@ -7352,7 +6550,7 @@ var Utils = {
 	* @return {String} 
 	*/
 	removeNewLines: function(d,endAlso){
-		var content = d.replace(/(\r?\n|\r)+/, '');//.trim(); (\r?\n|\r)+$/
+		var content = d.replace(/(\r?\n|\r)+/, '');
 		if(Utils.isNull(endAlso) || endAlso==true){
 			content = content.replace(/(\r?\n|\r)+$/, '');
 		}
@@ -7403,7 +6601,7 @@ var Utils = {
 	*/
 	formatBytes: function(bytes,decimals) {
 	   if(bytes == 0) return '0 Byte';
-	   var k = 1000; // or 1024 for binary
+	   var k = 1000; 
 	   var dm = decimals + 1 || 3;
 	   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 	   var i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -7415,8 +6613,8 @@ var Utils = {
 	*
 	*/
 	getFileSize: function(file){
-		//file = input.files[0];
-	    //bodyAppend("p", "File " + file.name + " is " + file.size + " bytes in size");
+		
+	    
 	    console.log("File " + file.name + " is " + file.size + " bytes in size");
 
 	    var isToBig = formatBytes(file.size);
@@ -7446,7 +6644,7 @@ var Utils = {
 	* @return {Object} - size:String|isOver:boolean
 	*/
 	validatefilesize: function(file, maxSize){
-		//file = input.files[0];
+		
 	    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 	    var s = null;
 		for (var i = 0; i < sizes.length; i++) {
@@ -7455,10 +6653,10 @@ var Utils = {
 				break;
 			}
 		}
-		// set a default size
+		
 		if(s==null){ s = sizes[2]; }
 		var sizeAmount = maxSize.split(s)[0];
-		var sizeType = s;//maxSize.split(" ")[1];
+		var sizeType = s;
 		
 		var maxsize = "incorrect size";
 		var sizeIndex;
@@ -7531,13 +6729,8 @@ var Utils = {
 				}
 			}
 		}
-		
-
 
 	}
-
-
-
 
 };
 
@@ -7559,29 +6752,6 @@ var _Utils = {
 	}
 };
 
-
-
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-
-
-
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 /* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
 	ApplicationManager_start_createDiv(self);
@@ -7594,8 +6764,8 @@ function ApplicationManager_start(runApplicationFunction,self){
 	runApplicationFunction();
 }
 function loadUpFiles(base,files){
-	// var files = applicationManager._props_._files;
-	// var base = applicationManager._props_._basePath;
+	
+	
 	for(var i in files){
 		_load(i,files[i]);
 	}
@@ -7628,32 +6798,32 @@ function ApplicationManager_start_createDiv(self){
 	$('body').append(self.getRootElement());
 }
 var CONNECTED_COMPONENTS = [];
-// 7676
+
 function ApplicationManager_start_runInterval(self){  
 
 	var interval = setInterval(function(){ 
-		//var GL_COMPONENTS = self.getComponents();
+		
 		var components = self.getComponents();
 		for(var i=0;i<components.length;i++){
 			if(document.getElementById(components[i].id)){
 
-				//ApplicationManager_start_handleAttachEvents(comp);
+				
 
-				// only run if component is not already apart of the 
-				// ALL_COMPONENTS object
+				
+				
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === false){
-					//console.log(components[i].component);
-					// 333444
+					
+					
 					var index = i;
-					//setTimeout(function(){
+					
 						components[index].component.initializeListeners();
-					//},1000);
+					
 
-					// Add to 
+					
 					CONNECTED_COMPONENTS.push(components[index].id);
 					var comp = components[index].component._props_._dom_events;
 
-					// activate attach events
+					
 					ApplicationManager_start_handleAttachEvents(comp,components[index].component);
 					
 				}
@@ -7671,7 +6841,7 @@ function ApplicationManager_start_runInterval(self){
 			}
 		}
 
-		// 797979
+		
 		var completed_images = [];
 		for (var i = 0; i < gl_ImageManager.length; i++) {
 			var container = gl_ImageManager[i].container;
@@ -7703,7 +6873,7 @@ function ApplicationManager_start_handleAttachEvents(comp,component){
 		if(comp._addToDOMEvent){
 			if( Array.isArray( comp._addToDOMEvent )){
 				for(var k=0;k<comp._addToDOMEvent.length; k++){
-					//console.log(component)
+					
 					comp._addToDOMEvent[k]();
 				}
 			}else{
@@ -7729,10 +6899,10 @@ function ApplicationManager_start_handleDeAttachEvents(comp){
 
 }
 function ApplicationManager_templateParser(htmlString,replacements,opts,self){
-	// p1p1p1p1
-	// ["{{more or less}}", "more or less"]
+	
+	
 	var res = htmlString;
-	//var regex = /\$(.*?)\$/g;
+	
 
 	if(replacements.length!=2) return htmlString;
 
@@ -7756,7 +6926,7 @@ function ApplicationManager_templateParser(htmlString,replacements,opts,self){
 
 
 
-// 5050 33333
+
 function StateManager_buidRoutes(self){
 	var routes = {};
 	var router = {}
@@ -7775,18 +6945,18 @@ function StateManager_buidRoutes(self){
 	
 	for(var r in self._state_manager._routes){
 		var funcName = "func"+Utils.randomGenerator(7,false);
-		// give route function name
+		
 		routes[r] = funcName;
 		var lastChar = r.charAt(r.length-1);
 		if(lastChar!="/"){ 
 			var r2 = r+"/";
-			//console.log(r2);
+			
 			routes[r2] = funcName;
 		}
 		
-		// get method
+		
 		var meth = self._state_manager._routes[r];
-		// add method to routes
+		
 		router[funcName] = meth;
 	}
 
@@ -7796,25 +6966,13 @@ function StateManager_buidRoutes(self){
 }
 
 
-
-
-
-
-
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 /* 0000 - ComponentManager */
 function AppComponent_getHtml(self,route){
 
 	return document.createElement('div');
-	// if(self.TYPE == Flags.Type.view){
-	// 	return AppComponent_getHtml_view_fragment(self,route);
-	// }else if(self.TYPE == Flags.Type.layout){
-	// 	return AppComponent_getHtml_layout_fragment(self,route);
-	// }else if(self.TYPE == Flags.Type.component){
-	// 	return AppComponent_getHtml_component_fragment(self,route);
-	// }
+	
+	
+	
 }
 
 function AppComponent_getHtml_view_fragment(self,route){
@@ -7823,12 +6981,12 @@ function AppComponent_getHtml_view_fragment(self,route){
 function AppComponent_getHtml_layout_fragment(self,route){
 	return self._props_._elements._fragment.cloneNode(true);
 }
-// 8888
+
 function AppComponent_getHtml_component_fragment(self,route){
 	var obj = self._props_._obj;
 	var bodies = [];
 	self._props_._container = document.createElement('div');
-	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";//self.getId();
+	self._props_._container.id = (!Utils.isNull(obj) && !Utils.isNull(obj.id)) ? obj.id : "";
 	if(!Utils.isNull(obj)){
 		if(!Utils.isNull(obj.classes)){
 			self._props_._container.className = obj.classes;
@@ -7857,12 +7015,12 @@ function AppComponent_getHtml_component_fragment(self,route){
 	self._props_._elements._fragment = fragment;
 	return self._props_._elements._fragment.cloneNode(true);
 }
-// 5050
+
 function _create_body(object){
 	var body = object.body;
 	var template = (Utils.isNull(object.template)) ? "" : object.template;
 	var obj = (Utils.isNull(object.obj)) ? {} : object.obj;
-	//var original = (Utils.isNull(obj.original)) ? false : obj.original;
+	
 
 	var mBody;
 	if(typeof body === "string"){
@@ -7874,7 +7032,7 @@ function _create_body(object){
 			}else{
 				return view.getHtml();
 			}
-			//return _create_body({ body: view, original: original });
+			
 		}else if(body.charAt(0) === "&"){
 			var p = body.substr(1);
 			var t = applicationManager.getLoadedFileContents(p);
@@ -7935,20 +7093,13 @@ function _getView(body,obj){
 		}
 	}
 
-	// 5555
+	
 	var method = body.slice(1);
 	var v = applicationManager.getMethod(method)(paramValues);
 	return v;
 }
 function AppComponent_initializeListeners(self,myComponent){
 
-	// self._props_._events.push({
-	// 	selector: selector,
-	// 	type: type,
-	// 	func: func,
-	// 	preventDefault: preventDefault,
-	// 	stopPropagation: stopPropagation
-	// }); 979797
 
 	if(self._props_._isEventsActive == true) return;
 	self._props_._isEventsActive = true;
@@ -7968,8 +7119,8 @@ function AppComponent_initializeListeners(self,myComponent){
 			});
 
 		}else{
-			//$("#"+eventObj.id).off();
-			//console.log(document.getElementById(eventObj.selector.substring(1)));
+			
+			
 
 			if(document.getElementById(document.getElementById(eventObj.selector.substring(1)))){
 				_runsetupinitializelistener(eventObj,self);
@@ -8014,7 +7165,7 @@ function _runsetupinitializelistener(eventObj,self){
 			args: self._props_._args
 		};
 		d["event"] = e;
-		// 55555
+		
 		for(prop in eventObj){
 			if(typeof eventObj[prop] === 'function'){
 				if(document.getElementById( eventObj.selector.substring(1) )){
@@ -8056,12 +7207,12 @@ function ContainerComponent_setActive(active,stillSet,self){
 	}
 	function m(){
 		if(!active){
-			//if($("#"+containerId).hasClass(loader_class)){}
+			
 			$("#"+containerId).addClass(containerClass);
 			$("#"+spinnerId).addClass(spinnerClass);
 			var offset = "-"+$("#"+containerId).offset().top+"px";
 			document.getElementById(containerId).style.top = offset
-			// console.log(offset);
+			
 		}else{
 			$("#"+containerId).removeClass(containerClass);
 			$("#"+spinnerId).removeClass(spinnerClass);
@@ -8071,12 +7222,8 @@ function ContainerComponent_setActive(active,stillSet,self){
 }
 
 
-
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 /* 0000 - Pages */
-// NOT BEING USED!
+
 function Pages_init(self){
 	var obj = self._props_._initial_view
 	var hash = window.location.hash.substring(1);
@@ -8090,11 +7237,6 @@ function Pages_init(self){
 }
 function Pages_newPageView(obj,self){
 
-	// id: 'home',
-	// route: 'home',
-	// body: '@homeLayout',
-	// init: true,
-	// listener: function(){}|{ type:'',func:function(){} }
 	
 
 	var baseRoute = "";
@@ -8112,18 +7254,18 @@ function Pages_newPageView(obj,self){
 	}else{	
 		obj.init = false;
 	}
-	// frfrfr
-	// m1m1m1m1
+	
+	
 	function setupRoutes(){
 		for (var i in obj.routes) {
-			var route = "";//baseRoute;
+			var route = "";
 			if(i != ""){
-				route = i;//baseRoute+"/"+i;
+				route = i;
 			} 
 			var layout = obj.routes[i];
 			if(typeof layout === "string"){
-				// layout mapper component,mapper component... 
-				// @layout #mapper @component,#mapper @component...
+				
+				
 				_setRouteWithMethod(route,layout);
 
 			}else if(typeof layout === "object"){
@@ -8136,11 +7278,11 @@ function Pages_newPageView(obj,self){
 
 	function _setRouteWithMethod(route,layout,transition){
 
-		stateManager.mapRoute(route,layout);// frfrfr
+		stateManager.mapRoute(route,layout);
 		if(!Utils.isNull(transition)){
 			stateManager.mapTransition(route,layout);
 		}
-		// m1m1m1m1
+		
 		stateManager.addRoute(route,function(){
 			var args = arguments;
 			var _allRoutes = function(){
@@ -8181,11 +7323,11 @@ function Pages_newPageView(obj,self){
 				"params": _params,
 				"app": gl_applicationContextManager
 			};
-			// 757575
+			
 
 			pages.setRoute(obj); 
 
-			// 5050
+			
 			if(typeof _registeredLayout === "function"){
 				var r = _registeredLayout(obj);
 				if(r!=undefined) {
@@ -8200,7 +7342,7 @@ function Pages_newPageView(obj,self){
 
 				var layoutComponent = applicationManager.retrieve(_registeredLayout,Flags.Method)(obj);
 				if(layoutComponent){
-					// 33333 h1h1h1h1
+					
 					App(applicationManager.getRootElement()).empty();
 					App(applicationManager.getRootElement()).append(layoutComponent.getHtml());
 				}
@@ -8237,7 +7379,7 @@ function Pages_newPageView(obj,self){
 }
 function Pages__get(){
 
-	//Pages_render(self,arguments);
+	
 	if(Array.isArray(obj.body)){
 		for(var i=0; i<obj.body.length; i++){
 			_setup(obj.body[i]);
@@ -8269,15 +7411,15 @@ function Pages__get(){
 }
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ViewManager */
 function ViewManager_render(id,params,opts,self){
 	var trigger = false;
 	var replace = true;
 	var addComponentBody = null;
 	opts = (opts) ? opts : {};
-	//var params = (opts.params) ? opts.params : null;
+	
 
 	var mOpts = null;
 	for (var i = 0; i < self._props_._views_objects.length; i++) {
@@ -8286,7 +7428,7 @@ function ViewManager_render(id,params,opts,self){
 			break;
 		}
 	}
-	if(mOpts){ // jjjj frfrfr
+	if(mOpts){ 
 		self._props_._active_view = mOpts;
 		var _options = {};
 		if(typeof mOpts.body == 'function'){
@@ -8299,14 +7441,14 @@ function ViewManager_render(id,params,opts,self){
 		}else{
 			_options.body = mOpts.body;
 		}
-		// 979797 hhhhh
+		
 		var mBody = buildBody(_options,self);
 		self._props_._containers.addComponent(mBody,replace);
 		self._props_._current_view = id;
-		// if(mOpts.routable==true){
-		// 	var route = getNewRoute(id,self);
-		// 	stateManager.go(route,trigger);
-		// }
+		
+		
+		
+		
 	}
 }
 function ViewManager_next(opts,self){
@@ -8374,7 +7516,7 @@ function getNewRoute(id,self){
 }
 function MultiView_getCurrentViewInRoute(self){
 	var routes = window.location.hash.split("/");
-	// console.log(routes);
+	
 	var views = self._props_._views_objects;
 	var current_route = null;
 	var breakMe = false;
@@ -8415,8 +7557,8 @@ function MultiView_getView(id,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ContainerComponent */
 
 /**
@@ -8430,7 +7572,7 @@ function ContainerComponent_constructor(obj,self){
 
 
 }
-// 5555
+
 function ContainerComponent_addComponent(component,isEmpty,self){
 	if( document.getElementById(self.getId()) ){
 		addToDOM();
@@ -8451,28 +7593,28 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
-// 4444 - break this up
+
+
+
 /* 0000 - FormComponent */
 function FormComponent_constructor(obj,self){
-	// 2121
-// Handle this with each form element
-	//var formElement = new FormComponentDefaults(opts,self);
-	//var compContainer = new ContainerComponent({body:layoutContainer});
-	//self._props_._form_data[tag] = {
-	// 	element: layoutContainer,
-	// 	paramName: formElement.paramName,
-	//	component: compContainer,
-	// 	type: 'input|text',
-	// 	formElement: formElement,
-	// 	status: 0,
-	// 	statusId: statusId,
-	// 	isValid: true
-	//};
-	//self._props_._values = val
-	//compContainer.listenTo(form_handler, event_trigger_submit, func) 
-	//compContainer.listenTo(form_handler, event_trigger_reset, func)
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	if(obj==undefined) obj = {};
 
@@ -8492,15 +7634,15 @@ function FormComponent_constructor(obj,self){
 	self._props_._elements._container = container;
 	self._props_._form_handler = formhandler;
 
-	// var self = this;
+	
 
 	self._props_._form_data = {};
 	self._props_._values = {};
 
-	// intervals
-	// timeout
+	
+	
 
-	//self._props_._defaultValue = (obj.defaultValue==undefined) ? "none" : obj.defaultValue;
+	
 
 	self._props_._sections = {};
 	self._props_._form_sections = {};
@@ -8533,8 +7675,8 @@ function FormComponent_constructor(obj,self){
 	self._props_._tag = tag;
 	self._props_._prevent_remember = false;
 
-	// 2121
-	// 4444 - better control how form is submited
+	
+	
 	var hasBeenClicked = false;
 	function run2(){
 		var areAllValuesIn = handleStatus(self);
@@ -8556,7 +7698,7 @@ function FormComponent_constructor(obj,self){
 		return areAllValuesIn;
 	}
 	function run(){
-		// 333444
+		
 		if(hasBeenClicked){
 			return;
 		}
@@ -8568,23 +7710,23 @@ function FormComponent_constructor(obj,self){
 		var interval = setInterval(function(){
 			afterCount++;
 			if(afterCount>clearAfterCount){
-				//console.log(1)
+				
 				clearFormSubmitInerval();
 			}
 			if(!allIn){
-				//console.log(2)
+				
 				allIn = run2();
 			}else{
-				//console.log(3)
+				
 				clearFormSubmitInerval();
 			}
 
 			if(self._props_._runs._count>=self._props_._runs._times){
-				//console.log(4)
-				//clearFormSubmitInerval();
+				
+				
 			}
 			self._props_._runs._count++;
-		},200);//self._props_._runs._intervals);
+		},200);
 
 		function clearFormSubmitInerval(){
 			hasBeenClicked = false;
@@ -8598,7 +7740,7 @@ function FormComponent_constructor(obj,self){
 		}
 	}
 
-	// 00000
+	
 	self._props_._form_handler.on(self._props_._triggers.submit, function(){
 		var yes = run2();
 		if(!yes) run();
@@ -8611,10 +7753,10 @@ function FormComponent_constructor(obj,self){
 		for(var i in self._props_._form_data){
 			var paramname = triggers[i].paramName;
 			var status = triggers[i].status;
-			// o - default
-			// 1 - ready
-			// 2 - processing
-			// 3 - fail
+			
+			
+			
+			
 			if(status!=1){
 				areAllValuesIn = false;
 				break;
@@ -8627,14 +7769,14 @@ function FormComponent_update(tag,value,self){
 	var form_element = self._props_._form_data[tag];
 	if(Utils.isNull(form_element)) return false;
 	var type = form_element.type;
-	// 4444 - add for other form elements 
+	
 	if(type=='input'){
 		var selector = form_element.formElement.selector
 		$(selector).val(value);
 	}
 }
 function FormComponent_getFormElements(self){
-	// 333444
+	
 	var data = self._props_._form_data;
 	var elements = [];
 	for(var i in data){
@@ -8659,13 +7801,13 @@ function FormComponent_getFormElements(self){
 
 
 function FormComponent_build(self){
-	//if(!Utils.isNull(pages)){
-	//	handleFormPageBuild(pages,self);
-	//}else{
+	
+	
+	
 		handleFormNormalBuild(self);
-	//}
+	
 }
-// webnetpagesinc.mof6bg
+
 
 function objectLength(obj){
 	var len = 0;
@@ -8686,7 +7828,7 @@ __FormSectionHandler.prototype = {
 
 };
 
-// 717171
+
 function handleFormNormalBuild(self){
 	var formSectionHandler = new __FormSectionHandler();
 
@@ -8698,7 +7840,7 @@ function handleFormNormalBuild(self){
 
 	for (var i = 0; i < formSectionHandler.all_elements.length; i++) {
 		if(Array.isArray(formSectionHandler.all_elements[i])){
-			//f_handle_formSection(all_elements[i],layout,formSectionView,formSectionViewIDs,self);
+			
 			f_handle_formSection(formSectionHandler,i,self);
 		}else{
 			var layRow = formSectionHandler.all_elements[i].layout.row;
@@ -8712,13 +7854,13 @@ function handleFormNormalBuild(self){
 	}
 
 	if(formSectionHandler.formSectionView!=null){
-		//console.log(formSectionHandler.formSectionView);
+		
 		formSectionHandler.layout.row();
 		formSectionHandler.layout.col({md:12},formSectionHandler.formSectionView);
 		self._props_._form_sections._view_ids = formSectionHandler.formSectionViewIDs;
 	}
 
-	// 9595959
+	
 	if(self._props_._isFormSection==false){
 		formSectionHandler.layout.row();
 		formSectionHandler.layout.col({md:12},[self._props_._submit_button]);		
@@ -8759,7 +7901,7 @@ function f_create_all_elements(elements,self){
 	}
 	return all_elements;
 }
-//function f_handle_formSection(all_elements,layout,formSectionView,formSectionViewIDs,self){
+
 function f_handle_formSection(formSectionHandler,index,self){
 	var _formSectionsObjects = [];
 	var form_view = formSectionHandler.all_elements[index];
@@ -8820,13 +7962,13 @@ function f_handle_formSection(formSectionHandler,index,self){
 		formSectionHandler.layout.col(layCol,section_container);
 
 	}else if(formSection.type=='page'){
-		// 333444
+		
 		if(formSectionHandler.formSectionView==null){
 			formSectionHandler.formSectionView = new ViewManager();
 		}
 
 		var form_handler = self._props_._form_handler;
-		var event_trigger_submit = self._props_._triggers.submit; // 00000
+		var event_trigger_submit = self._props_._triggers.submit; 
 		var event_trigger_reset = self._props_._triggers.reset;
 	
 		var form_section_layout = layoutManager.newLayout().row();
@@ -8859,14 +8001,14 @@ function f_handle_formSection(formSectionHandler,index,self){
 			}
 		}
 
-		// 333444
+		
 		function _tothegame(comp,form_view,n){
 			comp.listenTo(form_handler, event_trigger_submit, function(msg) {
-				//console.log(form_view[n]);
+				
 				var myid = form_view[n].data.formElement.id;
 				if(document.getElementById(form_view[n].data.formElement.id) != undefined){	
 					_handle_current_view_values(function(values){
-						// var val = $('#'+myid).val();
+						
 						var val = gl_getFormElementValue('input','#'+myid);
 						values[myid] = val;
 						return val;
@@ -8954,7 +8096,7 @@ function f_handle_formSection(formSectionHandler,index,self){
 		_formSectionsObjects.push([form_section_view_id,form_view[0]]);
 
 		var form_section_container = new ContainerComponent({body: form_section_layout});
-		// 333444
+		
 		form_section_container.addListener(function(obj){
 			if(formSection.remember){
 				formSection._props_._insertValues();
@@ -8972,19 +8114,6 @@ function f_handle_formSection(formSectionHandler,index,self){
 
 
 
-
-
-
-
-
-
-
-
-
-
-// 4444 - Remove this replaced by FormSections
-//      - add layout to form pages
-// 		- handle remember through page turns
 function handleFormPageBuild(pages,self){
 	var view = new ViewManager({routable:false});
 	for(var i=0; i<pages.length; i++){
@@ -8999,7 +8128,7 @@ function handleFormPageBuild(pages,self){
 		add_submit(i,pages,elements);
 		add_view(i,viewId,container,page);
 
-	}// end of loop
+	}
 
 
 	function add_label_to_elements(index,page,elements){
@@ -9045,8 +8174,8 @@ function handleFormPageBuild(pages,self){
 	}
 
 	function add_pages(index,elements,view,page){
-		//var prevBtn = new ButtonComponent({label:'Back'});
-		//var nextBtn = new ButtonComponent({label:'Next'});
+		
+		
 
 		var row = Utils.createElement({
 			el: 'div',
@@ -9101,7 +8230,7 @@ function handleFormPageBuild(pages,self){
 			
 		}
 
-		// next button
+		
 		function _addNextButton(){
 			var nextLabel = "Next";
 			var nextBtnStyle = "";
@@ -9139,7 +8268,7 @@ function handleFormPageBuild(pages,self){
 		view.newSubView({  
 			id: viewId,
 			init: init,
-			// route: 'yes',
+			
 			body: container
 		});
 	}
@@ -9172,26 +8301,26 @@ function FormComponent_onSubmit(opts,callback,self){
 
 	self._props_._submit_button_id = id;
 
-	// 333444 55555
+	
 	self._props_._submit_button = new ButtonComponent({
 		label: label,
 		style: style,
 		className: className,
 		callback: function(obj){
 			obj.event.preventDefault();
-			//document.getElementById(self._props_._submit_button_id).disabled = true;
-			self._props_._form_handler.trigger(self._props_._triggers.submit); // 00000
-			//setTimeout(function(){
-				//document.getElementById(self._props_._submit_button_id).disabled = false;
-			//},1000);
+			
+			self._props_._form_handler.trigger(self._props_._triggers.submit); 
+			
+				
+			
 		}
 	});
 
 	self._props_._submit_button_id = self._props_._submit_button.getId();
-}// 1212
+}
 
 
-// 55555
+
 /** @exports FormInputEventHandler
 * @classdesc An internal object passed through to the formInput for manipulation of this input the events such as focusout, focusin etc. 
 * @class
@@ -9258,8 +8387,8 @@ FormInputEventHandler.prototype = {
 
 
 
-// 4444 - prevent form from being submitted when pressing enter 
-// 4444 - the param all is required otherwise values returned undefined
+
+
 function FormComponent_addInput(opts,self){
 
 	var formElement = new FormComponentDefaults(opts,self);
@@ -9279,7 +8408,7 @@ function FormComponent_addInput(opts,self){
 	var default_value = (opts.defaultValue!=undefined && opts.defaultValue!="") ? opts.defaultValue : gl_DEFAULT_FORM_VALUE;
 	if(default_value!=""){
 		self._props_._values[formElement.paramName] = default_value;
-		//input.value = default_value;
+		
 	}
 
 	var _current_section_id = self._props_._form_sections._current_section_id;
@@ -9288,7 +8417,7 @@ function FormComponent_addInput(opts,self){
 	}
 	self._props_._form_sections._form_ids[_current_section_id].push(['input',formElement.paramName]);
 
-	// 333444 - 717171
+	
 	var compContainer = new ContainerComponent({body:layoutContainer});
 	var tag = formElement.tag;
 	self._props_._form_data[tag] = {
@@ -9296,13 +8425,13 @@ function FormComponent_addInput(opts,self){
 		component: compContainer,
 		paramName: formElement.paramName,
 		type: 'input',
-		layout: opts.layout, // 888777
+		layout: opts.layout, 
 		formElement: formElement,
 		section: _current_section_id,
-		// o - default
-		// 1 - ready
-		// 2 - processing
-		// 3 - fail
+		
+		
+		
+		
 		status: 0,
 		statusId: statusId,
 		isValid: true,
@@ -9310,12 +8439,12 @@ function FormComponent_addInput(opts,self){
 		_match_cache_count: 0
 	};
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit; // 00000
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 
 	
-	// when this form is submitted this function is ran
-	// validation is performed and the value is retrieved
+	
+	
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 		gl_handle_event_trigger_onSubmit('input',self,_current_section_id,tag);
 	});
@@ -9324,7 +8453,7 @@ function FormComponent_addInput(opts,self){
 	});
 	compContainer.addListener(function(e){
 		if(formElement.selector.length <= 1){
-			// 4444 - error message shown if tag component is blank 
+			
 			console.log("form addInput tag should not be blank");
 		}
 		$(formElement.selector).focusout(function(e){
@@ -9332,14 +8461,8 @@ function FormComponent_addInput(opts,self){
 		});
 	});
 
-	// {
-	// 	getValue: '',
-	// 	addErrorStatus: function(errorMsg){},
-	// 	addSuccessStatus: function(successMsg){},
-	// 	removeStatus: function(){}
-	// }
-
-	// 55555
+	
+	
 	var f = new FormInputEventHandler();
 	f._props_._errorMethod = _add_error_;
 	f._props_._successMethod = _add_success_;
@@ -9361,8 +8484,8 @@ function FormComponent_addInput(opts,self){
 		},500);
 
 		if(formElement.remember){
-			// 4444 - the value of none is placed in all fields
-			// 
+			
+			
 			var value = self._props_._getRemeber(tag);
 			if(!Utils.isNull(value) && value.trim()!="none"){
 				$(formElement.selector).val(value);
@@ -9377,7 +8500,7 @@ function FormComponent_addInput(opts,self){
 			var section_id = self._props_._form_data[tag].section;
 			var form_sec = self._props_._form_sections._sections[section_id];
 			if(form_sec.type=='page'){
-				// 333444
+				
 				var values = form_sec.values;
 				for(prop in values){
 					if(formElement.selector.substring(1)==prop){
@@ -9395,7 +8518,7 @@ function FormComponent_addInput(opts,self){
 			val = gl_getFormElementValue('input',formElement.selector);
 		}
 
-		var value = "";//val!="" ? val : (formElement.defaultValue!=gl_DEFAULT_FORM_VALUE && self._props_._defaultValue!=gl_DEFAULT_FORM_VALUE);
+		var value = "";
 
 		if(val!="" && val!=undefined){
 			value = val;
@@ -9418,11 +8541,11 @@ function FormComponent_addInput(opts,self){
 			return;
 		}
 		if(!Utils.isNull(validation.required)){
-			//if(validation.required.require){
+			
 				var _isvalid = requiredValidation(val,validation);
 				self._props_._form_data[tag]['isValid'] = _isvalid;
 				if(!_isvalid) return;
-			//}
+			
 		}
 		if(!Utils.isNull(validation.min)){
 			var _isvalid = minValidation(val,validation);
@@ -9445,9 +8568,9 @@ function FormComponent_addInput(opts,self){
 			if(!_isvalid) return;
 		}
 
-		// 4444
-		// let user run own ajax call
-		// remove white space
+		
+		
+		
 		function matchValidation(val,validation){
 			if(!Utils.isNull(validation.match)){
 				var isAMatch = false;
@@ -9465,7 +8588,7 @@ function FormComponent_addInput(opts,self){
 				function matchGiven(){
 					var matches = validation.match.matches;
 
-					// determine if value is a match
+					
 					for(var i=0; i<matches.length; i++){
 						if(val==matches[i]){
 							doesMatch = true;
@@ -9473,7 +8596,7 @@ function FormComponent_addInput(opts,self){
 						}
 					}
 
-					// if a match, should trigger error or success
+					
 					if(!Utils.isNull(validation.match.doesMatch)){
 						doesMatch = validation.match.doesMatch;
 					}
@@ -9487,7 +8610,7 @@ function FormComponent_addInput(opts,self){
 					}else{
 						type = ajax.type;
 					}
-					// set defaults
+					
 					if(Utils.isNull(ajax.cache_count)){
 						ajax.cache_count = 5;
 					}
@@ -9500,7 +8623,7 @@ function FormComponent_addInput(opts,self){
 						console.error("Please provide data to send to server");
 						return;
 					}
-					//if(self._props_._form_data[tag]._match_cache==null){
+					
 					if(!Utils.isNull(ajax.cache) && ajax.cache==true){
 						var result = self._props_._form_data[tag]._match_cache;
 						if(ajax.cache_count < 0){
@@ -9623,13 +8746,13 @@ function FormComponent_addInput(opts,self){
 		        		runMatch();
 		        	}
 				}
-			}// end of match validation
+			}
 		}
 	}
 
 	self._props_._initializeValidationAndValues = initializeValidationAndValues;
 
-	// 4444
+	
 	function charactersValidation(val,validation){
 		var  letters = [
 		 "a","b","c","d","e","f","g","h","i","j","c","l","m","n","o"
@@ -9820,23 +8943,6 @@ function FormComponent_addInput(opts,self){
 		}
 
 
-	// characters: {
-	// 	except: [],
-	// 	beginWithSpecialChar: true,
-	// 	endWithSpecialChar: true,
-	//	numbers: true,
-	// 	beginWithNumber: true,
-	// 	endWithNumber: true,
-	//  beginWithSpace: false,
-	//  trim: false,
-	//	lowercase: true,
-	//	uppercase: true,
-	//	changeToLowerCase: true,
-	//	changeToUpperrCase: false,
-	// 	error: "",
-	// 	success: ""
-	// },
-
 		function runSetupDefualts(){
 
 			if(!Utils.isNull(validation.characters.trim)){
@@ -9959,12 +9065,12 @@ function FormComponent_addInput(opts,self){
 		}
 		return _isvalid;
 	}
-	// 55555
+	
 	function _add_error_(errorMsg){
 		if(!$("#"+statusId).hasClass("invalid-feedback")){
 			_add_error_1();
 		}else if($("#"+statusId).hasClass("valid-feedback")){
-			//$("#"+statusId).removeClass("valid-feedback")
+			
 			_add_error_1();
 		}else{
 			_add_error_1();
@@ -9972,7 +9078,7 @@ function FormComponent_addInput(opts,self){
 		function _add_error_1(){
 			_isvalid = false;
 			_remove_message_();
-			// $(formElement.selector).removeClass("is-valid");
+			
 			$(formElement.selector).addClass("is-invalid");
 			$("#"+statusId).addClass("invalid-feedback");
 			$("#"+statusId).text(errorMsg);
@@ -9982,7 +9088,7 @@ function FormComponent_addInput(opts,self){
 		if(!$("#"+statusId).hasClass("valid-feedback")){
 			_add_success_1();
 		}else if($("#"+statusId).hasClass("invalid-feedback")){
-			//$("#"+statusId).removeClass("invalid-feedback")
+			
 			_add_success_1();
 		}else{
 			_add_success_1();
@@ -9990,7 +9096,7 @@ function FormComponent_addInput(opts,self){
 		function _add_success_1(){
 			_isvalid = true;
 			_remove_message_();
-			// $(formElement.selector).removeClass("is-invalid");
+			
 			$(formElement.selector).addClass("is-valid");
 			$("#"+statusId).addClass("valid-feedback");
 			$("#"+statusId).text(successMsg);	
@@ -10050,7 +9156,7 @@ function FormComponent_addInput(opts,self){
 		}
 		return validation;
 	}
-}// end of addInput
+}
 function FromComponent_addInput_createElement(formElement){
 	var input = Utils.createElement('input',{ 
 		type: formElement.type,
@@ -10116,7 +9222,7 @@ function FormComponent_addSelection(opts,self){
 		if(opts.changeListener){
 			$(formElement.selector).on('change',function(e){
 				var optionSelected = $("option:selected", this);
-				//self._props_._values[formElement.paramName] = this.value;
+				
 				var doc = document.getElementById(Utils.removeSelector(formElement.selector));
 				var selected = doc.selectedIndex;
 				opts.changeListener(this.value,selected,e,optionSelected,doc);
@@ -10126,7 +9232,7 @@ function FormComponent_addSelection(opts,self){
 
 	var compContainer = new ContainerComponent({body:topDiv});
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit; // 00000
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(){
 		self._props_._form_data[tag].status = 2;
@@ -10156,15 +9262,15 @@ function FormComponent_addSelection(opts,self){
 	}
 
 
-// <select>
-//   <option value="volvo">Volvo</option>
-//   <option value="saab">Saab</option>
-//   <option value="mercedes">Mercedes</option>
-//   <option value="audi">Audi</option>
-// </select>
+
+
+
+
+
+
 }
 
-// 4444 - no validation
+
 function FormComponent_addTextarea(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var tag = formElement.tag;
@@ -10177,7 +9283,7 @@ function FormComponent_addTextarea(opts,self){
 		innerHTML: formElement.label
 	});
 
-	// 888777
+	
 	var rows = 4;
 	var cols = 50;
 	if(opts.rows){
@@ -10206,7 +9312,7 @@ function FormComponent_addTextarea(opts,self){
 
 	var compContainer = new ContainerComponent({body:topDiv});
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit; // 00000
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(){
 		self._props_._form_data[tag].status = 2;
@@ -10252,7 +9358,7 @@ function FormComponent_addStateSelection(opts,self){
 
 	var compContainer = new ContainerComponent({body:topDiv});
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit; // 00000
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(){
 		self._props_._form_data[tag].status = 2;
@@ -10372,13 +9478,13 @@ function _us_states(opts,formElement,self){
 	return p;
 }
 
-// 1212
+
 function FormComponent_addRadioButtonGroup(opts,self){
 	var formElement = new FormComponentDefaults(opts,self);
 	var tag = formElement.tag;
 
 	var createElement = Utils.createElement;
-	//var topDiv = createElement();
+	
 	var topLabelStr = (!Utils.isNull(opts.label)) ? opts.label : "";
 
 	var inline_class = "";
@@ -10389,11 +9495,11 @@ function FormComponent_addRadioButtonGroup(opts,self){
 	var class_name = (opts.className==undefined) ? "" : opts.className;
 	var topDiv = createElement({
 		el: 'div',
-		className: 'form-group '+ class_name // 'form-group'
+		className: 'form-group '+ class_name 
 	});
 	var topLabel = createElement({
 		el: 'label',
-		// for: defaults.id,
+		
 		className: 'form-check-label',
 		innerHTML: topLabelStr
 	});
@@ -10429,7 +9535,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 			div.appendChild(btn);
 			div.appendChild(label);
 			topDiv.appendChild(div);
-		}// end of loop
+		}
 
 
 		_Utils_registerListenerCallback(opts,self);
@@ -10440,7 +9546,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 		var compContainer = new ContainerComponent({body:topDiv});
 
 		var form_handler = self._props_._form_handler;
-		var event_trigger_submit = self._props_._triggers.submit; // 00000
+		var event_trigger_submit = self._props_._triggers.submit; 
 		var event_trigger_reset = self._props_._triggers.reset;
 		compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 			self._props_._form_data[tag].status = 2;
@@ -10462,7 +9568,7 @@ function FormComponent_addRadioButtonGroup(opts,self){
 		}
 
 
-		// 717171
+		
 		var _current_section_id = self._props_._form_sections._current_section_id;
 		self._props_._form_data[tag] = {
 			paramName: formElement.paramName,
@@ -10476,27 +9582,6 @@ function FormComponent_addRadioButtonGroup(opts,self){
 			isValid: true
 		};
 	}
-
-
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-//   <label class="form-check-label" for="exampleRadios1">
-//     Default radio
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-//   <label class="form-check-label" for="exampleRadios2">
-//     Second default radio
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
-//   <label class="form-check-label" for="exampleRadios3">
-//     Disabled radio
-//   </label>
-// </div>
-
 
 }
 function FormComponent_addCheckBoxGroup(opts,self){
@@ -10549,7 +9634,7 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	var compContainer = new ContainerComponent({body:topDiv});
 
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit; // 00000
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 		self._props_._form_data[tag].status = 2;
@@ -10559,9 +9644,9 @@ function FormComponent_addCheckBoxGroup(opts,self){
 	compContainer.listenTo(form_handler, event_trigger_reset, function(msg) {
 		self._props_._form_data[tag].status = 0;
 	});
-	// _Utils_registerListenerCallbackForSelf("focusout",formElement.selector,function(b){
-	// 	initializeValidationAndValues();
-	// },self,true);
+	
+	
+	
 
 	function initializeValidationAndValues(){
 		var validation = new FormValidationDefaults(opts.validation);
@@ -10570,7 +9655,7 @@ function FormComponent_addCheckBoxGroup(opts,self){
 			var formEl = storedCheckboxes[i].formElement;
 			var paramName = formEl.name;
 			var selector = formEl.selector;
-			//console.log(paramName);
+			
 			if ($(selector).is(":checked")){
 				self._props_._values[paramName] = checkbox.value;
 			}else{
@@ -10579,51 +9664,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		}
 	}
 
-
-	// inline: true,
-
-	// Surround rows with div's to contain them
-	// and create columns with css grid layout.
-	// !This DOES NOT actual create rows, this
-	// must be done through own css styles. This
-	// overrides the inline option.
-	// rows: 4,
-
-	// label: "Select what you want?",
-
-	// // Group these checkbox values into an object with the given name
-	// intoObject: "name_of_object",
-
-	// //required: "<p style='color:red;'>This is required!</p>",
-	// // or
-	// required: {
-	// 	min: 2,
-	// 	message: ""
-	// },
-	// checkboxes: [
-	// 	{	
-	// 		label:"One",
-	// 		value:"1",
-	// 		name: "hello1",
-	// 		defaultValue: "NOT",
-	// 		// Have this checkbox checked by default
-	// 		checked: true,
-	// 		listener: {
-	// 			type: "click",
-	// 			callback: function(){
-	// 				//alert("hello James Dog");
-	// 			}
-	// 		}
-	// 	},
-	// 	{	
-	// 		label:"Two",
-	// 		value:"2",
-	// 		name: "hello2"
-	// 	}
-	// ]
-
-	//var formElement = new FormComponentDefaults(opts,self);
-	//var compContainer = new ContainerComponent({body:layoutContainer});
 	self._props_._form_data[tag] = {
 		paramName: formElement.paramName,
 		component: compContainer,
@@ -10633,23 +9673,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		statusId: statusId,
 		isValid: true
 	};
-	//self._props_._values = val
-	//compContainer.listenTo(form_handler, event_trigger_submit, func) 
-	//compContainer.listenTo(form_handler, event_trigger_reset, func)
-
-
-// <div class="form-check">
-//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-//   <label class="form-check-label" for="defaultCheck1">
-//     Default checkbox
-//   </label>
-// </div>
-// <div class="form-check">
-//   <input class="form-check-input" type="checkbox" value="" id="defaultCheck2" disabled>
-//   <label class="form-check-label" for="defaultCheck2">
-//     Disabled checkbox
-//   </label>
-// </div>
 
 }
 
@@ -10664,10 +9687,10 @@ function FormComponent_datePicker(obj,self){
 	var seperator = (Utils.isNull(obj.seperator)) ? "/" : obj.seperator;
 
 	var required = false;
-	var id = Utils.removeSelector(formElement.selector);//(isNull(obj.id)) ? "F-"+Support.Utils.randomGenerator(22,false) : obj.id;
-	var paramName = formElement.paramName;//(isNull(obj.paramName)) ? "F-"+Support.Utils.randomGenerator(22,false) : obj.paramName;
+	var id = Utils.removeSelector(formElement.selector);
+	var paramName = formElement.paramName;
 	
-	var label = formElement.label;//(isNull(obj.label)) ? "" : obj.label;
+	var label = formElement.label;
 
 	var mFormat = ""
 	var monthFormat = (Utils.isNull(obj.monthFormat)) ? "num" : obj.monthFormat;
@@ -10718,7 +9741,7 @@ function FormComponent_datePicker(obj,self){
     }
 	var i =
 		""
-		//+"<form>"
+		
     	+"	<div class=\"nativeDatePicker\">"
     	+"		<label for=\""+id+"\">"+label+"</label>"
       	+"		<input type=\"date\" id=\""+id+"\" name=\""+id+"\">"
@@ -10757,7 +9780,7 @@ function FormComponent_datePicker(obj,self){
         +"			</select>"
       	+"		</span>"
       	+"	</div>";
-      	//+"</form>";
+      	
 
 
 
@@ -10779,7 +9802,7 @@ function FormComponent_datePicker(obj,self){
 	var compContainer = new ContainerComponent({body:topDiv});
 
 	var form_handler = self._props_._form_handler;
-	var event_trigger_submit = self._props_._triggers.submit; // 00000
+	var event_trigger_submit = self._props_._triggers.submit; 
 	var event_trigger_reset = self._props_._triggers.reset;
 	compContainer.listenTo(form_handler, event_trigger_submit, function(msg) {
 		self._props_._form_data[tag].status = 2;
@@ -10802,15 +9825,15 @@ function FormComponent_datePicker(obj,self){
 	};
 
 
-	// var len = self._props_._valueIds.datePicker.length;
-	// self._props_._valueIds.datePicker[id] = {
-	// 	id: id,
-	// 	selector: "#"+id,
-	// 	paramName: paramName,
-	// 	required: required,
-	// 	format: format,
-	// 	seperator: seperator
-	// };
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	function initializeValidationAndValues(){
 		var y = $("#"+id+"-year").val();
@@ -10853,65 +9876,60 @@ function FormComponent_datePicker(obj,self){
 		var monthSelect = document.querySelector("#"+id+"-month");
 		var daySelect = document.querySelector("#"+id+"-day");
 
-		// hide fallback initially
+		
 		fallbackPicker.style.display = 'none';
 		fallbackLabel.style.display = 'none';
 
-		// test whether a new date input falls back to a text input or not
+		
 		var test = document.createElement('input');
 		test.type = 'text';
 
-		// if it does, run the code inside the if() {} block
+		
 		if(test.type === 'text') {
-		  // hide the native picker and show the fallback
+		  
 		  nativePicker.style.display = 'none';
 		  fallbackPicker.style.display = 'block';
 		  fallbackLabel.style.display = 'block';
 
-		  // populate the days and years dynamically
-		  // (the months are always the same, therefore hardcoded)
+		  
+		  
 		  populateDays(monthSelect.value);
 		  populateYears();
 		}
 
 		function populateDays(month) {
-		  // delete the current set of <option> elements out of the
-		  // day <select>, ready for the next set to be injected
+		  
+		  
 		  while(daySelect.firstChild){
 		    daySelect.removeChild(daySelect.firstChild);
 		  }
 
-		  // Create variable to hold new number of days to inject
+		  
 		  var dayNum;
 
-		  // 31 or 30 days?
+		  
 		  if(month === 'January' | month === 'March' | month === 'May' | month === 'July' | month === 'August' | month === 'October' | month === 'December') {
 		    dayNum = 31;
 		  } else if(month === 'April' | month === 'June' | month === 'September' | month === 'November') {
 		    dayNum = 30;
 		  } else {
-		  // If month is February, calculate whether it is a leap year or not
+		  
 		    var year = yearSelect.value;
 		    (year - 2016) % 4 === 0 ? dayNum = 29 : dayNum = 28;
 		  }
 
-		  // inject the right number of new <option> elements into the day <select>
+		  
 		  for(i = 1; i <= dayNum; i++) {
 		    var option = document.createElement('option');
 		    option.textContent = i;
 		    daySelect.appendChild(option);
 		  }
 
-		  // if previous day has already been set, set daySelect's value
-		  // to that day, to avoid the day jumping back to 1 when you
-		  // change the year
+		  
 		  if(previousDay) {
 		    daySelect.value = previousDay;
 
-		    // If the previous day was set to a high number, say 31, and then
-		    // you chose a month with less total days in it (e.g. February),
-		    // this part of the code ensures that the highest day available
-		    // is selected, rather than showing a blank daySelect
+		    
 		    if(daySelect.value === "") {
 		      daySelect.value = previousDay - 1;
 		    }
@@ -10927,7 +9945,7 @@ function FormComponent_datePicker(obj,self){
 		}
 
 		function populateYears() {
-		  // get this year as a number
+		  
 		  var date = new Date();
 		  var year;
 		  if(Utils.isNull(obj.yearsAgo)){
@@ -10937,7 +9955,7 @@ function FormComponent_datePicker(obj,self){
 		  }
 		  
 
-		  // Make this year, and the 100 years before it available in the year <select>
+		  
 		  for(var i = 0; i <= 100; i++) {
 		    var option = document.createElement('option');
 		    option.textContent = year-i;
@@ -10945,8 +9963,8 @@ function FormComponent_datePicker(obj,self){
 		  }
 		}
 
-		// when the month or year <select> values are changed, rerun populateDays()
-		// in case the change affected the number of available days
+		
+		
 		yearSelect.onchange = function() {
 		  populateDays(monthSelect.value);
 		}
@@ -10955,11 +9973,11 @@ function FormComponent_datePicker(obj,self){
 		  populateDays(monthSelect.value);
 		}
 
-		//preserve day selection
+		
 		var previousDay;
 
-		// update what day has been set to previously
-		// see end of populateDays() for usage
+		
+		
 		daySelect.onchange = function() {
 		  previousDay = daySelect.value;
 		}
@@ -10970,8 +9988,8 @@ function FormComponent_datePicker(obj,self){
 function FormComponent_addFileUpload(opts,self){
 
 	if(Utils.isNull(opts.url)){
-		// console.error("Please provide a URL");
-		// return;
+		
+		
 	}
 
 	var url = opts.url;
@@ -11005,23 +10023,7 @@ function FormComponent_addFileUpload(opts,self){
 	if(opts.complete!=undefined){
 		self._loadcallback = opts.complete;
 	}
-
-	// 7777
-	// url
-	// label
-	// name
-	// percent: true,
-	// opts.limit = {
-	// 	size: "12 GB" // 'Bytes', 'KB', 'MB', 'GB'
-	// 	errorMsg: "File size not to exceed 1mb"
-	// },
-	// // run function after upload completes
-	// complete: function(){}
-
-	// inputStyle
-	// handle: true
-	// // if handle is set to true the use can hanld the percent
-	// percent: {}
+	
 
 	var name = "m"+Utils.randomGenerator(7,false);
 
@@ -11030,13 +10032,13 @@ function FormComponent_addFileUpload(opts,self){
 	var inputDefaults = {
 		name: (opts.name==undefined) ? name : opts.name,
 		style: (opts.inputStyle==undefined) ? "" : opts.inputStyle
-	};//new ComponentDefaults(opts.input,self);
+	};
 	var submitDefaults = {
 		label: (opts.label==undefined) ? "" : opts.label,
 		style: (opts.style==undefined) ? "" : opts.style,
 		className: (opts.className==undefined) ? "" : opts.className,
 		id: (opts.id==undefined) ? "m"+Utils.randomGenerator(7,false) : opts.id
-	};//new ComponentDefaults(opts.submit,self);
+	};
 
 	var createElement = Utils.createElement;
 	var topDiv = createElement({
@@ -11068,7 +10070,7 @@ function FormComponent_addFileUpload(opts,self){
 	var submitElement = createElement({
 		type: "submit",
 		value: submitDefaults.label,
-		//name: submitDefaults.name,
+		
 		name: inputDefaults.name,
 		id: submitDefaults.id,
 		className: submitDefaults.className,
@@ -11191,16 +10193,16 @@ function FormComponent_addFileUpload(opts,self){
 			}
 
 			var data = new FormData();
-			//for(var i=0; i<fileInput.files.length; i++){ data.append("files", fileInput.files[i]); }
+			
 			for(var i=0; i<fileInput.files.length; i++){
 				data.append(self._props_._name, fileInput.files[i]); 
 			}
 
-			// if(!isNull(self._props_._data)){
-			// 	for(var d in self._props_._data){
-			// 		data.append(d,self._props_._data[d]);
-			// 	}
-			// }
+			
+			
+			
+			
+			
 
 
 			if(self._beforLoadcallback!=null && self._beforLoadcallback!=undefined){
@@ -11209,28 +10211,28 @@ function FormComponent_addFileUpload(opts,self){
 			}
 
 			request.upload.addEventListener('progress', function(e){
-				//$("#file-upload-form").hide();
+				
 				if(e.lengthComputable){
 					var percent = e.loaded / e.total;
 			
-					// if(!showPercent) return;
-					// if(opts.percent.handle==false){
+					
+					
 						var progress = document.getElementById(opts.percent.id);
 						console.log(progress);
-						//if(isNull(progress)) return;
+						
 						while(progress.hasChildNodes()){
 							progress.removeChild(progress.firstChild);
 						}
 						progress.appendChild(document.createTextNode(Math.round(percent * 100) + " %" ));
-					// }else{
-					// 	if(!Utils.isNull(opts.percent.func)){
-					// 		opts.percent.func(percent,e);
-					// 	}
-					// }
+					
+					
+					
+					
+					
 				}
 			});
 
-			// when upload is complete
+			
 			request.upload.addEventListener('load', function(e){
 				self.completed = true;
 				var r = {
@@ -11251,7 +10253,7 @@ function FormComponent_addFileUpload(opts,self){
 			});
 
 			request.open("POST", url);
-			request.setRequestHeader("Cache-Control","no-cache");//enctype="multipart/form-data"
+			request.setRequestHeader("Cache-Control","no-cache");
 			if(requestHeader!=null || requestHeader!=undefined){
 				for(var g=0;g<requestHeader.length;g++){
 					request.setRequestHeader(requestHeader[g].param, requestHeader[g].value);
@@ -11263,7 +10265,7 @@ function FormComponent_addFileUpload(opts,self){
 	},self);
 }
 
-// 4444 - handle valid characters
+
 function charactersValidation(val,validation){
 	var _isvalid = false;
 	var  letters = [
@@ -11454,24 +10456,6 @@ function charactersValidation(val,validation){
 		return _is_num;			
 	}
 
-
-// characters: {
-// 	except: [],
-// 	beginWithSpecialChar: true,
-// 	endWithSpecialChar: true,
-//	numbers: true,
-// 	beginWithNumber: true,
-// 	endWithNumber: true,
-//  beginWithSpace: false,
-//  trim: false,
-//	lowercase: true,
-//	uppercase: true,
-//	changeToLowerCase: true,
-//	changeToUpperrCase: false,
-// 	error: "",
-// 	success: ""
-// },
-
 	function runSetupDefualts(){
 
 		if(!Utils.isNull(validation.characters.trim)){
@@ -11552,19 +10536,11 @@ function charactersValidation(val,validation){
 			}
 		}
 	}
-
-
-
-
-
 	return _isvalid;
 }
 
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 /* 0000 - FormEventsHandler */
-// function FormEventsHandler_constructor(obj,formElement,self){
+
 function FormComponent_addInput_registerEvents(obj,formElement,self){
 	var preventDefault = false;
 	var stopPropagation = false;
@@ -11578,7 +10554,7 @@ function FormComponent_addInput_registerEvents(obj,formElement,self){
 			stopPropagation,
 			obj
 		);
-	}// 55555
+	}
 	if(!Utils.isNull(obj.focusout)){
 		_Utils_registerListenerCallbackForSelf(
 			"focusout",
@@ -11627,14 +10603,9 @@ function FormComponent_addInput_registerEvents(obj,formElement,self){
 }
 
 
-
-
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 /* 0000 - ListComponent */
-// 4444 - the only way that its ordered is by index
-// make it so that it can be ordered by letters
+
+
 function ListComponent_addItemAtIndex(index,item,callback,self){
 
 	self._props_._list_items.splice(index,0,item);
@@ -11674,7 +10645,7 @@ function ListComponent_addItemAtIndex(index,item,callback,self){
 			}
 		}
 
-		//$el.removeClass('remove');
+		
 
 		$( "#"+self._props_._list_element_id ).find('li').each(function( index ) {
 		  	$( this ).attr("data-index",index);
@@ -11695,7 +10666,7 @@ function ListComponent_removeItemAtIndex(index,callback,delay,self){
 
 	self._props_._list_items.splice(index,1);
 
-	//$(self._props_._list_container).find("[data-index="+index+"]").remove();
+	
 
 	var el = $("#"+self._props_._list_element_id).find("[data-index="+index+"]");
 	if(callback!=undefined){
@@ -11705,10 +10676,10 @@ function ListComponent_removeItemAtIndex(index,callback,delay,self){
 	if(delay==undefined) delay = 0;
 
 	if(delay==0){
-		//el.remove();
+		
 	}else{
 		setTimeout(function(){
-			//el.remove();
+			
 		},delay);
 	}
 	
@@ -11786,11 +10757,11 @@ function ListComponent_item_createElement(opts,active,index,compDefaults,self){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - ModalComponent */
-// 4444 - 4141
-// https://github.com/code-mcx/mcx-dialog
+
+
 function ModalDialogComponent_mobile(){
 
 
@@ -11860,7 +10831,7 @@ function ModalDialogComponent_mobile(){
 				}
 			}
 
-			//set button click event
+			
 			options.btns.forEach(function (btn, i) {
 				if(i==0){
 					btn.addEventListener("click", function () {
@@ -11885,7 +10856,7 @@ function ModalDialogComponent_mobile(){
 			});
 
 			if (!options.bottom) {
-				//set position
+				
 				dom.style.top = (document.documentElement.clientHeight - dom.offsetHeight) / 2 + "px";
 				dom.style.left = (document.documentElement.clientWidth - dom.offsetWidth) / 2 + "px";
 			}
@@ -12040,7 +11011,7 @@ function ModalDialogComponent_mobile(){
 			addClass(loadingBg, "mobile-loading-bg");
 			addClass(loading, "mobile-loading");
 			addClass(loading, "animation-zoom-in");
-			img.src = opts.src + type;//"/loading-1.gif";
+			img.src = opts.src + type;
 			loading.appendChild(img);
 
 			if (opts.hint) {
@@ -12067,7 +11038,7 @@ function ModalDialogComponent_mobile(){
 		}
 	};
 
-	// providing better operations in Vue
+	
 	mcxDialog.install = function (Vue, options) {
 		Vue.prototype.$mcxDialog = mcxDialog;
 	};
@@ -12076,14 +11047,14 @@ function ModalDialogComponent_mobile(){
 
 
 
-}// END of ModalDialogComponent_mobile
+}
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - Utils */
-// 4444
+
 function Utils_createELement(type,options){
-	// 151515
+	
 	if(Utils.isNull(type)){
 		return document.createElement('div');
 	}
@@ -12139,8 +11110,8 @@ function Utils_createELement(type,options){
 			}else if(i == "innerHTML"){
 				element.innerHTML = options[i];
 			}else{
-				//console.log(i);
-				//console.log(options[i]);
+				
+				
 				if(i.charAt(0) != "_")
 					element.setAttribute(i, options[i]);
 			}
@@ -12210,17 +11181,6 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 					}
 				}
 
-				
-				// var ec = false;
-				// for(var v=0;v<charExceptions.length;v++){
-				// 	if(charExceptions[v]==special_character){
-				// 		ec = true;
-				// 	}
-				// }
-				// if(!ec){
-				// 	//return true;
-				// }
-				
 
 				for(var v=0;v<s.length;v++){
 					if(s[v]==special_character){
@@ -12249,9 +11209,9 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 	}
 
 
-	//console.log(charExceptions);
-	//console.log(str);
-	//console.log(contains);
+	
+	
+	
 
 	return contains;
 
@@ -12320,25 +11280,25 @@ function Utils_getClockTime(){
 	return timeString;
 }
 function Utils_detectEngine(){
-	// Edge 20+
+	
 	var isEdge = !Support.Utils.isIE && !!window.StyleMedia;
 
-	// Opera 8.0+
+	
 	var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 
-	// Firefox 1.0+
+	
 	var isFirefox = typeof InstallTrigger !== 'undefined';
 
-	// Safari 3.0+ "[object HTMLElementConstructor]"
+	
 	var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
 
-	// Internet Explorer 6-11
+	
 	var isIE =  /*@cc_on!@*/false || !!document.documentMode;
 
-	// Chrome 1+
+	
 	var isChrome = !!window.chrome && !!window.chrome.webstore;
 
-	// Blink engine detection
+	
 	var isBlink = (isChrome || isOpera) && !!window.CSS;
 	return {
 		isEdge: isEdge,
@@ -12354,19 +11314,19 @@ function Utils_detectEngine(){
 
 
 
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
+
+
 /* 0000 - AppLayout */
 
 
 
 function AppLayout_constructor(obj,self){
-//applicationManager.register(this);
+
 	obj = (Utils.isNull(obj)) ? {} : obj;
-	//this.TYPE = GL_TYPES.layout;
+	
 	self.ID = "d-"+Utils.randomGenerator(12,false);
 	
-	//ALL_COMPONENTS[ALL_COMPONENTS.length] = {id:this.ID,component:this};
+	
 	self._html = "";
 	self._custHtml = [];
 	self._fragment = null;
@@ -12473,30 +11433,28 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 	if(!Array.isArray(arrayOfItems)){
 		arrayOfItems = [arrayOfItems];
 	}else{
-		// because buildBody can except an array and if an array is
-		// passed in check to see if this array is a body, if so
-		// wrap body array in outer array
+		
+		
+		
 		if(isBuildBody(arrayOfItems)){
 			arrayOfItems = [arrayOfItems];
 		}
 
 	}
 
-	// 3333
-	
 	var currentRow = self._props_._current_row_id;
 	var len = self._props_._layout_container[currentRow].columns.length;
 	self._props_._layout_container[currentRow].columns[len] = [
 		columns,arrayOfItems,obj,self
 	];
 }
-// 3333
+
 function AppLayout_build(self){
-	// Each time a new row is created an object is added to 
-	// the layout_container object. The layout_container
-	// has two properties type and columns. When the row
-	// method is called the column property is initialed 
-	// with an empty array and the type is row. 
+	
+	
+	
+	
+	
 	
 	self._props_._isBuilt = true;
 	self._props_._elements._fragment = document.createDocumentFragment();
@@ -12514,7 +11472,7 @@ function AppLayout_build(self){
 		}
 		
 		var columns = layout[prop].columns;
-		//console.log(layout[prop]);
+		
 		var containerColumn = null;
 			
 		if(!Utils.isNull(layout[prop].obj)){
@@ -12523,11 +11481,11 @@ function AppLayout_build(self){
 			}else if(!Utils.isNull(layout[prop].obj.className)){
 				topRowClasses = layout[prop].obj.className;
 			}
-			//topRowClasses = (Utils.isNull(layout[prop].obj.classes)) ? "" : layout[prop].obj.classes;
+			
 		}
 		
 		row.id = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
-		//topRowClasses = (!Utils.isNull(layout[prop].obj) && !Utils.isNull(layout[prop].obj.id)) ? layout[prop].obj.id : "";
+		
 		row.className = "row "+topRowClasses;
 		for(var i=0;i<columns.length;i++){
 			if(Utils.isNull(columns[i][1])){
@@ -12575,11 +11533,6 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 
 	var divRow = null;
 
-	// if(typeof arrayOfItems == "string"){
-	// 	if(arrayOfItems=="row"){}else{}
-	// }else if(typeof arrayOfItems == "object") 
-	// }else if(Array.isArray(arrayOfItems)){}
-
 	for(var i=0;i<arrayOfItems.length;i++){
 		if(typeof arrayOfItems[i]=="string"){
 			if(arrayOfItems[i].includes("row")){
@@ -12614,16 +11567,16 @@ function ViewLayoutController_col(columns,arrayOfItems,obj,self){
 	}
 	return topDiv;
 }
-// 5050
+
 function _getComponentFromRout(obj123,self){
 	var mycomp = null;
 	var arrayOfItems = [obj123],
 		i = 0;
 	
-	// 4444
-	// something that may not be needed
+	
+	
 	if(arrayOfItems[i].charAt(0) == "#"){
-		//console.log(self);
+		
 		var c = stateManager.getMapRoute(self._props_._routes.route,arrayOfItems[i]);
 		var f = applicationManager.retrieve(c,Flags.Method);
 		if(typeof f === "function"){
@@ -12632,24 +11585,14 @@ function _getComponentFromRout(obj123,self){
 			console.error(arrayOfItems[i]+" is not a function for rout: "+self._props_._routes.route);
 		}
 	}else if(arrayOfItems[i].charAt(0) == "@"){
-		//var f = applicationManager.retrieve(arrayOfItems[i],Flags.Method);
+		
 		mycomp = buildBody(arrayOfItems[i]);
-		// if(typeof f === "function"){
-		// 	mycomp = f(self._props_._routes);
-		// }else if(f.TYPE){
-		// 	mycomp = f;
-		// }else{
-		// 	// 1212
-		// 	mycomp = _create_body({ body: arrayOfItems[i], original: true });
-		// 	// hhhhh
-		// 	//console.log(mycomp); 
-		// 	//console.error(arrayOfItems[i]+" is not a function for rout: "+self._props_._routes.route);
-		// }
+		
 	}
 	return mycomp;
 }
 
-// 4444 - change all possible ways of making a body to buildBody() method
+
 function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,viewId,topDiv,self){
 	var arrayOfItems = [obj123];
 	var i = 0;
@@ -12718,7 +11661,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		_view_._props_._container.appendChild(v.getHtml());
 		topDiv.appendChild(_view_._props_._container.cloneNode(true));
 
-		/////////////////////////////////////
+		
 
 
 		function _getComponentType(obj){
@@ -12731,7 +11674,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			var body = obj.body;
 			if(typeof body === "string"){
 				if(body.charAt(0) === "@"){
-					//var view = _getView(body,obj); hhhhh
+					
 					var view = buildBody(body,obj);
 					if(Utils.isNull(view)){ return blankComponent; }
 					return view;
@@ -12778,7 +11721,7 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 			var rt = _view_._props_._views_objects;
 
 			var validRoute = false;
-			// get init view as a default 
+			
 			var route_view = null;
 			console.log(rt)
 			for(var i=0; i<rt.length; i++){
@@ -12822,8 +11765,8 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 }
 function _getLayoutColumnClasses(columns){
 
-	// col-lg col-md col-sm col-xs col-offset-lg col-offset-md
-	//
+	
+	
 
 	/*
 
@@ -12849,7 +11792,7 @@ function _getLayoutColumnClasses(columns){
 
 	var colClasses = "";
 
-	//console.log(columns);
+	
 
 	for(col in columns){
 
@@ -12899,7 +11842,7 @@ function _getLayoutColumnClasses(columns){
 
 function _sortClassesDisplay(col,columns,colClasses){
 
-// none inline inline-block block table table-cell table-row flex inline-flex
+
 	if(col=="d_none"){
 		return _displaythis("d-none",colClasses);
 	}else if(col=="d_x_none"){
@@ -12907,32 +11850,32 @@ function _sortClassesDisplay(col,columns,colClasses){
 	}else if(col=="d_inline"){
 		return _addTogether(columns,col,"d-","-inline",colClasses);
 	}else if(col=="d_inline_block"){
-		//return _displaythis("d-"+columns[col]+"-inline-block",colClasses)
+		
 		return _addTogether(columns,col,"d-","-inline-block",colClasses);
 	}else if(col=="d_block"){
-		//return _displaythis("d-"+columns[col]+"-block",colClasses);
+		
 		return _addTogether(columns,col,"d-","-block",colClasses);
 	}else if(col=="d_table"){
-		//return _displaythis("d-"+columns[col]+"-table",colClasses);
+		
 		return _addTogether(columns,col,"d-","-table",colClasses);
 	}else if(col=="d_table_cell"){
-		//return _displaythis("d-"+columns[col]+"-table-cell",colClasses);
+		
 		return _addTogether(columns,col,"d-","-table-cell",colClasses);
 	}else if(col=="d_table_row"){
-		//return _displaythis("d-"+columns[col]+"-table-row",colClasses);
+		
 		return _addTogether(columns,col,"d-","-table-row",colClasses);
 	}else if(col=="d_flex"){
-		//return _displaythis("d-"+columns[col]+"-flex",colClasses);
+		
 		return _addTogether(columns,col,"d-","-flex",colClasses);
 	}else if(col=="d_inline_flex"){
-		//return _displaythis("d-"+columns[col]+"-inline-flex",colClasses);
+		
 		return _addTogether(columns,col,"d-","-inline-flex",colClasses);
 	}
 	
 	function _addTogether(columns,col,start,end){
-		//var col = "";
-		//console.log(columns[col])
-		//console.log(start+" "+end)
+		
+		
+		
 		if(Array.isArray(columns[col])){
 			var p = "";
 			for(var i=0; i<columns[col].length; i++){
@@ -12962,7 +11905,7 @@ function _sortClassesDisplay(col,columns,colClasses){
 }
 function _sortClassesVisible(col,columns,colClasses){
 	if(colClasses==""){
-		//colClasses = "visible-"+columns[col];
+		
 		colClasses = "d-"+columns[col]+"-none";
 	}else{
 		colClasses = " visible-"+columns[col];
@@ -12980,31 +11923,31 @@ function _sortClassesHidden(col,columns,colClasses){
 function _sortClassesOffset(col,columns,colClasses){
 	if(col.includes("-")){
 		var c = col.split("-");
-		// offset-md-
-		// col-md-offset-3
+		
+		
 		if(colClasses==""){
 			colClasses = "offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}else{
 			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = " "+colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}
 	}else if(col.includes("_")){
 		var c = col.split("_");
 		if(colClasses==""){
 			colClasses = "offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}else{
 			colClasses = " offset-"+c[1]+"-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}
 	}else{
 		if(colClasses==""){
 			colClasses = "offset-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}else{
 			colClasses = " offset-"+columns[col]+" ";
-			//colClasses = colClasses+"col-"+c[1]+"-"+c[0]+"-"+columns[col]+" ";
+			
 		}
 	}
 	return colClasses;
@@ -13015,7 +11958,7 @@ function ViewLayoutController_initializeListeners(self){
 	var components = self._typeHolder.typeComponent;
 	var len = components.length;
 	for(var i=0;i<len;i++){
-		//components[i].initializeListeners();
+		
 	}
 
 	for(prop in self._typeHolder){
@@ -13053,12 +11996,12 @@ function _getFragementForViewLayout(self){
 
 		}else{
 			row = null;
-			//rows[rows.length-1].innerHTML = self._build_order[i];
+			
 			var xmlString = self._build_order[i],
 			    parser = new DOMParser(),
 			    doc = parser.parseFromString(xmlString, "text/html");
 
-			//console.log(doc.body.firstChild);
+			
 
 			rows[rows.length-1].appendChild(doc.body);
 		}
@@ -13078,11 +12021,11 @@ function _layoutMake(obj,arrayOfItems){
 		var type = "";
 		if(prop.type!=null && prop.type!=undefined){
 			var fragment = document.createDocumentFragment();
-			//this._fragment = document.createDocumentFragment();
+			
 			var el = document.createElement(prop.type);
 			if(prop.id!=null && prop.id!=undefined){ el.id = prop.id; }
 			if(prop.classes!=null && prop.classes!=undefined){ el.className = prop.classes; }
-			//fragment.appendChild(el);
+			
 			if(prop.body!=null && prop.body!=undefined){
 				var isObj = true;
 				var myObj = null;
@@ -13121,13 +12064,13 @@ function _layoutMake(obj,arrayOfItems){
 							el.innerHTML = tmpBody
 						}
 						
-						// var _d = document.createElement("div");
-						// _d.innerHTML = tmpBody;
-						// if(myObj!=null){
-						// 	myObj.appendChild(_d);
-						// }else{
-						// 	el.appendChild(_d);
-						// }
+						
+						
+						
+						
+						
+						
+						
 						
 
 						isObj = false;
@@ -13148,29 +12091,10 @@ function _layoutMake(obj,arrayOfItems){
 	}
 
 
-	//this._custHtml[this._custHtml.length] = custHtml;
+	
 };
 
 
-
-
-
-///////////////////////////////////////////////////////////////
-
-// 5051 jjjj
-// Array - body: ["@component",{}]
-// Array - body: ["&template",{}]
-// Array - body: [components...]
-// Object - body: component
-// Object - body: HTMLElement
-// String - body: HTMLE String
-
-// {
-// 	body: "",
-// 	className: "",
-// 	style: "",
-//  _create_element_from_this_object: true
-// }
 
 function buildBody(object,self){
 	var body = null;
@@ -13203,19 +12127,19 @@ function buildBody(object,self){
 
 	var template = (Utils.isNull(object.template)) ? "" : object.template;
 	var obj = (Utils.isNull(object.obj)) ? {} : object.obj;
-	//var original = (Utils.isNull(obj.original)) ? false : obj.original;
-	//var blankComponent = new ContainerComponent();
+	
+	
 	var mBody;
-	// 979797
+	
 	object = object;
 	if(Array.isArray(body)){
 		if(typeof body[0] === "string" && body[0].charAt(0) == "@"){
 			return _build_from_string(body[0],self,body[1],object);
 		}else{
-			// 4444
-			// experimental: check to see if this works
-			// this takes in an array of components, HTMLElements and string elements
-			// and builds 1 element that returns a fragment
+			
+			
+			
+			
 			var fragment = document.createDocumentFragment();
 			for (var i = 0; i < body.length; i++) {
 				_decomposeArray(body[i],fragment);
@@ -13225,15 +12149,15 @@ function buildBody(object,self){
 		
 	}else
 	if(typeof body === "string"){
-		// @membershipView:signup:view
+		
 		if(body.charAt(0)=="@" || body.charAt(0)=="#"){
 			return _build_from_string(body,self,null,object);
 		}else{
-			//console.log(body);
+			
 			var newbody = Utils.convertStringToHTMLNode(body);
 			return newbody.cloneNode(true);
 		}
-	}else // 444444
+	}else 
 	if(typeof body === "object"){
 		return _build_from_object(body,self,null,object);
 	}else 
@@ -13257,8 +12181,8 @@ function buildBody(object,self){
 		if(body.charAt(0) === "@"){
 			var view = _build_view(body,params,self,object);
 			if(Utils.isNull(view)){ 
-				//console.error("Manager.register() function did not return a component: "+body);
-				return null;//new ContainerComponent(); 
+				
+				return null;
 			}
 			if(view.TYPE){
 				return view.getHtml();
@@ -13271,8 +12195,8 @@ function buildBody(object,self){
 			}
 		}else if(body.charAt(0) === "&"){
 			var p = body.substr(1);
-			// 4444
-			// convet template parser
+			
+			
 			var t = applicationManager.getLoadedFileContents(p);
 			t = applicationManager.templateParser(t,template);
 			var view = Utils.convertStringToHTMLNode(t);
@@ -13337,16 +12261,16 @@ function convertIntoAppFactoryObject(body){
 }
 function _build_view(body,params,self,obj){
 
-	// 757575  77777
-	// var paramValues = {
-	// 	parent: self,
-	// 	params: params,
-	// 	object: obj
-	// }; hhhhh
+	
+	
+	
+	
+	
+	
 	var paramValues = {  
 		"view": obj, 
-		// "route": route,
-		// "routes": _allRoutes,
+		
+		
 		"params": params,
 		"app": gl_applicationContextManager
 	};
@@ -13361,10 +12285,10 @@ function _build_view(body,params,self,obj){
 	}
 
 	if(body=='@membershipView:signup:view'){
-		//console.log(v);
+		
 	}
 
-	// hhhhh - p2p2p2p2
+	
 	return v;
 }
 function getComponentType(obj,self){
@@ -13422,36 +12346,16 @@ function getView(body,obj,self){
 		object: obj
 	};
 
-	// 5555
+	
 	var method = body.slice(1);
 	var v = applicationManager.getMethod(method)(paramValues);
 	return v;
 }
-// function _build_view(body,obj,self){
-// 	var bodyWithoutAt = body.slice(0);
-// 	var params = (!Utils.isNull(obj) && obj.params) ? obj.params : {};
-// 	var paramValues = null;
-// 	for(var i in params){
-// 		if(i==body || i==bodyWithoutAt){
-// 			paramValues = params[i];
-// 			break;
-// 		}
-// 	}
 
-// 	// 5555
-// 	var method = body.slice(1);
-// 	var v = applicationManager.getMethod(method)(paramValues);
-// 	return v;
-// }
-
-
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
-	//console.log(self);
+	
 	for(var i=0; i<self._props_._events.length; i++){
 		var sel = self._props_._events[i].selector;
 		if(sel==selector){
@@ -13464,7 +12368,7 @@ function isEventRegistered(selector,self){
 
 
 
-// 4444 - stop multiple registration of events
+
 
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation,obj){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
@@ -13477,11 +12381,11 @@ function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventD
 		preventDefault: preventDefault,
 		stopPropagation: stopPropagation,
 		obj: obj
-	});// 55555
-	// FormEventsHandler_constructor
+	});
+	
 }
 
-// 71717
+
 var _registered_listeneres_ = [];
 function _Utils_registerListenerCallback(obj,self){
 	if(!Utils.isNull(obj.listener)){ obj.callback = obj.listener; }
@@ -13500,11 +12404,11 @@ function _Utils_registerListenerCallback(obj,self){
 					var alreadyRegistered = isEventRegistered(obj.callback[i].selector,self);
 
 					var eventType = (Utils.isNull(obj.callback[i].type)) ? "click" : obj.callback[i].type;
-					//function _Utils_registerListenerCallbackForSelf(type,selector,moreData,func,self,preventDefault,stopPropagation){
+					
 					var preventDefault = (Utils.isNull(obj.callback[i].preventDefault)) ? false : obj.callback[i].preventDefault;
 					var stopPropagation = (Utils.isNull(obj.callback[i].stopPropagation)) ? false : obj.callback[i].stopPropagation;
 					self._props_._events.push({
-						selector: obj.callback[i].selector,// "#"+(Utils.isNull(obj.callback[i].selector)) ? selector : obj.callback[i].selector,
+						selector: obj.callback[i].selector,
 						type: eventType,
 						func: obj.callback[i].func,
 						preventDefault: preventDefault,
@@ -13512,16 +12416,16 @@ function _Utils_registerListenerCallback(obj,self){
 					});
 				}
 			}else{
-				// ppppp
+				
 				var eventType = (Utils.isNull(obj.callback.type)) ? "click" : obj.callback.type;
 				var preventDefault = (Utils.isNull(obj.callback.preventDefault)) ? false : obj.callback.preventDefault;
 				var stopPropagation = (Utils.isNull(obj.callback.stopPropagation)) ? false : obj.callback.stopPropagation;
 				
 				var alreadyRegistered = isEventRegistered(obj.callback.selector,self);
-				//if(alreadyRegistered) return;
+				
 
 				self._props_._events.push({
-					selector: obj.callback.selector,//"#"+(Utils.isNull(obj.callback.selector)) ? selector : obj.callback.selector,
+					selector: obj.callback.selector,
 					type: eventType,
 					func: obj.callback.func,
 					preventDefault: preventDefault,
@@ -13533,61 +12437,6 @@ function _Utils_registerListenerCallback(obj,self){
 }
 
 
-
-
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
-// END
-
-
-
-
-
-
-
-
-
-
-
-
-// function setAppGlobals(){
-// 	window.AppManager = applicationManager;
-// 	window.AppPages = pages;
-// 	window.AppUtils = Utils;
-// 	window.AppView = ViewManager;
-// 	window.AppLayout = layoutManager;
-// 	window.AppFlags = Flags;
-// 	window.AppComp = componentFactory;
-// 	window.AppDialog = componentFactory.dialog();
-// 	window.AppStateManager = stateManager;
-// 	window.AppPlugin = appPlugin;
-// 	window.AppSessionManager = sessionManager;
-// }
 function setBaseURL(self,url){
 	var config = self._props_._application_config;
 	if(!Utils.isNull(config.application)){
@@ -13665,11 +12514,11 @@ var gl_app_configuration = null;
 
 var gl_DEFAULT_FORM_VALUE = "_none_";
 
-// holds images that need to be replaced after their loaded
-// this is for the ImageComponent object
+
+
 var gl_ImageManager = [];
 
-// 333444
+
 
 function gl_getFormElementValue(type,selector){
 	if(type=='input'){
@@ -13685,17 +12534,17 @@ function gl_setFromValue(type,selector,value){
 	}
 	
 }
-// 55555
+
 function gl_handle_event_trigger_onSubmit(type,self,_current_section_id,tag){
 	self._props_._form_data[tag].status = 2;
 	if(type=='input'){
-		// if this form element is not part of a page section then just get
-		// the value otherwise wait a given time to retrieve value 
+		
+		
 		if(_current_section_id==null || _current_section_id==undefined || _current_section_id==false){
 			self._props_._initializeValidationAndValues();
 			self._props_._form_data[tag].status = 1;
 		}else{
-			// 4444 - waiting for a set timeout before getting values
+			
 			setTimeout(function(){
 				self._props_._initializeValidationAndValues();
 				self._props_._form_data[tag].status = 1;
@@ -13711,24 +12560,23 @@ function gl_event_trigger_reset(type,self,tag){
 
 
 var App = function(context) {
-    // Call the constructor
+    
     return new App.init(context);
 };
 
-// Static methods
+
 App.init = function( selector , all) {
     this.selector = selector;
 
 	if ( !selector ) {
 		return this;
 	}
-
 	if(isNode(selector) || isElement(selector)){
 		this._element = selector;
 	}else if(selector=="body"){
 		this._element = document.body;
 	}else{
-		this._element =  document.querySelectorAll(selector);
+		this._element =  document.querySelector(selector);
 	}
 	return this;
 };
@@ -13756,7 +12604,7 @@ function request(url,data,callback,type){
 				callback(this.responseText, this.status, this);
 			}
 		}
-		//if (this.readyState == 4 && this.status == 200) {}
+		
 	}; 
 	var urlParams = "";
 	if(data!=undefined && data!=null){
@@ -13765,159 +12613,97 @@ function request(url,data,callback,type){
 
 	if(type=="POST"){
 		xhttp.open(type, url, true);
-		//xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 		xhttp.send(urlParams);
 	}else{
 		if(urlParams=="") urlParams = "?"+urlParams;
-		//xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 		xhttp.open(type, url+urlParams, true);
 		xhttp.send();
 	}
 }
-// Instance methods
-App.init.prototype.print = function(contents) {
-	var self = this;
-	_activateNodeList(this._element,function(node){
 
-	},self);
+App.init.prototype.print = function(contents) {
      console.log(contents);
 };
 App.init.prototype.append = function(element){
-	var self = this;
-	_activateNodeList(this._element,function(node){
-		if(typeof element === 'string' && element.trim()!="body"){
-			element = Utils.convertStringToHTMLNode(element);
-		}
-		node.appendChild(element);
-	},self);
+	if(typeof element === 'string' && element.trim()!="body"){
+		element = Utils.convertStringToHTMLNode(element);
+	}
+	this._element.appendChild(element);
 	return this;
 };
 App.init.prototype.attr = function(param,value){
-	var self = this;
-	_activateNodeList(this._element,function(node){
-		node.setAttribute(param, value);
-	},self);
-	//this._element.setAttribute(param, value);
-	return this;
-};// 55555
+	 this._element.setAttribute(param, value);
+	 return this;
+};
 App.init.prototype.click = function(callback) {
-	var self = this;
-	self.on('click',callback);
+	this._method = function(e){ callback(e); }
+	this._type = "click";
+	
+	
+	if(this._element)
+		this._element.addEventListener(this._type, this._method);
     return this;
 };
 App.init.prototype.on = function(event, callback) {
-	var self = this;
-	self._method = function(e){ 
-		self.preventDefault = function(){
-			e.preventDefault();
-		}
-		self.target = e;
-		callback(self); 
-	}
-	self._type = event;
-
-	_activateNodeList(self._element,function(node){
-		node.addEventListener(self._type, self._method);
-	},self);
-	//this._element.addEventListener(this._type, this._method);
+	this._method = function(e){ callback(e); }
+	this._type = event;
+	this._element.addEventListener(this._type, this._method);
     return this;
 };
 App.init.prototype.removeListener = function() {
-	var self = this;
-	_activateNodeList(this._element,function(node){
-		if(self._method!=undefined && self._type!=undefined)
-				node.removeEventListener(self._type, self._method);
-	},self);
+	if(this._method!=undefined && this._type!=undefined)
+		this._element.removeEventListener(this._type, this._method);
     return this;
 };
 App.init.prototype.css = function(propName,val) {
-	var self = this;
-
-	_activateNodeList(this._element,function(node){
-		if(val==undefined && typeof propName === 'object'){
-			var style = "";//this._element.getAttribute('style');
-			for(prop in propName){
-				style = style + prop +":"+ propName[prop] + ";";
-			}
-			node.setAttribute("style",style);
-		}else{
-			node.setAttribute(propNamm,val);
+	if(val==undefined && typeof propName === 'object'){
+		var style = "";
+		for(prop in propName){
+			style = style + prop +":"+ propName[prop] + ";";
 		}
-	},self);
-
+		this._element.setAttribute("style",style);
+	}else{
+		this._element.setAttribute(propNamm,val);
+	}
     return this;
 };
-// 4444 - create polyfills for these methods 
+
 App.init.prototype.addClass = function(val){
-	var self = this;
-	_activateNodeList(this._element,function(node){
-		node.classList.add(val);
-	},self);
-	
+	this._element.classList.add(val);
 	return this;
 };
 App.init.prototype.removeClass = function(val){
-	var self = this;
-	_activateNodeList(this._element,function(node){
-		node.classList.remove(val);
-	},self);
-	
+	this._element.classList.remove(val);
 	return this;
 };
-
-// 4444 - check how jquery handles this
 App.init.prototype.hasClass = function(val){
-	var self = this;
-
-	for (i = 0; i < myNodelist.length; i++) {}
-
-	if(this._element.length > 0){
-		return this._element[0].classList.contains(val);
-	}else{
-		return false;
-	}
-
-	//return this._element.classList.contains(val);
+	return this._element.classList.contains(val);
 };
 App.init.prototype.html = function(html){
-	var self = this;
 	if(html==undefined){
 		return this._element;
 	}else{
-		_activateNodeList(this._element,function(node){
-			node.innerHTML = html;
-		},self);
+		this._element.innerHTML = html;
 	}
 	return this;
 };
 App.init.prototype.htmlAsStringCopy = function(selector){
-	var self = this;
-	var str = "";
-	_activateNodeList(this._element,function(node){
-		str = str+""+Utils.convertFragmentToHTMLText( node.cloneNode(true) );
-	},self);
-	
+	var str = Utils.convertFragmentToHTMLText( this._element.cloneNode(true) );
 	return str;
 };
 App.init.prototype.empty = function(){
-	var self = this;
-	_activateNodeList(this._element,function(node){
-		while (node.firstChild) {
-			node.removeChild(this._element.lastChild);
-		} 
-	},self);
-	//this._element.innerHTML = "";
-
+	
+	while (this._element.firstChild) {
+		this._element.removeChild(this._element.lastChild);
+	} 
 	return this;
 };
-// Method chaining example
-App.init.prototype.flash = function() {
-	var self = this;
-	_activateNodeList(this._element,function(node){
 
-	},self);
+App.init.prototype.flash = function() {
     document.body.style.backgroundColor = '#ffc';
     setInterval(function() {
         document.body.style.backgroundColor = '';
@@ -13925,17 +12711,6 @@ App.init.prototype.flash = function() {
     return this;
 };
 
-function _activateNodeList(myNodelist,cb,self){
-
-	if(isNode() || isElement(myNodelist)){
-		return cb(myNodelist);
-	}
-	for (i = 0; i < myNodelist.length; i++) {
-		//myNodelist[i].style.color = "red";
-		cb(myNodelist[i]);
-	}
-}
-//Returns true if it is a DOM node
 function isNode(o){
   return (
     typeof Node === "object" ? o instanceof Node : 
@@ -13943,10 +12718,10 @@ function isNode(o){
   );
 }
 
-//Returns true if it is a DOM element    
+
 function isElement(o){
   return (
-    typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+    typeof HTMLElement === "object" ? o instanceof HTMLElement : 
     o && typeof o === "object" && o !== null && o.nodeType === 1 && typeof o.nodeName==="string"
 );
 }
@@ -14104,7 +12879,7 @@ ApplicationContextManager.prototype = {
 		var config = this._props_._application_config;
 		if(config!=null && config['application']!=undefined){
 
-		//if(this._props_._baseURL){
+		
 			var app = config['application'];
 			if(isProd!=null & isProd!=undefined){
 				url =_funcConfigProd(app,partialUrl,isProd);
@@ -14247,11 +13022,11 @@ function initializeApplication(isClient,activePlugin,self){
 	var baseUrl = self._props_._baseUrl;
 
 	if(self._props_._application_config['application']['prod']==false){
-		//console.log(config_appfac);
+		
 	}
 
 	if(isClient==false){
-		//for (var i = 0; i < plugins.length; i++) {}
+		
 		_start_admin_app();
 		return;
 	}
@@ -14292,10 +13067,10 @@ function initializeApplication(isClient,activePlugin,self){
 			_count++;
 			if(_size == _count){
 
-				// 4444 - this waits on all html files to be loaded 
-				// give user away to disable this in case loading 
-				// takes to long. but this also ensures that the 
-				// html files will be loaded before app execution
+				
+				
+				
+				
 				_start_app();
 			}
 		});
@@ -14327,7 +13102,7 @@ function initializeApplication(isClient,activePlugin,self){
 				}
 			}
 
-			// 33333
+			
 			var html = activeTheme.component(app);
 
 			if(html!=undefined){
@@ -14345,12 +13120,12 @@ function initializeApplication(isClient,activePlugin,self){
 			}
 
 			if(clientactivetheme!=null){
-				// load css
+				
 				for (var i = 0; i < clientactivetheme.head.length; i++) {
 					$('head').append(clientactivetheme.head[i]);
 				}
 
-				// load compiled sass css
+				
 				if(clientactivetheme.sass){
 					if(clientactivetheme.sass.link!=undefined){
 						$('head').append(clientactivetheme.sass.link);
@@ -14384,12 +13159,12 @@ function initializeApplication(isClient,activePlugin,self){
 			}
 
 			if(clientactivetheme!=null){
-				// load css
+				
 				for (var i = 0; i < clientactivetheme.head.length; i++) {
 					$('head').append(clientactivetheme.head[i]);
 				}
 
-				// load compiled sass css
+				
 				if(clientactivetheme.sass){
 					if(clientactivetheme.sass.link!=undefined){
 						$('head').append(clientactivetheme.sass.link);
@@ -14428,52 +13203,6 @@ function a1(configFile){
 
 
 
-// function LoadDependencies(baseUrl,classes,views,dependencies){ 
-// 	// baseUrl - standered/client
-// 	// 'js/plugins/standered/client/classes/Standered'
-// 	//,'../../../admin/classes/MediaFilesHandler'
-// 	//,'../../../admin/themes/default/components/newEpisodeFormComponent'
-
-// 	if(baseUrl.includes("/client")){
-// 		for(var i=0; i < classes.length; i++){
-// 			if(IsAdmin){
-// 				classes[i] = "../../classes/" + classes[i];
-// 			}else{
-// 				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
-// 			}
-// 		}
-// 		for (var i=0; i < views.length; i++) {
-// 			var theme = views[i].split("/")[0];
-// 			var view = views[i].split("/")[1] + "/" +views[i].split("/")[2];
-// 			if(IsAdmin){
-// 				views[i] = "../../themes/"+theme+"/components/"+view;
-// 			}else{
-// 				views[i] = "js/plugins/"+baseUrl+"/themes/"+theme+"/components/"+view;
-// 			}
-// 		}
-// 	}else if(baseUrl.includes("/admin")){
-// 		for(var i=0; i < classes.length; i++){
-// 			if(IsAdmin){
-// 				classes[i] = "../../classes/" + classes[i];
-// 			}else{
-// 				classes[i] = "js/plugins/"+baseUrl+"/classes/" + classes[i];
-// 			}
-// 		}
-// 		for (var i=0; i < views.length; i++) {
-// 			var theme = views[i].split("/")[0];
-// 			var view = views[i].split("/")[1];
-// 			views[i] = "../../themes/"+theme+"/components/"+view;
-// 		}
-// 	}
-
-// 	var deps = classes.concat(views).concat(dependencies);
-// 	return deps;
-// }
-
-// function LoadActivePlugin(){
-
-// }
-
 function GetLoadedConfiguration(app){
 	var config = gl_app_configuration;
 	gl_app_configuration = null;
@@ -14498,27 +13227,6 @@ function LoadConfiguration(config){
 	gl_app_configuration = config;
 }
 
-// function GetClientPath(app,path,plugin,theme){
-// 	var activeTheme = app._props_._application_config['application']['client-active-theme'];
-// 	var _plugin = "";
-// 	var _theme = "";
-// 	if(plugin==undefined){
-// 		var _pluginAndTheme = [];
-// 		if(activeTheme.includes("|")){
-// 			_pluginAndTheme = activeTheme.split("|");
-// 		}else if(activeTheme.includes(" ")){
-// 			_pluginAndTheme = activeTheme.split(" ");
-// 		}
-// 		_plugin = _pluginAndTheme[0];
-// 		_theme = _pluginAndTheme[1];
-// 	}else{
-// 		_plugin = plugin;
-// 		_theme = theme;
-// 	}
-// 	return "js/plugins/"+_plugin+"/client/themes/"+_theme+"/"+path;
-// }
-
-
 
 var GetApp = function(obj){
 	if(obj.app!=undefined && obj.app!=null){
@@ -14528,7 +13236,7 @@ var GetApp = function(obj){
 	}
 };
 
-// deprecated
+
 window.AFIsApp = function(obj){
 	return GetApp(obj);
 };
@@ -14545,20 +13253,13 @@ window.RegisterAppFactoryPlugin = registerAppFactoryPlugin;
 
 window.ApplicationContextManager = ApplicationContextManager;
 
-//window.ApplicationSegments = ApplicationSegments;
+
 
 window.ApplicationExtensions = ApplicationExtensions;
 
 return ApplicationContextManager;
 
 
-})); // End
-
-
-
-
-
-
-
+})); 
 
 
