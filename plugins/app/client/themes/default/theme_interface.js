@@ -13,8 +13,8 @@ function init(app){
 			.col({md:12},[header])
 			.build();
 
-		var container = app.Factory.container({
-			classes: "container",
+		var container = app.factory.container({
+			className: "container",
 			body: layout
 		});
 

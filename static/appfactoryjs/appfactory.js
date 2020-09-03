@@ -25,7 +25,6 @@
 * @version 0.0.1   
 */
 (function (root, factory) {  
-
 	if (typeof define === 'function' && define.amd) {
 		
 		define(['jquery','backbone','bootstrap'], factory);
@@ -42,6 +41,8 @@
 
 var GL_COMPONENTS = [],
     GL_TYPES = {view:"v",component:"c",layout:"l"};  
+
+
 
 
 
@@ -146,6 +147,10 @@ ApplicationManager.prototype = {
 	* Register a method to be called later with in the app
 	*/
 	register: function(id,method,anyId){
+
+		
+
+		
 		if(!Utils.isNull(method)){
 			this._application_manager._methods[id] = method;
 		}else{
@@ -330,26 +335,12 @@ ApplicationManager.prototype = {
 };
 
 
-
-
-
- 
- 
- 
- 
-
 function SessionManager(){
 	_.extend(this, new AppFactoryManager('SessionManager'));
 
 }
 SessionManager.prototype = {};
 
-
-
-
- 
- 
- 
  
 
 function StateManager(){
@@ -370,7 +361,6 @@ function StateManager(){
 
 StateManager.prototype = {
 
-
 	/**
 	*
 	*/
@@ -380,9 +370,6 @@ StateManager.prototype = {
 
 	mapRoute: function(route,layout){
 
-		
-		
-		
 
 		if(route=="") route = "_NOT_SET_";
 		this._state_manager._map_layout[route] = layout;
@@ -458,7 +445,6 @@ StateManager.prototype = {
 		
 		
 		this.getRouter().navigate(path, {trigger: trigger});
-		
 		
 	},
 
@@ -582,17 +568,6 @@ Router45.prototype = {
 };
 
 
-
-
- 
- 
- 
- 
- 
- 
- 
- 
-
 function ApplicationExtensions(){
 	this._props_ = {};
 }
@@ -630,13 +605,6 @@ ApplicationExtensions.prototype = {
 
 };
 
-
-
-
- 
- 
- 
- 
 
 function ApplicationPlugin(){
 	this.plugins = [];
@@ -678,10 +646,6 @@ ApplicationPlugin.prototype = {
 	
 	loadAdminPlugin: function(pluginId,pluginConfig,mainConfig){
 
-		
-		
-		
-
 		var plugin = this.loadPlugin(pluginId);
 		if(plugin==null) return null;
 
@@ -718,24 +682,6 @@ ApplicationPlugin.prototype = {
 			adminTheme = comp;
 		}
 
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
-		
-				
-		
-		
-
-		
-
-
 		return {
 			admin: adminTheme,
 			client: client,
@@ -747,11 +693,6 @@ ApplicationPlugin.prototype = {
 
 
 /* Components */
-
- 
- 
- 
- 
  
 function ComponentManager(type,context){
 	_.extend(this, new AppFactoryManager('ComponentManager'));
@@ -880,11 +821,6 @@ function ComponentManager(type,context){
 
 }
 ComponentManager.prototype = {};
-
-
-
-
-
 
 
 /** @exports Pages
@@ -1148,17 +1084,6 @@ ViewManager.prototype = {
 		var self = this;
 		var opt = self._props_._options;
 		
-		
-		
-		
-		
-		
-		
-
-		
-		
-
-		
 		if(opts.id==undefined){
 			opts.id = 'p'+Utils.randomGenerator(12);
 			console.log("View Component does not contain an id"); 
@@ -1188,15 +1113,7 @@ ViewManager.prototype = {
 	isRoutable: function(){
 		return this._props_._is_routable;
 	}
-
-
-
 };
-
-
-
-
-
 
 
 /** @exports LayoutManager
@@ -1401,6 +1318,64 @@ ComponentFactory.prototype = {
 		return new CarouselComponent(opts);
 	},
 
+	/**
+	* Creates an icon
+	*
+	* @param {object} - options
+	*/
+	icon: function(opts){
+		return new IconComponent(opts);
+	}
+
+};
+
+
+
+
+/** @exports IconComponent
+* @classdesc Build a carousel.
+* @class
+* @constructor
+* @param {object} - options
+*/
+function IconComponent(opts){
+	gl_HandleAll(this,opts,'IconComponent');
+	var self = this;
+
+	opts = (opts==undefined) ? {} : opts;
+
+	var icon = (opts.icon==undefined) ? "heart-fill" : opts.icon;
+	var classes = (opts.className==undefined) ? "" : opts.className;
+	var size = (opts.size==undefined) ? "32" : opts.size;
+	var fill = (opts.fill==undefined) ? "currentColor" : opts.fill;
+
+	var iconString = `
+<svg class="bi ${classes}" width="${size}" height="${size}" fill="${fill}">
+  <use href="static/bootstrap/bootstrap-icons/bootstrap-icons.svg#${icon}" />
+</svg>
+	`;
+	
+
+
+	var i = `
+<svg class="bi text-success" width="52" height="52" fill="currentColor">
+  <use href="static/bootstrap/bootstrap-icons/heart-fill.svg#heart-fill" />
+</svg>
+
+	`;
+
+
+	self._props_._iconHtml = Utils.convertStringToHTMLNode(i);
+
+
+	this.getHtml = function(){
+		return self._props_._iconHtml.cloneNode(true);
+	}
+
+}
+IconComponent.prototype = {
+
+
 };
 
 
@@ -1472,7 +1447,7 @@ CarouselComponent.prototype = {
 	/**
 	* Add a carousel.
 	*
-	* @params {object} - options
+	* @param {object} - options
 	*/
 	add: function(opts){
 		var self = this;
@@ -1569,20 +1544,8 @@ CarouselComponent.prototype = {
 
 			return container;
 		}
-
-
-
-
-
 	}
-
-
 };
-
-
-
-
-
 
 
 function gl_assets_icons(){
@@ -1627,9 +1590,6 @@ AudioComponent.prototype = {
 	}
 
 };
-
-
-
 
 
 /** @exports AudioPlayerBuilder
@@ -2005,8 +1965,6 @@ function AudioPlayerBuilderComponent(opts,audioPlayerBuilder){
 		    }
 		});
 	}
-		
-
 
 	},self);
 
@@ -2121,14 +2079,9 @@ ImageComponent.prototype = {
 };
 
 
-
-
 function NavbarComponent(opts){
 	gl_HandleAll(this,opts,'NavbarComponent');
 	var self = this;
-
-
-
 
 
 	var createElement = Utils.createElement;
@@ -2283,8 +2236,6 @@ function NavbarComponent(opts){
 
 	this.getHtml = function(){
 		return self._props_._frag.cloneNode(true);
-		
-		
 	};
 
 	_Utils_registerListenerCallbackForSelf('run','',function(){
@@ -2313,9 +2264,6 @@ function NavbarComponent(opts){
 
 }
 NavbarComponent.prototype = {
-
-
-	
 	render: function(id){
 		var self = this;
 		var map = null;
@@ -2354,14 +2302,8 @@ NavbarComponent.prototype = {
 	*/
 	show: function(id){
 
-		
-		
-
 		var self = this;
 
-		
-		
-		
 		setTimeout(function(){
 
 		var map = null;
@@ -2510,22 +2452,15 @@ NavbarComponent.prototype = {
 	build: function(){
 
 	}
-
-
-
 };
-
+ 
 
 function NavComponent(opts){
-	
-
-
 	gl_HandleAll(this,opts,'NavComponent');
 	var createElement = Utils.createElement;
 
 	var isNull = Utils.isNull;
 	var self = this;
-
 
 	var view = new ViewManager();
 	var frag = document.createDocumentFragment();
@@ -2756,7 +2691,6 @@ NavComponent.prototype = {
 	*/
 	build: function(){
 		var self = this;
-
 		
 		self._props_._elements._navbar_container
 			.addComponent(new ContainerComponent({body:self._props_._elements._ul}),true);
@@ -2797,9 +2731,6 @@ function ModalComponent(opts){
 	this._props_._show = false;
 
 	this._props_._container_id = this._props_._id;
-
-	
-	
 	
 	$('body').append(Utils.createElement({
 		id: this._props_._container_id
@@ -2839,6 +2770,7 @@ ModalComponent.prototype = {
 		ModalComponent_setContent(opts,this);
 	}
 }
+
 
 function ModalComponent_setContent(opts,self){
 	if(Utils.isNull(opts.type)){
@@ -2933,8 +2865,6 @@ function ModalComponent_setContent(opts,self){
 }
 
 
-
-
 /** @exports ListComponent
 * @classdesc Creates a list component
 * @class
@@ -2943,17 +2873,7 @@ function ModalComponent_setContent(opts,self){
 */
 function ListComponent(opts){
 
-	
 	opts = (Utils.isNull(opts)) ? {} : opts;
-
-	
-	
-	
-	
-	
-	
-	
-	
 
 	gl_HandleAll(this,opts,'ListComponent');
 
@@ -3033,10 +2953,6 @@ function ListComponent(opts){
 
 		self._props_._list_container.appendChild(a);
 
-		
-
-		
-
 		var def = false;
 		if(!Utils.isNull(item_obj.preventDefault)){
 			def = item_obj.preventDefault;
@@ -3083,10 +2999,6 @@ function ListComponent(opts){
 
 		self._props_._initialize_item( n, listItem[index], index );
 	}
-
-	
-	
-
 
 }
 
@@ -3137,8 +3049,6 @@ function FormComponentDefaults(obj,self){
 		this.tag = obj.tag;
 		this.name = obj.tag;
 		this.paramName = obj.tag;
-		
-		
 	}
 
 	if(obj.paramName!=undefined){
@@ -3267,6 +3177,7 @@ FormValidationDefaults.prototype = {
 * @tutorial 04-building_forms
 */
 function FormComponent(obj){
+	
 	if(obj==undefined) obj = {};
 
 	var opts = obj;
@@ -3321,7 +3232,6 @@ function FormComponent(obj){
 
 }
 FormComponent.prototype = {
-
 
 	/**
 	* Begin a section
@@ -3690,26 +3600,7 @@ FormSection.prototype = {
 
 }
 
-
-
-
-
-
-
-
 function FileUploaderComponent(opts){
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	gl_HandleAll(this,opts,'FileUploaderComponent');
 
 	var topComponentElement = Utils.createElement({ id:this.getId() });
@@ -3744,9 +3635,6 @@ FileUploaderComponent.prototype = {
 };
 
 function gl_HandleAll(self,opts,type){
-	
-	
-
 	_.extend(self, 
 		new AppFactoryManager(type), 
 		new ComponentManager(Flags.Type.component,self), 
@@ -3759,8 +3647,6 @@ function gl_HandleAll(self,opts,type){
 	if(opts!=undefined && opts.register!=undefined){
 		applicationManager.setAny(opts.register, self);
 	}
-
-
 }
 
 
@@ -3771,7 +3657,6 @@ function gl_HandleAll(self,opts,type){
 * @constructor
 */
 function ButtonComponent(opts){
-
 	gl_HandleAll(this,opts,'ButtonComponent');
 
 	if(Utils.isNull(opts)){
@@ -3838,12 +3723,6 @@ function ContainerComponent(obj){
 		objWasSet = true;
 		obj = {};
 	}
-	
-	
-	
-
-
-	
 
 	if(obj.body==undefined && obj.TYPE!=undefined){
 		obj.body = obj;
@@ -4049,10 +3928,6 @@ ContainerComponent.prototype = {
 
 			self._props_._component_html = setComponent.cloneNode(true);
 			
-			
-			
-			
-			
 
 		}else if(Array.isArray(component)){
 			var params = [];
@@ -4121,7 +3996,6 @@ ContainerComponent.prototype = {
 		}
 	}
 };
-
 
 function ElementAttributes(attrs){
 	_.extend(this, new AppFactoryManager('ElementAttributes'));
@@ -4269,6 +4143,9 @@ BrickComponent.prototype = {
 
 		return this;
 	},
+
+
+
 
 	
 	/**
@@ -4595,8 +4472,6 @@ BrickComponent.prototype = {
 	option: function(opts){
 		return BrickComponent_make("option", opts, this);
 	}
-
-
 };
 function BrickComponent_make(element,opts,self){
 
@@ -4651,9 +4526,7 @@ function BrickComponent_make(element,opts,self){
 }
 
 
-
 function NavigationComponent(obj){
-	
 	var opts = obj;
 	gl_HandleAll(this,opts,'NavigationComponent');
 
@@ -4767,8 +4640,6 @@ NavigationComponent.prototype = {
 				var a1 = Utils.createElement('a',{ id: obj.id, href:'#', className:"appfactory-sidenav-item", innerHTML: obj.label });
 				container_nav.appendChild(a1);
 				
-					
-				
 					$("#"+obj.id).click(function(){
 					self._props_._viewManager.render(obj.id);
 					$(".appfactory-sidenav-item").removeClass('appfactory-sidenav-active');
@@ -4776,7 +4647,6 @@ NavigationComponent.prototype = {
 					});
 			}
 		}
-
 	},
 
 
@@ -4813,12 +4683,11 @@ NavigationComponent.prototype = {
 
 
 function _navigation1(self,view){
-	
+
 	var defaultBody;
 
 	var container = Utils.createElement({});
 
-	
 	self._props_._container.className = self._props_._container_class;
 	self._props_._container.style = "margin-left:250px";
 
@@ -4826,15 +4695,8 @@ function _navigation1(self,view){
 	self._props_._container_main.appendChild(view.getHtml());
 	self._props_._container.appendChild(self._props_._container_main);
 
-	
- 
-	
-	
-
 	var container_nav = Utils.createElement({ id:"mySidenav", className: "appfactory-sidenav" });
 
-	
-	
 	if(self._props_._opts.closable){
 		var a2 = Utils.createElement('a',{ href:'#', className:'appfactory-close', innerHTML: "&times;" });
 		var close = defaultBody = new ContainerComponent({ body: a2 });
@@ -5164,14 +5026,10 @@ TableComponent.prototype = {
 			container.addComponent(p);
 		}
 
-
 		return container;
-
 	}
 
 };
-
-
 
 /** @exports TableHandler
 * @classdesc Creates a table, Cannot be accessed directly but through 
@@ -5181,10 +5039,7 @@ TableComponent.prototype = {
 */
 function TableHandler(opts,tableComponent){
 
-	
-
 	gl_HandleAll(this,opts,'TableHandler');
-
 
 	var self = this;
 	var createTableOptions = (tableComponent._props_._opts._createTableOptions) ? 
@@ -5331,9 +5186,6 @@ TableHandler.prototype = {
 	}
 };
 
-
-
-
 function TableComponent245 (obj){
 	
 	var isNull = Utils.isNull;
@@ -5350,8 +5202,6 @@ function TableComponent245 (obj){
 		obj = {};
 		obj.columns = [];
 	}
-
-	
 
 
 	this.TYPE = Flags.Type.component;
@@ -5378,7 +5228,7 @@ function TableComponent245 (obj){
 	_thead.className = "uieb-table-thead";
 	_thead.id = "uieb-table-thead-"+Utils.randomGenerator(16,false);
 
-	
+
 	var _columnNames = [];
 	var _columnNameHeader = document.createElement('tr');
 	var _column_ = [];
@@ -5404,8 +5254,6 @@ function TableComponent245 (obj){
 
 	}
 	_thead.appendChild(_columnNameHeader);
-
-	
 
 	this._props_ = {
 		_elements: {
@@ -5504,16 +5352,12 @@ function TableComponent245 (obj){
 	ap.id = this.ID;
 	this._props_._elements._fragment.appendChild(ap);
 
-	
-
 	this._props_._extensionObject.push(this._props_._modalDialog);
 	
 
 	this.getHtml = function(){
 		return this._props_._elements._fragment.cloneNode(true);
 	};
-
-	
 }
 
 TableComponent245.prototype = {
@@ -5528,8 +5372,6 @@ TableComponent245.prototype = {
 
 	getColumnData: function(columnIndex){
 		var isNull = Utils.isNull;
-		
-		
 		
 		if(isNull(columnIndex)){
 			return this._props_._tableStructure._column;
@@ -5681,7 +5523,6 @@ TableComponent245.prototype = {
 	updateRow: function(cellId,newValue,updateOnDOM){
 		var isNull = Utils.isNull;
 		
-			
 		var self = this;
 		var found = false;  
 		for(var i=0; i<this._props_._tableStructure._rows.length; i++){
@@ -5732,15 +5573,9 @@ TableComponent245.prototype = {
 	*/
 	createTable: function(withContainer,obj){
 		var isNull = Utils.isNull;
-
-			
-		//console.log(obj);
-
 		
 		var file_rows = obj.content.split("\n");
 		
-		
-
 		if(file_rows.length==0){
 			var cust = new ContainerComponent({
 				styles: "margin-bottom:10%;",
@@ -5775,9 +5610,6 @@ TableComponent245.prototype = {
 			save: obj.save,
 			cellRequestForConnectedData: obj.cellRequestForConnectedData
 		});
-
-		
-	
 
 		var columnsData = [];
 		
@@ -5861,11 +5693,6 @@ function TableComponent__add_col(obj,self,containerId){
 					r1.pop();
 					
 					var newOldTable = r1.join("\n");
-
-					
-
-					console.log(newOldTable);
-
 					
 					var v = new ComponentFactory();
 					var table = v.table().createTable(false,{
@@ -5887,14 +5714,11 @@ function TableComponent__add_col(obj,self,containerId){
 						$("#"+containerId).append(table.getHtml());
 						table.initializeListeners();
 					}
-					
+
 				});
-				
 			}
 		}
 	});
-	
-	
 
 }
 function TableComponent__column_adjustment(self,obj,e){
@@ -5921,7 +5745,6 @@ function TableComponent__column_adjustment(self,obj,e){
 		id: id,
 		body: cont
 	});
-
 }
 function _x1(self,cont,tableEditMenu){
 	var comp = new ComponentFactory();
@@ -5944,7 +5767,6 @@ function _x1(self,cont,tableEditMenu){
 			}
 		});
 	}
-
 
 	var cust = comp.container({
 		body: buttons
@@ -6001,12 +5823,9 @@ function _editTableByGroup(button,self){
 		callback: {
 			type: 'run',
 			func: function(){
-				
-
 			}
 		}
 	});
-
 
 	cust.addComponent('<h4>'+button+'</h4>');
 
@@ -6020,9 +5839,6 @@ function _editTableByGroup(button,self){
 		.col({},[c2])
 		.build();
 
-
-
-	
 	return layout;
 }
 function _x2(){
@@ -6050,19 +5866,15 @@ function TableComponent__add_row(self){
 		body: _form,
 		callback: {
 			type: 'run',
-			func: function(){
-				
-				
-			}
+			func: function(){}
 		}
 	});
-	
 }
+
 function TableComponent_row(obj,self){
-	
 
 	var isNull = Utils.isNull;
-	
+
 	var _row_names = [];
 	var rowCount = self._props_._row_count++;
 	var row_items = [];
@@ -6148,8 +5960,7 @@ function TableComponent_row(obj,self){
 		_Utils_registerListenerCallbackForSelf("click",id,function(data){
 			data.e.stopPropagation();
 			data.e.preventDefault();
-
-			
+				
 		},self,true);
 	}
 	
@@ -6184,8 +5995,6 @@ function TableComponent_row(obj,self){
 
 		form += "<br><button id='change-table-row-"+rowCount+"'>Update</button>";
 
-		
-
 		var c = new ContainerComponent({ 
 			body: form,
 			callback: {
@@ -6206,20 +6015,12 @@ function TableComponent_row(obj,self){
 							var cellId = self.getRowCellData()[_tr.id][indx].cellId;
 							self.updateCell(cellId,val,true);
 						}
-
-						
-
-						
-
-						
-
 						
 						self._props_._modalDialog.toggle();
 					});
 				}
 			}
 		});
-		
 		
 	},self,true);
 
@@ -6235,14 +6036,12 @@ function TableComponent_row(obj,self){
 	}else{
 		self._props_._elements._tbody.appendChild(_tr);
 	}
-    	
 
 }
 
 function TableComponent_getTableAsString(delemeter,self){
 
 	var isNull = Utils.isNull;
-
 
 	if(isNull(delemeter)){
 		delemeter = "\t";
@@ -6274,8 +6073,6 @@ function TableComponent_getTableAsString(delemeter,self){
 }
 
 
- 
-
 function CMSUsers(){
 
 }
@@ -6298,12 +6095,6 @@ CMSUsers.prototype = {
 
 }
 
-
- 
- 
- 
- 
-
 function CMSManager(){
 
 }
@@ -6313,18 +6104,12 @@ CMSUsers.prototype = {
 }
 
 
-
-
 /* Utils */
 
 /** 
 * @exports Utils
 */
 var Utils = {
-
-	
-	
-
 
 	validateEmail: function(email) {
     	const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -6356,12 +6141,7 @@ var Utils = {
 
 	    h = (h<10) ? "0" + h : h;
 	    m = (m<10) ? "0" + m : m;
-	    s = (s<10) ? "0" + s : s
-
-	    
-	    
-	    
-	    
+	    s = (s<10) ? "0" + s : s;
 
 	    return h + ":" + m + ":" + s;
 	},
@@ -6729,11 +6509,8 @@ var Utils = {
 				}
 			}
 		}
-
 	}
-
 };
-
 
 
 /* _Utils */
@@ -6751,6 +6528,7 @@ var _Utils = {
 		_Utils_registerListenerCallback(obj,self);
 	}
 };
+
 
 /* 0000 - ApplicationManager */
 function ApplicationManager_start(runApplicationFunction,self){
@@ -6806,10 +6584,6 @@ function ApplicationManager_start_runInterval(self){
 		var components = self.getComponents();
 		for(var i=0;i<components.length;i++){
 			if(document.getElementById(components[i].id)){
-
-				
-
-				
 				
 				if(CONNECTED_COMPONENTS.includes(components[i].id) === false){
 					
@@ -6900,9 +6674,7 @@ function ApplicationManager_start_handleDeAttachEvents(comp){
 }
 function ApplicationManager_templateParser(htmlString,replacements,opts,self){
 	
-	
 	var res = htmlString;
-	
 
 	if(replacements.length!=2) return htmlString;
 
@@ -6923,9 +6695,6 @@ function ApplicationManager_templateParser(htmlString,replacements,opts,self){
 	}
 	return res;
 }
-
-
-
 
 function StateManager_buidRoutes(self){
 	var routes = {};
@@ -6965,14 +6734,9 @@ function StateManager_buidRoutes(self){
 
 }
 
-
 /* 0000 - ComponentManager */
 function AppComponent_getHtml(self,route){
-
 	return document.createElement('div');
-	
-	
-	
 }
 
 function AppComponent_getHtml_view_fragment(self,route){
@@ -7100,7 +6864,6 @@ function _getView(body,obj){
 }
 function AppComponent_initializeListeners(self,myComponent){
 
-
 	if(self._props_._isEventsActive == true) return;
 	self._props_._isEventsActive = true;
 	for(var i=0;i<self._props_._events.length;i++){
@@ -7119,9 +6882,6 @@ function AppComponent_initializeListeners(self,myComponent){
 			});
 
 		}else{
-			
-			
-
 			if(document.getElementById(document.getElementById(eventObj.selector.substring(1)))){
 				_runsetupinitializelistener(eventObj,self);
 			}else{
@@ -7223,7 +6983,6 @@ function ContainerComponent_setActive(active,stillSet,self){
 
 
 /* 0000 - Pages */
-
 function Pages_init(self){
 	var obj = self._props_._initial_view
 	var hash = window.location.hash.substring(1);
@@ -7236,8 +6995,6 @@ function Pages_init(self){
 	}
 }
 function Pages_newPageView(obj,self){
-
-	
 
 	var baseRoute = "";
 	if(!Utils.isNull(obj.baseRoute)){
@@ -7347,9 +7104,6 @@ function Pages_newPageView(obj,self){
 					App(applicationManager.getRootElement()).append(layoutComponent.getHtml());
 				}
 				
-					
-				
-
 				setTimeout(function(){
 					var lay = layout.split(" ");
 					for (var i = 0; i < lay.length; i++) {
@@ -7371,9 +7125,6 @@ function Pages_newPageView(obj,self){
 				console.error('Method not registered: '+_registeredLayout);
 				console.error(e);
 			}
-
-			
-		
 		});
 	}
 }
@@ -7409,9 +7160,6 @@ function Pages__get(){
 	}
 
 }
-
-
-
 
 /* 0000 - ViewManager */
 function ViewManager_render(id,params,opts,self){
@@ -7555,10 +7303,6 @@ function MultiView_getView(id,self){
 }
 
 
-
-
-
-
 /* 0000 - ContainerComponent */
 
 /**
@@ -7591,30 +7335,8 @@ function ContainerComponent_addComponent(component,isEmpty,self){
 }
 
 
-
-
-
-
-
 /* 0000 - FormComponent */
 function FormComponent_constructor(obj,self){
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	if(obj==undefined) obj = {};
 
@@ -7634,15 +7356,8 @@ function FormComponent_constructor(obj,self){
 	self._props_._elements._container = container;
 	self._props_._form_handler = formhandler;
 
-	
-
 	self._props_._form_data = {};
 	self._props_._values = {};
-
-	
-	
-
-	
 
 	self._props_._sections = {};
 	self._props_._form_sections = {};
@@ -7801,11 +7516,7 @@ function FormComponent_getFormElements(self){
 
 
 function FormComponent_build(self){
-	
-	
-	
-		handleFormNormalBuild(self);
-	
+	handleFormNormalBuild(self);
 }
 
 
@@ -8112,8 +7823,6 @@ function f_handle_formSection(formSectionHandler,index,self){
 	}
 }
 
-
-
 function handleFormPageBuild(pages,self){
 	var view = new ViewManager({routable:false});
 	for(var i=0; i<pages.length; i++){
@@ -8320,7 +8029,6 @@ function FormComponent_onSubmit(opts,callback,self){
 }
 
 
-
 /** @exports FormInputEventHandler
 * @classdesc An internal object passed through to the formInput for manipulation of this input the events such as focusout, focusin etc. 
 * @class
@@ -8384,10 +8092,6 @@ FormInputEventHandler.prototype = {
 
 
 };
-
-
-
-
 
 function FormComponent_addInput(opts,self){
 
@@ -8461,8 +8165,6 @@ function FormComponent_addInput(opts,self){
 		});
 	});
 
-	
-	
 	var f = new FormInputEventHandler();
 	f._props_._errorMethod = _add_error_;
 	f._props_._successMethod = _add_success_;
@@ -8568,8 +8270,6 @@ function FormComponent_addInput(opts,self){
 			if(!_isvalid) return;
 		}
 
-		
-		
 		
 		function matchValidation(val,validation){
 			if(!Utils.isNull(validation.match)){
@@ -9261,13 +8961,6 @@ function FormComponent_addSelection(opts,self){
 		getSelectionValue();
 	}
 
-
-
-
-
-
-
-
 }
 
 
@@ -9566,8 +9259,6 @@ function FormComponent_addRadioButtonGroup(opts,self){
 				self._props_._values[paramName] = formElement.defaultValue;
 			}
 		}
-
-
 		
 		var _current_section_id = self._props_._form_sections._current_section_id;
 		self._props_._form_data[tag] = {
@@ -9645,9 +9336,6 @@ function FormComponent_addCheckBoxGroup(opts,self){
 		self._props_._form_data[tag].status = 0;
 	});
 	
-	
-	
-
 	function initializeValidationAndValues(){
 		var validation = new FormValidationDefaults(opts.validation);
 		for(var i = 0; i<storedCheckboxes.length; i++){
@@ -9663,7 +9351,7 @@ function FormComponent_addCheckBoxGroup(opts,self){
 			}
 		}
 	}
-
+	
 	self._props_._form_data[tag] = {
 		paramName: formElement.paramName,
 		component: compContainer,
@@ -9782,8 +9470,6 @@ function FormComponent_datePicker(obj,self){
       	+"	</div>";
       	
 
-
-
     var createElement = Utils.createElement;
 	var topDiv = createElement({
 		className: "form-group"
@@ -9824,16 +9510,6 @@ function FormComponent_datePicker(obj,self){
 		isValid: true
 	};
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	function initializeValidationAndValues(){
 		var y = $("#"+id+"-year").val();
@@ -9904,9 +9580,7 @@ function FormComponent_datePicker(obj,self){
 		    daySelect.removeChild(daySelect.firstChild);
 		  }
 
-		  
 		  var dayNum;
-
 		  
 		  if(month === 'January' | month === 'March' | month === 'May' | month === 'July' | month === 'August' | month === 'October' | month === 'December') {
 		    dayNum = 31;
@@ -9929,7 +9603,6 @@ function FormComponent_datePicker(obj,self){
 		  if(previousDay) {
 		    daySelect.value = previousDay;
 
-		    
 		    if(daySelect.value === "") {
 		      daySelect.value = previousDay - 1;
 		    }
@@ -9962,8 +9635,6 @@ function FormComponent_datePicker(obj,self){
 		    yearSelect.appendChild(option);
 		  }
 		}
-
-		
 		
 		yearSelect.onchange = function() {
 		  populateDays(monthSelect.value);
@@ -9976,8 +9647,6 @@ function FormComponent_datePicker(obj,self){
 		
 		var previousDay;
 
-		
-		
 		daySelect.onchange = function() {
 		  previousDay = daySelect.value;
 		}
@@ -10023,7 +9692,6 @@ function FormComponent_addFileUpload(opts,self){
 	if(opts.complete!=undefined){
 		self._loadcallback = opts.complete;
 	}
-	
 
 	var name = "m"+Utils.randomGenerator(7,false);
 
@@ -10198,13 +9866,6 @@ function FormComponent_addFileUpload(opts,self){
 				data.append(self._props_._name, fileInput.files[i]); 
 			}
 
-			
-			
-			
-			
-			
-
-
 			if(self._beforLoadcallback!=null && self._beforLoadcallback!=undefined){
 				stop = self._beforLoadcallback(fileInput.files[0],stop);
 				if(stop==null || stop==undefined) stop = false;
@@ -10224,11 +9885,7 @@ function FormComponent_addFileUpload(opts,self){
 							progress.removeChild(progress.firstChild);
 						}
 						progress.appendChild(document.createTextNode(Math.round(percent * 100) + " %" ));
-					
-					
-					
-					
-					
+				
 				}
 			});
 
@@ -10540,7 +10197,6 @@ function charactersValidation(val,validation){
 }
 
 /* 0000 - FormEventsHandler */
-
 function FormComponent_addInput_registerEvents(obj,formElement,self){
 	var preventDefault = false;
 	var stopPropagation = false;
@@ -10602,10 +10258,7 @@ function FormComponent_addInput_registerEvents(obj,formElement,self){
 	}
 }
 
-
 /* 0000 - ListComponent */
-
-
 function ListComponent_addItemAtIndex(index,item,callback,self){
 
 	self._props_._list_items.splice(index,0,item);
@@ -10665,8 +10318,6 @@ function ListComponent_addItemAtIndex(index,item,callback,self){
 function ListComponent_removeItemAtIndex(index,callback,delay,self){
 
 	self._props_._list_items.splice(index,1);
-
-	
 
 	var el = $("#"+self._props_._list_element_id).find("[data-index="+index+"]");
 	if(callback!=undefined){
@@ -10755,13 +10406,7 @@ function ListComponent_item_createElement(opts,active,index,compDefaults,self){
 	return a;
 }
 
-
-
-
-
 /* 0000 - ModalComponent */
-
-
 function ModalDialogComponent_mobile(){
 
 
@@ -11049,10 +10694,7 @@ function ModalDialogComponent_mobile(){
 
 }
 
-
-
 /* 0000 - Utils */
-
 function Utils_createELement(type,options){
 	
 	if(Utils.isNull(type)){
@@ -11181,7 +10823,6 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 					}
 				}
 
-
 				for(var v=0;v<s.length;v++){
 					if(s[v]==special_character){
 						if(!isExceptionCharacter(s[v],charExceptions)){
@@ -11207,12 +10848,6 @@ function Utils_containsSpecialChars(str, charExceptions, canBegin, canEnd, multi
 		}
 		return _isException;
 	}
-
-
-	
-	
-	
-
 	return contains;
 
 }
@@ -11311,15 +10946,7 @@ function Utils_detectEngine(){
 	};
 }
 
-
-
-
-
-
 /* 0000 - AppLayout */
-
-
-
 function AppLayout_constructor(obj,self){
 
 	obj = (Utils.isNull(obj)) ? {} : obj;
@@ -11441,7 +11068,7 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 		}
 
 	}
-
+	
 	var currentRow = self._props_._current_row_id;
 	var len = self._props_._layout_container[currentRow].columns.length;
 	self._props_._layout_container[currentRow].columns[len] = [
@@ -11450,11 +11077,6 @@ function AppLayout_col(columns,arrayOfItems,obj,self){
 }
 
 function AppLayout_build(self){
-	
-	
-	
-	
-	
 	
 	self._props_._isBuilt = true;
 	self._props_._elements._fragment = document.createDocumentFragment();
@@ -11660,9 +11282,6 @@ function _handleLayoutType(obj123,divRow,nodes,colClasses,_fragment,id,st,cl,vie
 		$(_view_._props_._container).empty();
 		_view_._props_._container.appendChild(v.getHtml());
 		topDiv.appendChild(_view_._props_._container.cloneNode(true));
-
-		
-
 
 		function _getComponentType(obj){
 			if(Utils.isNull(obj.body)){
@@ -12001,14 +11620,11 @@ function _getFragementForViewLayout(self){
 			    parser = new DOMParser(),
 			    doc = parser.parseFromString(xmlString, "text/html");
 
-			
-
 			rows[rows.length-1].appendChild(doc.body);
 		}
 	}
 
 	return frag;
-
 
 }
 function _layoutMake(obj,arrayOfItems){
@@ -12063,15 +11679,6 @@ function _layoutMake(obj,arrayOfItems){
 						}else{
 							el.innerHTML = tmpBody
 						}
-						
-						
-						
-						
-						
-						
-						
-						
-						
 
 						isObj = false;
 					}
@@ -12089,12 +11696,8 @@ function _layoutMake(obj,arrayOfItems){
 
 		return fragment;
 	}
-
-
 	
 };
-
-
 
 function buildBody(object,self){
 	var body = null;
@@ -12260,12 +11863,6 @@ function convertIntoAppFactoryObject(body){
 	return mBody;
 }
 function _build_view(body,params,self,obj){
-
-	
-	
-	
-	
-	
 	
 	var paramValues = {  
 		"view": obj, 
@@ -12352,6 +11949,7 @@ function getView(body,obj,self){
 	return v;
 }
 
+
 /* 0000 - _Utils */
 function isEventRegistered(selector,self){
 	var alreadyRegistered = false;
@@ -12365,10 +11963,6 @@ function isEventRegistered(selector,self){
 	}
 	return alreadyRegistered;
 }
-
-
-
-
 
 function _Utils_registerListenerCallbackForSelf(type,selector,func,self,preventDefault,stopPropagation,obj){
 	preventDefault = (Utils.isNull(preventDefault)) ? false : preventDefault;
@@ -12435,7 +12029,6 @@ function _Utils_registerListenerCallback(obj,self){
 		}
 	}
 }
-
 
 function setBaseURL(self,url){
 	var config = self._props_._application_config;
@@ -12571,12 +12164,13 @@ App.init = function( selector , all) {
 	if ( !selector ) {
 		return this;
 	}
+
 	if(isNode(selector) || isElement(selector)){
 		this._element = selector;
 	}else if(selector=="body"){
 		this._element = document.body;
 	}else{
-		this._element =  document.querySelector(selector);
+		this._element =  document.querySelectorAll(selector);
 	}
 	return this;
 };
@@ -12626,90 +12220,163 @@ function request(url,data,callback,type){
 }
 
 App.init.prototype.print = function(contents) {
+	var self = this;
+	_activateNodeList(this._element,function(node){
+
+	},self);
      console.log(contents);
 };
 App.init.prototype.append = function(element){
-	if(typeof element === 'string' && element.trim()!="body"){
-		element = Utils.convertStringToHTMLNode(element);
-	}
-	this._element.appendChild(element);
+	var self = this;
+	_activateNodeList(this._element,function(node){
+		if(typeof element === 'string' && element.trim()!="body"){
+			element = Utils.convertStringToHTMLNode(element);
+		}
+		node.appendChild(element);
+	},self);
 	return this;
 };
 App.init.prototype.attr = function(param,value){
-	 this._element.setAttribute(param, value);
-	 return this;
+	var self = this;
+	_activateNodeList(this._element,function(node){
+		node.setAttribute(param, value);
+	},self);
+	
+	return this;
 };
 App.init.prototype.click = function(callback) {
-	this._method = function(e){ callback(e); }
-	this._type = "click";
-	
-	
-	if(this._element)
-		this._element.addEventListener(this._type, this._method);
+	var self = this;
+	self.on('click',callback);
     return this;
 };
 App.init.prototype.on = function(event, callback) {
-	this._method = function(e){ callback(e); }
-	this._type = event;
-	this._element.addEventListener(this._type, this._method);
+	var self = this;
+	self._method = function(e){ 
+		self.preventDefault = function(){
+			e.preventDefault();
+		}
+		self.target = e;
+		callback(self); 
+	}
+	self._type = event;
+
+	_activateNodeList(self._element,function(node){
+		node.addEventListener(self._type, self._method);
+	},self);
+	
     return this;
 };
 App.init.prototype.removeListener = function() {
-	if(this._method!=undefined && this._type!=undefined)
-		this._element.removeEventListener(this._type, this._method);
+	var self = this;
+	_activateNodeList(this._element,function(node){
+		if(self._method!=undefined && self._type!=undefined)
+				node.removeEventListener(self._type, self._method);
+	},self);
     return this;
 };
 App.init.prototype.css = function(propName,val) {
-	if(val==undefined && typeof propName === 'object'){
-		var style = "";
-		for(prop in propName){
-			style = style + prop +":"+ propName[prop] + ";";
+	var self = this;
+
+	_activateNodeList(this._element,function(node){
+		if(val==undefined && typeof propName === 'object'){
+			var style = "";
+			for(prop in propName){
+				style = style + prop +":"+ propName[prop] + ";";
+			}
+			node.setAttribute("style",style);
+		}else{
+			node.setAttribute(propNamm,val);
 		}
-		this._element.setAttribute("style",style);
-	}else{
-		this._element.setAttribute(propNamm,val);
-	}
+	},self);
+
     return this;
 };
 
 App.init.prototype.addClass = function(val){
-	this._element.classList.add(val);
+	var self = this;
+	_activateNodeList(this._element,function(node){
+		node.classList.add(val);
+	},self);
+	
 	return this;
 };
 App.init.prototype.removeClass = function(val){
-	this._element.classList.remove(val);
+	var self = this;
+	_activateNodeList(this._element,function(node){
+		node.classList.remove(val);
+	},self);
+	
 	return this;
 };
+
+
 App.init.prototype.hasClass = function(val){
-	return this._element.classList.contains(val);
+	var self = this;
+
+	for (i = 0; i < myNodelist.length; i++) {}
+
+	if(this._element.length > 0){
+		return this._element[0].classList.contains(val);
+	}else{
+		return false;
+	}
+
+	
 };
 App.init.prototype.html = function(html){
+	var self = this;
 	if(html==undefined){
 		return this._element;
 	}else{
-		this._element.innerHTML = html;
+		_activateNodeList(this._element,function(node){
+			node.innerHTML = html;
+		},self);
 	}
 	return this;
 };
 App.init.prototype.htmlAsStringCopy = function(selector){
-	var str = Utils.convertFragmentToHTMLText( this._element.cloneNode(true) );
+	var self = this;
+	var str = "";
+	_activateNodeList(this._element,function(node){
+		str = str+""+Utils.convertFragmentToHTMLText( node.cloneNode(true) );
+	},self);
+	
 	return str;
 };
 App.init.prototype.empty = function(){
+	var self = this;
+	_activateNodeList(this._element,function(node){
+		while (node.firstChild) {
+			node.removeChild(this._element.lastChild);
+		} 
+	},self);
 	
-	while (this._element.firstChild) {
-		this._element.removeChild(this._element.lastChild);
-	} 
+
 	return this;
 };
 
 App.init.prototype.flash = function() {
+	var self = this;
+	_activateNodeList(this._element,function(node){
+
+	},self);
     document.body.style.backgroundColor = '#ffc';
     setInterval(function() {
         document.body.style.backgroundColor = '';
     }, 5000);
     return this;
 };
+
+function _activateNodeList(myNodelist,cb,self){
+
+	if(isNode() || isElement(myNodelist)){
+		return cb(myNodelist);
+	}
+	for (i = 0; i < myNodelist.length; i++) {
+		
+		cb(myNodelist[i]);
+	}
+}
 
 function isNode(o){
   return (
@@ -12728,9 +12395,6 @@ function isElement(o){
 function _addAppElementToList(self){
 
 }
-
-
-
 
 
 /**
@@ -13057,6 +12721,10 @@ function initializeApplication(isClient,activePlugin,self){
 				var filepath = config_appfac['includes'][prop];
 				_xyzABC(filepath,prop);
 			}
+			
+			if(_count == 0) _start_app();
+		}else{
+			_start_app();
 		}	
 	},50);
 
@@ -13065,17 +12733,12 @@ function initializeApplication(isClient,activePlugin,self){
 			_main_includes[prop].addComponent(result);
 			_main_includes_html[prop] = result;
 			_count++;
-			if(_size == _count){
 
-				
-				
-				
-				
+			if(_size == _count){
 				_start_app();
 			}
 		});
 	}
-
 
 	function _start_app(){
 
@@ -13143,8 +12806,6 @@ function initializeApplication(isClient,activePlugin,self){
 		var admin_active_plugin = admin_plugin_config.split("|")[0];
 		var admin_active_theme = admin_plugin_config.split("|")[1];
 
-
-
 		var url = "../../plugins/"+admin_active_plugin+"/plugin.config.json";
 		$.getJSON( url, function( pluginconfig ) {
 
@@ -13176,8 +12837,6 @@ function initializeApplication(isClient,activePlugin,self){
 
 	}
 
-
-
 }
 
 function _callRequest(filePath,callback){
@@ -13191,7 +12850,6 @@ function _callRequest(filePath,callback){
 	xhttp.send();
 }
 
-
 function a1(configFile){
 	return new Promise(resolve => {
 		var rawFile = new XMLHttpRequest();
@@ -13199,8 +12857,7 @@ function a1(configFile){
     	rawFile.send(null); 
     	resolve(rawFile.responseText)
 	});
-} 
-
+}
 
 
 function GetLoadedConfiguration(app){
@@ -13261,5 +12918,3 @@ return ApplicationContextManager;
 
 
 })); 
-
-
