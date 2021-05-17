@@ -12821,8 +12821,10 @@ function initializeApplication(isClient,activePlugin,self){
 
 			if(clientactivetheme!=null){
 				
-				for (var i = 0; i < clientactivetheme.head.length; i++) {
-					$('head').append(clientactivetheme.head[i]);
+				if(clientactivetheme.head){
+					for (var i = 0; i < clientactivetheme.head.length; i++) {
+						$('head').append(clientactivetheme.head[i]);
+					}
 				}
 
 				

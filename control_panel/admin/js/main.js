@@ -60,7 +60,7 @@ function run(config){
 
 		Manager.register('plugin:selection:form',function(obj){
 
-			var form = app.Factory.form('form_one');
+			var form = app.factory.form('form_one');
 
 			form.addRadioButtonGroup({
 				tag: 'choices',
@@ -114,7 +114,7 @@ function run(config){
 		// 	.col({md:6},['@plugin:selection:form'])
 		// 	.build();
 
-		// var comp1 = app.Factory.container({body:homeLayout});
+		// var comp1 = app.factory.container({body:homeLayout});
 
 		// var view = new app.View();
 		// view.newSubView({
@@ -134,7 +134,7 @@ function run(config){
 
 
 
-		var containerInit = app.Factory.container();
+		var containerInit = app.factory.container();
 
 		Manager.register('appfac_testing',function(obj){
 			var URL = "request.php";
@@ -160,9 +160,9 @@ function run(config){
 
 			var label = Brick.stack().h4("Please Sign In").build();
 
-			var errLabelComp = app.Factory.container();
+			var errLabelComp = app.factory.container();
 
-			var form = app.Factory.form('form_one');
+			var form = app.factory.form('form_one');
 
 			form.addInput({
 				//all: "myinput",
@@ -221,7 +221,7 @@ function run(config){
 				.col({md:6, offset_md:3},form)
 				.build();
 
-			var con = app.Factory.container({
+			var con = app.factory.container({
 				className: "container",
 				body: layout
 			});
@@ -241,7 +241,7 @@ function run(config){
 
 		Manager.register('home:plugin:navbar',function(data){
 
-			var navbarmenucomp = app.Factory.navbar({
+			var navbarmenucomp = app.factory.navbar({
 				route: false,
 
 				navClassName: "navbar-expand-lg",
@@ -312,7 +312,7 @@ function run(config){
 			var component = adminThemes[0].component(app);
 
 
-			var form = app.Factory.form('form_one');
+			var form = app.factory.form('form_one');
 
 			var buttons = handler.createPluginsFormRadioButton(n);
 
@@ -343,7 +343,7 @@ function run(config){
 
 			form.build();
 
-			var c2 = app.Factory.container({body:'<h2>App Settings</h2>'});
+			var c2 = app.factory.container({body:'<h2>App Settings</h2>'});
 			var pluginLayout = app.Layout.newLayout()
 				.row()
 				.col({md:12},c2)
@@ -351,10 +351,10 @@ function run(config){
 				.col({md:12},form)
 				.build();
 
-			// var c1 = app.Factory.container({body:'<h2>Plugin Settings</h2>'});
+			// var c1 = app.factory.container({body:'<h2>Plugin Settings</h2>'});
 			
 
-			// var nav = app.Factory.nav({
+			// var nav = app.factory.nav({
 			// 	//top[default], top-center, top-left, right, left
 			// 	//position: "top-center"
 			// });
@@ -370,14 +370,14 @@ function run(config){
 			// });
 			// nav.build();
 
-			// var header = app.Factory.container({
+			// var header = app.factory.container({
 			// 	body:'<h2>'+params.name+'</h2>'
 			// });
 
 
 
 
-			var navbarmenucomp = app.Factory.navbar({
+			var navbarmenucomp = app.factory.navbar({
 				route: false,
 
 				navClassName: "navbar-expand-lg appfac-main-navbar",
@@ -472,7 +472,7 @@ function run(config){
 
 		}
 		Manager.register('home:main:navbar',function(data){
-			var navbarmenucomp = app.Factory.navbar({
+			var navbarmenucomp = app.factory.navbar({
 				navClassName: "navbar-expand-lg appfac-main-navbar",
 				ulClassName: "ml-auto mt-2 mt-lg-0",
 
@@ -518,7 +518,7 @@ function run(config){
 				});
 			}
 
-			// var cont = app.Factory.container({
+			// var cont = app.factory.container({
 			// 	id:"appfac_main_content",
 			// 	body:"@view:main"
 			// });
@@ -534,7 +534,7 @@ function run(config){
 
 
 
-			// var comp1 = app.Factory.container({body:homeLayout});
+			// var comp1 = app.factory.container({body:homeLayout});
 
 			var content_container_comp_view = new app.View();
 			content_container_comp_view.newSubView({
@@ -552,7 +552,7 @@ function run(config){
 
 			var sidenav = buildSideNav(handler,pluginObjArray,content_container_comp_view);
 
-			var navContainer = app.Factory.container({
+			var navContainer = app.factory.container({
 				body: sidenav,
 				listener: function(){
 
