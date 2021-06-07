@@ -10,7 +10,4 @@ define("appfactory_dbname", "");
 
 
 
-?>
-
-
 

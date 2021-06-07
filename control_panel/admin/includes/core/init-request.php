@@ -346,7 +346,3 @@ function update_data_file_loc(){
 	$result = mysqli_query($con, $sql) or die(mysqli_error($con));
 }
 
-
-
-
-?>

@@ -148,7 +148,6 @@ if($userStatic){
 	echo $html;
 }
 
-?>
 
 
  

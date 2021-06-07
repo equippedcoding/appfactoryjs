@@ -6,5 +6,3 @@ function escape($string){
 
 }
 
-
-?>

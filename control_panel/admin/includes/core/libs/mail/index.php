@@ -20,4 +20,3 @@ foreach ($messages as $message) {
 
 print_r($msg)
 
-?>

@@ -20,5 +20,3 @@ class Redirect {
 }
 
 
-
-?>p

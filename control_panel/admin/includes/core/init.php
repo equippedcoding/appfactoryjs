@@ -25,10 +25,10 @@ require_once 'config/master_config.php';
 */
 $GLOBALS['config'] = array(
 	'mysql' => array(
-		'host' => appfactory_dbhost,//'localhost', 
-		'username' => appfactory_dbuser,//'erotass',
-		'password' => appfactory_dbpassword,//'kgjkjf495ndk999',
-		'db' => appfactory_dbname//'erotassdb'
+		'host' => appfactory_dbhost,
+		'username' => appfactory_dbuser,
+		'password' => appfactory_dbpassword,
+		'db' => appfactory_dbname
 	),
 	'remember' => array(
 		'cookie_name' => 'hash',
@@ -44,11 +44,8 @@ $GLOBALS['config'] = array(
 spl_autoload_register(function($class){
 	$sources = array('/classes/' . $class . '.php', "/myclasses/".$class.".php");
 
-    //foreach ($sources as $source) {
 	for($i=0; $i<count($sources); $i++){
-    	//echo __DIR__ . $sources[$i]."\n";
         if (file_exists(__DIR__ . $sources[$i])) {
-        	//echo "EXITS\n";
             require_once __DIR__ . $sources[$i]; 
         } 
     } 
@@ -72,6 +69,3 @@ if(Cookie::exists(Config::get('remember/cookie_name')) && !Session::exists(Confi
 
 
 
-
-
-?>

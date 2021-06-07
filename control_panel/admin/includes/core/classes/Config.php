@@ -17,9 +17,3 @@ class Config {
 }
 
 
-
-
-?>
-
-
-

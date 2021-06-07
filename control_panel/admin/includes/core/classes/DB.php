@@ -195,8 +195,6 @@ class DB{
 		}
 
 		$sql = "UPDATE {$table} SET {$set} WHERE {$w}";
-
-		print_r($sql);
 		
 		if(!$this->query($sql, $fields)->error()){
 			return true;
@@ -258,10 +256,6 @@ class DB{
 
 
 }
-
-
-
-?>
 
 
 

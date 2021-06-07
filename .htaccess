@@ -1,3 +1,5 @@
+
+
 <filesMatch "\.(css|flv|gif|htm|html|ico|jpe|jpeg|jpg|js|mp3|mp4|png|pdf|swf|txt)$">
   FileETag None
   <ifModule mod_headers.c>
@@ -7,3 +9,4 @@
      Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
   </ifModule>
 </filesMatch>
+
