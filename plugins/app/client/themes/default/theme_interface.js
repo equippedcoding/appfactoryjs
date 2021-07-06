@@ -2,13 +2,13 @@ define(function(require, exports, module){
 	
 function init(app){
 
-	app.Manager.register('home:init',function(obj){
+	app.manager.register('home:init',function(obj){
 		var header = Brick.stack().h2({
 			style: "margin-top:5%;",
 			innerHTML: "Welcome, AppfactoryJS"
 		}).build();
 
-		var layout = app.Layout.newLayout()
+		var layout = app.layout.newLayout()
 			.row()
 			.col({md:12},[header])
 			.build();
